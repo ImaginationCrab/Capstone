@@ -437,6 +437,88 @@ a{color:inherit;text-decoration:none;}
 .tag-blue{background:var(--blue-light);color:var(--blue-mid);}
 .tag-green{background:var(--green-bg);color:var(--green);}
 .tag-accent{background:#fef9e7;color:var(--amber);}
+
+/* ── Detail Drawer ───────────────────────────────────────── */
+.detail-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  display:flex;align-items:stretch;justify-content:flex-end;
+  z-index:600;backdrop-filter:blur(4px);
+}
+.detail-drawer{
+  background:#fff;width:100%;max-width:640px;
+  display:flex;flex-direction:column;
+  box-shadow:-8px 0 40px rgba(0,0,0,0.18);
+  animation:slideIn 0.22s ease-out;
+}
+@keyframes slideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+.detail-header{
+  padding:1.25rem 1.5rem;
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-shrink:0;
+}
+.detail-header-left{flex:1;min-width:0;}
+.detail-hts-code{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--accent);margin-bottom:0.3rem;}
+.detail-hts-desc{font-size:0.84rem;color:rgba(255,255,255,0.7);line-height:1.4;}
+.detail-close{background:none;border:none;color:rgba(255,255,255,0.45);font-size:1.1rem;cursor:pointer;padding:0.2rem;line-height:1;transition:color 0.15s;flex-shrink:0;}
+.detail-close:hover{color:#fff;}
+.detail-rates{
+  display:flex;gap:1rem;padding:0.75rem 1.5rem;background:var(--navy2);
+  flex-wrap:wrap;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.detail-rate{font-size:0.78rem;color:rgba(255,255,255,0.45);}
+.detail-rate strong{color:rgba(255,255,255,0.85);}
+.detail-body{flex:1;overflow-y:auto;padding:1.5rem;}
+.detail-body::-webkit-scrollbar{width:4px;}
+.detail-body::-webkit-scrollbar-track{background:transparent;}
+.detail-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.detail-section{margin-bottom:1.5rem;}
+.detail-section:last-child{margin-bottom:0;}
+.detail-section-title{
+  font-size:0.75rem;font-weight:700;color:var(--gray2);
+  text-transform:uppercase;letter-spacing:0.08em;
+  margin-bottom:0.75rem;
+}
+.detail-summary{font-size:0.9rem;color:var(--text);line-height:1.7;}
+.detail-list{list-style:none;display:flex;flex-direction:column;gap:0.45rem;}
+.detail-list li{display:flex;align-items:flex-start;gap:0.55rem;font-size:0.86rem;color:var(--gray);line-height:1.5;}
+.dl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:0.42rem;}
+.dl-green{background:#22c55e;}
+.dl-red{background:var(--red);}
+.detail-tip{
+  background:#fffbeb;border:1px solid #fde68a;border-left:3px solid var(--accent);
+  padding:0.85rem 1rem;border-radius:var(--radius);
+  font-size:0.86rem;color:#92400e;line-height:1.6;
+}
+.parent-chain{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-bottom:1.25rem;padding:0.75rem 1rem;background:var(--off);border-radius:var(--radius);}
+.parent-link{
+  font-size:0.78rem;font-weight:700;color:var(--blue-mid);
+  background:var(--blue-light);padding:0.18rem 0.6rem;border-radius:4px;
+  cursor:pointer;border:1px solid #bfdbfe;transition:background 0.1s;
+}
+.parent-link:hover{background:#dbeafe;}
+.parent-sep{color:var(--gray2);font-size:0.72rem;}
+.parent-current{font-size:0.78rem;font-weight:700;color:var(--navy);background:var(--off);border:1px solid var(--border);padding:0.18rem 0.6rem;border-radius:4px;}
+.compare-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.compare-table th{
+  text-align:left;padding:0.5rem 0.75rem;
+  font-size:0.71rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:0.05em;
+  background:var(--off);border-bottom:2px solid var(--border);
+}
+.compare-table td{padding:0.65rem 0.75rem;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.4;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:var(--off);}
+.ct-code{font-family:'JetBrains Mono',monospace;color:var(--blue-mid);font-weight:600;cursor:pointer;white-space:nowrap;}
+.ct-code:hover{text-decoration:underline;}
+.ct-rate{white-space:nowrap;color:var(--gray);font-size:0.8rem;}
+.ct-diff{color:var(--gray);font-size:0.82rem;}
+.detail-loading{text-align:center;padding:3.5rem 1rem;color:var(--gray2);}
+.detail-spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue-mid);border-radius:50%;animation:spin 0.6s linear infinite;margin-bottom:0.75rem;}
+.btn-detail{
+  padding:0.28rem 0.7rem;font-family:inherit;font-size:0.74rem;font-weight:600;
+  background:#f3f4f6;color:var(--gray);border:1px solid var(--border);border-radius:5px;cursor:pointer;
+  transition:background 0.1s,color 0.1s;
+}
+.btn-detail:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
 </style>
 </head>
 <body>
@@ -787,6 +869,26 @@ a{color:inherit;text-decoration:none;}
   </div><!-- /content-area -->
 </div><!-- /view-app -->
 
+<!-- ═══════════════ DETAIL DRAWER ═══════════════════ -->
+<div id="detail-overlay" class="detail-overlay hidden" onclick="handleDetailBackdrop(event)">
+  <div class="detail-drawer">
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <div class="detail-hts-code" id="detail-hts-code">—</div>
+        <div class="detail-hts-desc" id="detail-hts-desc">Loading…</div>
+      </div>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-rates" id="detail-rates"></div>
+    <div class="detail-body" id="detail-body">
+      <div class="detail-loading">
+        <div class="detail-spinner"></div>
+        <div>Analyzing code…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════ MODAL: SAVE PRODUCT ══════════════ -->
 <div id="save-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
   <div class="modal-card">
@@ -1121,6 +1223,7 @@ function buildResultCard(r, i) {
     <div class="result-actions">
       <button class="btn-save-r" data-idx="${i}">+ Save</button>
       <button class="btn-calc-r" data-idx="${i}">→ Calculator</button>
+      <button class="btn-detail" onclick="viewDetails('${r.hts_code.replace(/'/g,'')}')">Details ↗</button>
     </div>
   </div>`;
 }
@@ -1197,6 +1300,7 @@ function renderProducts() {
         <div class="si-meta">${esc(rateStr)} duty${p.origin ? ' · ' + esc(p.origin) : ''}</div>
       </div>
       <div class="si-actions">
+        <button class="btn-detail" onclick="event.stopPropagation();viewDetails('${p.hts_code.replace(/'/g,'')}')">Details</button>
         <button class="btn-del" onclick="event.stopPropagation();deleteProduct(${p.id})" title="Delete">✕</button>
       </div>
     </div>`;
@@ -1519,6 +1623,143 @@ function esc(s) {
 }
 
 // ════════════════════════════════════════════════════════
+//  CODE DETAIL DRAWER
+// ════════════════════════════════════════════════════════
+
+async function viewDetails(htsCode) {
+  if (!htsCode) return;
+  // Show drawer immediately with loading state
+  document.getElementById('detail-hts-code').textContent = htsCode;
+  document.getElementById('detail-hts-desc').textContent = 'Fetching details…';
+  document.getElementById('detail-rates').innerHTML = '';
+  document.getElementById('detail-body').innerHTML =
+    '<div class="detail-loading"><div class="detail-spinner"></div><div>Analyzing code…</div></div>';
+  document.getElementById('detail-overlay').classList.remove('hidden');
+
+  try {
+    const data = await api('GET', '/api/code/' + encodeURIComponent(htsCode) + '/details');
+    renderDetailDrawer(data);
+  } catch (e) {
+    document.getElementById('detail-hts-desc').textContent = 'Error loading details';
+    document.getElementById('detail-body').innerHTML =
+      `<div class="empty-state"><div class="ei">⚠️</div>${esc(e.message)}</div>`;
+  }
+}
+
+function renderDetailDrawer(data) {
+  const { code, parents, similar, explanation } = data;
+
+  // Header
+  document.getElementById('detail-hts-code').textContent = code.hts_code;
+  document.getElementById('detail-hts-desc').textContent = code.description;
+
+  // Rates strip
+  const rateItems = [
+    code.general ? `<div class="detail-rate">General: <strong>${esc(code.general)}</strong></div>` : '',
+    code.special ? `<div class="detail-rate">Special (FTA): <strong>${esc(code.special)}</strong></div>` : '',
+    code.other   ? `<div class="detail-rate">Other: <strong>${esc(code.other)}</strong></div>` : '',
+    code.unit    ? `<div class="detail-rate">Unit: <strong>${esc(code.unit)}</strong></div>` : '',
+    code.chapter ? `<div class="detail-rate">Chapter: <strong>${esc(String(code.chapter))}</strong></div>` : '',
+  ].filter(Boolean).join('');
+  document.getElementById('detail-rates').innerHTML = rateItems ||
+    '<div class="detail-rate">No rate data available</div>';
+
+  // Build body
+  let html = '';
+
+  // Breadcrumb hierarchy
+  if (parents?.length) {
+    html += '<div class="parent-chain">';
+    parents.forEach(p => {
+      html += `<span class="parent-link" onclick="viewDetails('${esc(p.hts_code)}')">${esc(p.hts_code)}</span>
+               <span class="parent-sep">›</span>`;
+    });
+    html += `<span class="parent-current">${esc(code.hts_code)}</span></div>`;
+  }
+
+  // AI Explanation
+  if (explanation) {
+    if (explanation.summary) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">🤖 AI Explanation</div>
+        <div class="detail-summary">${esc(explanation.summary)}</div>
+      </div>`;
+    }
+    if (explanation.examples?.length) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">✅ What this code covers</div>
+        <ul class="detail-list">${explanation.examples.map(e =>
+          `<li><div class="dl-dot dl-green"></div><span>${esc(e)}</span></li>`).join('')}</ul>
+      </div>`;
+    }
+    if (explanation.exclusions?.length) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">❌ What this code does NOT cover</div>
+        <ul class="detail-list">${explanation.exclusions.map(e =>
+          `<li><div class="dl-dot dl-red"></div><span>${esc(e)}</span></li>`).join('')}</ul>
+      </div>`;
+    }
+    if (explanation.classification_tip) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">💡 Classification Tip</div>
+        <div class="detail-tip">${esc(explanation.classification_tip)}</div>
+      </div>`;
+    }
+    // AI-driven comparisons
+    if (explanation.comparisons?.length) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">🔄 How it compares to related codes</div>
+        <table class="compare-table">
+          <thead><tr><th>Code</th><th>Rate</th><th>Key Difference</th></tr></thead>
+          <tbody>${explanation.comparisons.map(c => {
+            const sim = (similar || []).find(s => s.hts_code === c.code) || {};
+            return `<tr>
+              <td><span class="ct-code" onclick="viewDetails('${esc(c.code)}')">${esc(c.code)}</span></td>
+              <td class="ct-rate">${esc(sim.general || '—')}</td>
+              <td class="ct-diff">${esc(c.key_difference)}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>`;
+    }
+  } else {
+    // No API key — show basic info
+    html += `<div class="detail-section">
+      <div class="detail-section-title">ℹ️ Code Information</div>
+      <div class="detail-summary">${esc(code.description)}</div>
+      <p style="font-size:0.8rem;color:var(--gray2);margin-top:0.75rem;">
+        Set <strong>ANTHROPIC_API_KEY</strong> to enable AI-powered explanations, examples, and comparisons.
+      </p>
+    </div>`;
+  }
+
+  // All sibling codes table (always shown)
+  if (similar?.length) {
+    html += `<div class="detail-section">
+      <div class="detail-section-title">📋 All codes in this heading</div>
+      <table class="compare-table">
+        <thead><tr><th>Code</th><th>General Rate</th><th>Description</th></tr></thead>
+        <tbody>${similar.slice(0, 16).map(s => `<tr>
+          <td><span class="ct-code" onclick="viewDetails('${esc(s.hts_code)}')">${esc(s.hts_code)}</span></td>
+          <td class="ct-rate">${esc(s.general || '—')}</td>
+          <td class="ct-diff">${esc(s.description)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+  }
+
+  document.getElementById('detail-body').innerHTML = html;
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.add('hidden');
+}
+
+function handleDetailBackdrop(e) {
+  if (e.target === document.getElementById('detail-overlay')) closeDetail();
+}
+
+// ════════════════════════════════════════════════════════
 //  KEYBOARD SHORTCUTS
 // ════════════════════════════════════════════════════════
 
@@ -1528,7 +1769,7 @@ document.addEventListener('keydown', e => {
     else if (!document.getElementById('view-signup').classList.contains('hidden')) doSignUp();
     else if (!document.getElementById('save-modal').classList.contains('hidden')) confirmSave();
   }
-  if (e.key === 'Escape') closeSaveModal();
+  if (e.key === 'Escape') { closeSaveModal(); closeDetail(); }
 });
 
 // ════════════════════════════════════════════════════════

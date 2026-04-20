@@ -3,7 +3,7 @@ from fastapi import APIRouter, Query, HTTPException, Request
 from ..database import get_db, rows_to_dicts
 from ..auth import try_get_current_user, get_current_user
 from ..config import ANTHROPIC_API_KEY
-from ..ai_search import get_candidates, ai_classify_hts
+from ..ai_search import get_candidates, ai_classify_hts, explain_hts_code
 
 router = APIRouter(prefix="/api", tags=["search"])
 
@@ -77,6 +77,58 @@ async def ai_search(
             conn.commit()
 
     return {"query": q, "count": len(ranked), "results": ranked, "mode": "ai"}
+
+
+@router.get("/code/{hts_code}/details")
+async def code_details(hts_code: str):
+    """Return structured details, related codes, and an AI explanation for an HTS code."""
+    with get_db() as conn:
+        code = conn.execute(
+            "SELECT * FROM hts_codes WHERE hts_code = ?", (hts_code,)
+        ).fetchone()
+        if not code:
+            raise HTTPException(404, f"HTS code '{hts_code}' not found")
+        code_dict = dict(code)
+
+        # Derive chapter and heading from the code string
+        # e.g. "7323.93.0060" → heading="7323", chapter="73"
+        parts = hts_code.split(".")
+        heading_code = parts[0] if parts else ""
+        chapter_code = heading_code[:2] if heading_code else ""
+
+        # Find parent codes (chapter and heading levels)
+        parents = []
+        for candidate in dict.fromkeys([chapter_code, heading_code]):  # preserve order, dedupe
+            if candidate and candidate != hts_code:
+                parent = conn.execute(
+                    "SELECT hts_code, description, general FROM hts_codes WHERE hts_code = ?",
+                    (candidate,),
+                ).fetchone()
+                if parent:
+                    parents.append(dict(parent))
+
+        # Find sibling codes in the same heading
+        similar = conn.execute(
+            "SELECT hts_code, description, general, indent FROM hts_codes "
+            "WHERE hts_code LIKE ? AND hts_code != ? AND hts_code != ? "
+            "ORDER BY hts_code LIMIT 20",
+            (f"{heading_code}%", hts_code, heading_code),
+        ).fetchall()
+        similar_list = [dict(r) for r in similar]
+
+    explanation = explain_hts_code(
+        code_dict["hts_code"],
+        code_dict["description"],
+        code_dict.get("general") or "N/A",
+        similar_list[:10],
+    )
+
+    return {
+        "code": code_dict,
+        "parents": parents,
+        "similar": similar_list,
+        "explanation": explanation,
+    }
 
 
 @router.get("/history")

@@ -102,3 +102,48 @@ def ai_classify_hts(product_description: str, candidates: list[dict]) -> list[di
     except Exception as e:
         print(f"[AI search] Claude error: {e}")
         return [{**c, "confidence": None} for c in candidates[:10]]
+
+
+def explain_hts_code(code: str, description: str, general: str, similar: list[dict]) -> dict | None:
+    """Generate a plain-language explanation and comparison for an HTS code."""
+    if not ANTHROPIC_API_KEY:
+        return None
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    similar_text = "\n".join(
+        f"- [{s['hts_code']}] {s['description']} | Rate: {s.get('general') or 'N/A'}"
+        for s in similar[:10]
+    ) or "None available"
+
+    prompt = (
+        f"You are a US Customs and Border Protection HTS tariff expert.\n\n"
+        f"Analyze HTS code: {code}\n"
+        f"Description: {description}\n"
+        f"General duty rate: {general}\n\n"
+        f"Related codes in same heading:\n{similar_text}\n\n"
+        f"Respond ONLY with this JSON structure (no other text):\n"
+        f'{{\n'
+        f'  "summary": "2-3 sentence plain-language explanation of what this code covers and when to use it",\n'
+        f'  "examples": ["specific product 1", "specific product 2", "specific product 3"],\n'
+        f'  "exclusions": ["what is NOT covered item 1", "what is NOT covered item 2"],\n'
+        f'  "classification_tip": "one practical tip for correctly classifying under this code vs similar ones",\n'
+        f'  "comparisons": [{{"code": "XXXX.XX.XXXX", "key_difference": "how it differs from {code}"}}]\n'
+        f'}}\n\n'
+        f"Only include comparisons for codes from the related list that are meaningfully different. "
+        f"Return 2-4 comparisons maximum."
+    )
+
+    try:
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = message.content[0].text.strip()
+        if "```" in raw:
+            raw = raw.split("```")[1].lstrip("json").strip()
+        return json.loads(raw)
+    except Exception as e:
+        print(f"[explain] Claude error: {e}")
+        return None
