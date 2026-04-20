@@ -5,259 +5,1355 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HTS Code Lookup</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --bg: #f8f7f4;
+    --bg: #f9fafb;
     --surface: #ffffff;
-    --text: #1a1a1a;
-    --text-muted: #6b6b6b;
-    --accent: #2c5282;
-    --accent-light: #ebf2fa;
-    --border: #e2e0dc;
-    --code-bg: #f0eeea;
-    --radius: 8px;
+    --text: #111827;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --indigo-50: #eef2ff;
+    --indigo-100: #e0e7ff;
+    --indigo-500: #6366f1;
+    --indigo-600: #4f46e5;
+    --indigo-700: #4338ca;
+    --green-50: #f0fdf4;
+    --green-700: #15803d;
+    --red-50: #fef2f2;
+    --red-600: #dc2626;
+    --red-800: #991b1b;
+    --amber-50: #fffbeb;
+    --amber-700: #b45309;
+    --border: #e5e7eb;
+    --radius: 0.5rem;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'DM Sans', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 0 1rem;
+    font-size: 16px;
+    line-height: 1.5;
   }
 
-  .container {
-    max-width: 820px;
-    margin: 0 auto;
-    padding: 3rem 0;
+  .hidden { display: none !important; }
+
+  /* ── Auth pages ───────────────────────────── */
+
+  .auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
   }
 
-  header {
+  .auth-card {
+    width: 100%;
+    max-width: 28rem;
+  }
+
+  .auth-card h2 {
+    text-align: center;
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text);
     margin-bottom: 2rem;
   }
 
-  header h1 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  header p {
-    color: var(--text-muted);
-    margin-top: 0.3rem;
-    font-size: 0.95rem;
-  }
-
-  /* ── Search bar ─────────────────────────────── */
-
-  .search-wrap {
-    position: relative;
-    margin-bottom: 1.5rem;
-  }
-
-  .search-wrap input {
+  .form-input {
     width: 100%;
-    padding: 0.85rem 1rem 0.85rem 2.8rem;
-    font-family: inherit;
-    font-size: 1rem;
-    border: 1.5px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
     border-radius: var(--radius);
-    background: var(--surface);
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--text);
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
 
-  .search-wrap input:focus {
-    border-color: var(--accent);
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input:focus {
+    border-color: var(--indigo-500);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
   }
 
-  .search-wrap .icon {
+  .btn-primary {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: var(--indigo-600);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--indigo-700); }
+
+  .auth-footer {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+  }
+  .auth-footer a { color: var(--indigo-600); text-decoration: none; font-weight: 500; }
+  .auth-footer a:hover { color: var(--indigo-700); }
+
+  .form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+  }
+  .form-row label { display: flex; align-items: center; gap: 0.5rem; color: var(--text); }
+  .form-row a { color: var(--indigo-600); text-decoration: none; font-weight: 500; }
+
+  .error-box {
+    background: var(--red-50);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: var(--red-800);
+  }
+
+  .checkbox { width: 1rem; height: 1rem; accent-color: var(--indigo-600); }
+
+  /* ── App shell ────────────────────────────── */
+
+  .app-header {
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .header-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-inner h1 { font-size: 1.25rem; font-weight: 700; }
+
+  .header-right { display: flex; align-items: center; gap: 0.5rem; }
+  .header-user { font-size: 0.875rem; color: var(--text-secondary); }
+
+  .btn-ghost {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .btn-ghost:hover { color: var(--text); }
+
+  .dashboard {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .dashboard { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .card-title svg { color: var(--indigo-600); }
+
+  /* ── Saved products ───────────────────────── */
+
+  .search-input-wrap { position: relative; margin-bottom: 1rem; }
+  .search-input-wrap svg {
     position: absolute;
-    left: 0.9rem;
+    left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
     pointer-events: none;
   }
-
-  .hint {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  /* ── Results ────────────────────────────────── */
-
-  .status {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 0.75rem;
-  }
-
-  .result {
-    background: var(--surface);
+  .search-input-wrap input {
+    width: 100%;
+    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 1rem 1.15rem;
-    margin-bottom: 0.6rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    outline: none;
     transition: border-color 0.15s;
   }
-
-  .result:hover {
-    border-color: var(--accent);
+  .search-input-wrap input:focus {
+    border-color: var(--indigo-500);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
   }
 
-  .result-header {
+  .product-list {
     display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    margin-bottom: 0.4rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 26rem;
+    overflow-y: auto;
   }
 
-  .hts-code {
+  .product-item {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .product-item:hover { border-color: #a5b4fc; background: #fafafa; }
+  .product-item.selected { border-color: var(--indigo-600); background: var(--indigo-50); }
+  .product-item .p-name { font-weight: 500; color: var(--text); font-size: 0.9rem; padding-right: 1.5rem; }
+  .product-item .p-code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.92rem;
-    font-weight: 500;
-    color: var(--accent);
-    background: var(--accent-light);
-    padding: 0.15rem 0.5rem;
+    font-size: 0.78rem;
+    color: var(--indigo-600);
+    margin-top: 0.1rem;
+  }
+  .product-item .p-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  .delete-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.2rem;
     border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .product-item:hover .delete-btn { opacity: 1; }
+  .delete-btn:hover { color: var(--red-600); }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  /* ── HTS search panel ────────────────────── */
+
+  .search-row { display: flex; gap: 0.5rem; margin-bottom: 0; }
+
+  .search-textarea {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.875rem;
+    resize: none;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-textarea:focus {
+    border-color: var(--indigo-500);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+  }
+
+  .btn-search {
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--indigo-600);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-search:hover { background: var(--indigo-700); }
+  .btn-search:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .hts-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 26rem;
+    overflow-y: auto;
+    margin-top: 1rem;
+  }
+
+  .hts-result {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.15s;
+  }
+  .hts-result:hover { border-color: #a5b4fc; }
+
+  .hts-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4rem;
+    gap: 0.5rem;
+  }
+
+  .hts-code-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--indigo-600);
     white-space: nowrap;
   }
 
-  .description {
-    font-size: 0.93rem;
-    line-height: 1.45;
+  .rate-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    white-space: nowrap;
   }
+  .rate-tag.free     { background: var(--green-50);  color: var(--green-700); }
+  .rate-tag.percent  { background: var(--indigo-50); color: var(--indigo-700); }
+  .rate-tag.specific { background: var(--amber-50);  color: var(--amber-700); }
+  .rate-tag.compound { background: var(--amber-50);  color: var(--amber-700); }
+  .rate-tag.unknown  { background: var(--bg);        color: var(--text-secondary); }
 
-  .duty-row {
+  /* Confidence bar */
+  .confidence-wrap {
     display: flex;
-    gap: 1.2rem;
-    margin-top: 0.55rem;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
   }
+  .confidence-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .confidence-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--indigo-500);
+    transition: width 0.3s ease;
+  }
+  .confidence-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 3.5rem;
+    text-align: right;
+  }
+  .confidence-label.high  { color: var(--green-700); }
+  .confidence-label.mid   { color: var(--indigo-600); }
+  .confidence-label.low   { color: var(--text-muted); }
 
-  .duty-tag {
+  /* Search mode toggle */
+  .search-mode-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    font-family: inherit;
     font-size: 0.78rem;
-    color: var(--text-muted);
-  }
-
-  .duty-tag strong {
     font-weight: 500;
-    color: var(--text);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mode-btn.active {
+    background: var(--indigo-600);
+    border-color: var(--indigo-600);
+    color: #fff;
   }
 
-  .empty {
-    text-align: center;
-    padding: 3rem 1rem;
+  .search-status {
+    font-size: 0.75rem;
     color: var(--text-muted);
+    margin-top: 0.4rem;
+    min-height: 1rem;
   }
 
-  .empty .big {
-    font-size: 1.3rem;
-    margin-bottom: 0.3rem;
+  .hts-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 0.4rem; }
+  .hts-rates { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+  .hts-rate-item { font-size: 0.75rem; color: var(--text-muted); }
+  .hts-rate-item span { color: var(--text-secondary); font-weight: 500; }
+
+  .result-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+
+  .save-btn, .calc-btn {
+    padding: 0.3rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.75rem;
     font-weight: 500;
-    color: var(--text);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
   }
+
+  .save-btn {
+    color: var(--indigo-600);
+    background: var(--indigo-50);
+    border: 1px solid var(--indigo-100);
+  }
+  .save-btn:hover { background: var(--indigo-100); }
+  .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .calc-btn {
+    color: var(--text-secondary);
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .calc-btn:hover { background: var(--border); color: var(--text); }
+
+  /* ── Duty calculator ──────────────────────── */
+
+  .calc-selected {
+    padding: 0.75rem;
+    background: var(--indigo-50);
+    border: 1px solid var(--indigo-100);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+  }
+  .calc-selected .cs-name { font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+  .calc-selected .cs-detail { font-size: 0.8rem; color: var(--text-secondary); }
+  .calc-selected .cs-unsaved {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    background: var(--amber-50);
+    color: var(--amber-700);
+    border-radius: 999px;
+    border: 1px solid #fde68a;
+  }
+
+  .calc-fields { display: flex; flex-direction: column; gap: 0.75rem; }
+  .calc-field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+  }
+  .calc-field input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .calc-field input:focus {
+    border-color: var(--indigo-500);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+  }
+
+  .rate-free-notice {
+    padding: 1rem;
+    background: var(--green-50);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    color: var(--green-700);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .rate-unknown-notice {
+    padding: 0.75rem 1rem;
+    background: var(--amber-50);
+    border: 1px solid #fde68a;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    color: var(--amber-700);
+    margin-bottom: 0.75rem;
+  }
+
+  .calc-results {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+  }
+  .calc-row .label { color: var(--text-secondary); }
+  .calc-row .value { font-weight: 500; color: var(--text); }
+  .calc-row.sub { padding-left: 1rem; }
+  .calc-row.sub .label { color: var(--text-muted); font-size: 0.8rem; }
+  .calc-row.sub .value { font-size: 0.8rem; }
+
+  .calc-total {
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+  }
+  .calc-total .label { font-weight: 600; color: var(--text); }
+  .calc-total .value { font-weight: 700; color: var(--indigo-600); font-size: 1rem; }
+
+  .calc-save-row { margin-top: 1rem; text-align: right; }
+
+  /* ── Save modal ───────────────────────────── */
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+  }
+
+  .modal-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 26rem;
+    padding: 1.5rem;
+  }
+
+  .modal-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-fields { display: flex; flex-direction: column; gap: 1rem; }
+  .modal-field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+  }
+
+  .modal-meta {
+    padding: 0.6rem 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+
+  .btn-outline {
+    padding: 0.5rem 1.25rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-outline:hover { background: var(--bg); }
+
+  .btn-solid {
+    padding: 0.5rem 1.25rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    background: var(--indigo-600);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-solid:hover { background: var(--indigo-700); }
+
+  /* ── Spinner ──────────────────────────────── */
+
+  .spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 0.4rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
-    <h1>HTS Code Lookup</h1>
-    <p>Search the Harmonized Tariff Schedule of the United States</p>
+<!-- ════════════════════════════════════════════
+     VIEW: Sign In
+     ════════════════════════════════════════════ -->
+<div id="view-signin" class="auth-page hidden">
+  <div class="auth-card">
+    <h2>Sign in to your account</h2>
+    <div id="signin-error" class="error-box hidden"></div>
+    <div class="auth-form">
+      <input type="email" id="si-email" class="form-input" placeholder="Email address">
+      <input type="password" id="si-password" class="form-input" placeholder="Password">
+      <div class="form-row">
+        <label><input type="checkbox" class="checkbox"> Remember me</label>
+      </div>
+      <button id="si-submit" class="btn-primary" onclick="doSignIn()">Sign in</button>
+      <div class="auth-footer">
+        Don't have an account? <a href="#" onclick="showView('signup'); return false;">Sign up</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     VIEW: Sign Up
+     ════════════════════════════════════════════ -->
+<div id="view-signup" class="auth-page hidden">
+  <div class="auth-card">
+    <h2>Create your account</h2>
+    <div id="signup-error" class="error-box hidden"></div>
+    <div class="auth-form">
+      <input type="text" id="su-name" class="form-input" placeholder="Full name">
+      <input type="email" id="su-email" class="form-input" placeholder="Email address">
+      <input type="password" id="su-password" class="form-input" placeholder="Password (min. 6 characters)">
+      <input type="password" id="su-confirm" class="form-input" placeholder="Confirm password">
+      <label style="font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
+        <input type="checkbox" class="checkbox" id="su-terms">
+        I agree to the Terms and Conditions
+      </label>
+      <button class="btn-primary" onclick="doSignUp()">Sign up</button>
+      <div class="auth-footer">
+        Already have an account? <a href="#" onclick="showView('signin'); return false;">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     VIEW: Dashboard
+     ════════════════════════════════════════════ -->
+<div id="view-dashboard" class="hidden">
+  <header class="app-header">
+    <div class="header-inner">
+      <h1>HTS Code Lookup</h1>
+      <div class="header-right">
+        <span class="header-user" id="header-user-name"></span>
+        <button class="btn-ghost" onclick="doSignOut()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign out
+        </button>
+      </div>
+    </div>
   </header>
 
-  <div class="search-wrap">
-    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="text" id="search" placeholder="Search items, e.g. &quot;frozen shrimp&quot; or &quot;cotton t-shirt&quot;" autofocus>
+  <main class="dashboard">
+
+    <!-- Col 1: Saved Products -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Saved Products
+      </div>
+      <div class="search-input-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="product-filter" placeholder="Filter saved products..." oninput="renderProducts()">
+      </div>
+      <div id="product-list" class="product-list">
+        <div class="empty-state">No saved products yet</div>
+      </div>
+    </div>
+
+    <!-- Col 2: HTS Search -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Find HTS Code
+      </div>
+      <div class="search-mode-row">
+        <button id="mode-semantic" class="mode-btn active" onclick="setSearchMode('semantic')">Smart Search</button>
+        <button id="mode-keyword" class="mode-btn" onclick="setSearchMode('keyword')">Keyword / Code</button>
+      </div>
+      <textarea id="hts-query" class="search-textarea" rows="3"
+        placeholder="Describe your product in plain English (e.g. 'leather shoes with rubber soles')..."></textarea>
+      <div id="search-status" class="search-status"></div>
+      <button id="btn-search" class="btn-search" onclick="doHTSSearch()">Search HTS Codes</button>
+      <div id="hts-results" class="hts-results">
+        <div class="empty-state">Describe your product above to find matching HTS codes</div>
+      </div>
+    </div>
+
+    <!-- Col 3: Duty Calculator -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="14" stroke-width="3"/><line x1="16" y1="18" x2="16" y2="18" stroke-width="3"/><line x1="12" y1="14" x2="12" y2="14" stroke-width="3"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/><line x1="8" y1="14" x2="8" y2="14" stroke-width="3"/><line x1="8" y1="18" x2="8" y2="18" stroke-width="3"/></svg>
+        Duty Calculator
+      </div>
+      <div id="calc-body">
+        <div class="empty-state" style="padding:3rem 1rem;">
+          Select a saved product or click "Use in Calculator" on a search result
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: Save Product
+     ════════════════════════════════════════════ -->
+<div id="save-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
+  <div class="modal-card">
+    <h3>Save Product to Dashboard</h3>
+    <div class="modal-fields">
+      <div class="modal-field">
+        <label>Product Name</label>
+        <input type="text" id="modal-name" class="form-input" placeholder="Enter a name for this product">
+      </div>
+      <div class="modal-field">
+        <label>HTS Code &amp; Rate</label>
+        <div class="modal-meta" id="modal-meta"></div>
+      </div>
+      <div class="modal-field">
+        <label>Country of Origin <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+        <input type="text" id="modal-origin" class="form-input" placeholder="e.g. China, Vietnam, Mexico">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeSaveModal()">Cancel</button>
+      <button class="btn-solid" onclick="confirmSave()">Save Product</button>
+    </div>
   </div>
-
-  <p class="hint">Type a description or paste an HTS code. Results update as you type.</p>
-
-  <div id="results"></div>
 </div>
 
 <script>
-  const input = document.getElementById('search');
-  const resultsEl = document.getElementById('results');
-  let debounceTimer;
+// ── State ──────────────────────────────────────────────────────────────────
 
-  input.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(doSearch, 250);
-  });
+let currentUser   = null;
+let savedProducts = [];
+let selectedId    = null;  // id of selected saved product
+let calcProduct   = null;  // product loaded into calculator (may be unsaved)
+let _pendingSave  = null;  // data waiting for modal confirmation
+let _lastResults  = [];    // last HTS search results
 
-  async function doSearch() {
-    const q = input.value.trim();
+// ── View routing ───────────────────────────────────────────────────────────
 
-    if (!q) {
-      resultsEl.innerHTML = '';
-      return;
-    }
+function showView(name) {
+  document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('view-' + name).classList.remove('hidden');
+  document.querySelectorAll('.error-box').forEach(el => { el.classList.add('hidden'); el.textContent = ''; });
+}
 
-    // If it looks like an HTS code (digits + dots), use the lookup endpoint
-    const isCode = /^[\d.]+$/.test(q);
-    const url = isCode
-      ? `/api/lookup/${encodeURIComponent(q)}`
-      : `/api/search?q=${encodeURIComponent(q)}`;
+// ── API helper ─────────────────────────────────────────────────────────────
 
-    try {
-      const resp = await fetch(url);
-      if (!resp.ok) {
-        resultsEl.innerHTML = `<div class="empty"><div class="big">No results</div><p>Try a different search term.</p></div>`;
-        return;
-      }
-      const data = await resp.json();
-      render(data);
-    } catch (err) {
-      resultsEl.innerHTML = `<div class="empty"><div class="big">Error</div><p>${err.message}</p></div>`;
-    }
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  let data;
+  try { data = await res.json(); } catch { throw new Error('Server error (' + res.status + ')'); }
+  if (!res.ok) throw new Error(data.detail || 'Request failed');
+  return data;
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+// ── Auth ───────────────────────────────────────────────────────────────────
+
+async function doSignIn() {
+  const email    = document.getElementById('si-email').value.trim();
+  const password = document.getElementById('si-password').value;
+  if (!email || !password) return showError('signin-error', 'Please fill in all fields');
+  try {
+    const data = await api('POST', '/api/login', { email, password });
+    currentUser = data.user;
+    await enterDashboard();
+  } catch (e) { showError('signin-error', e.message); }
+}
+
+async function doSignUp() {
+  const name     = document.getElementById('su-name').value.trim();
+  const email    = document.getElementById('su-email').value.trim();
+  const password = document.getElementById('su-password').value;
+  const confirm  = document.getElementById('su-confirm').value;
+  if (!name || !email || !password || !confirm) return showError('signup-error', 'Please fill in all fields');
+  if (password !== confirm) return showError('signup-error', 'Passwords do not match');
+  if (password.length < 6) return showError('signup-error', 'Password must be at least 6 characters');
+  try {
+    const data = await api('POST', '/api/register', { name, email, password });
+    currentUser = data.user;
+    await enterDashboard();
+  } catch (e) { showError('signup-error', e.message); }
+}
+
+async function doSignOut() {
+  await api('POST', '/api/logout');
+  currentUser = null; savedProducts = []; selectedId = null; calcProduct = null;
+  showView('signin');
+}
+
+// ── Dashboard entry ────────────────────────────────────────────────────────
+
+async function enterDashboard() {
+  document.getElementById('header-user-name').textContent = currentUser?.name || '';
+  showView('dashboard');
+  await loadProducts();
+}
+
+// ── Saved Products ─────────────────────────────────────────────────────────
+
+async function loadProducts() {
+  try {
+    const data = await api('GET', '/api/products');
+    savedProducts = data.products || [];
+  } catch { savedProducts = []; }
+  renderProducts();
+}
+
+function renderProducts() {
+  const filter   = (document.getElementById('product-filter')?.value || '').toLowerCase();
+  const filtered = savedProducts.filter(p =>
+    p.name.toLowerCase().includes(filter) ||
+    p.hts_code.toLowerCase().includes(filter) ||
+    (p.origin || '').toLowerCase().includes(filter)
+  );
+  const el = document.getElementById('product-list');
+
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state">' +
+      (savedProducts.length === 0
+        ? 'No saved products yet — search for HTS codes and save them'
+        : 'No products match your filter') +
+      '</div>';
+    return;
   }
 
-  function render(data) {
-    if (!data.results || data.results.length === 0) {
-      resultsEl.innerHTML = `<div class="empty"><div class="big">No results</div><p>Try a different search term.</p></div>`;
+  el.innerHTML = filtered.map(p => {
+    const parsed = parseDutyRate(p.duty_rate);
+    const rateLabel = parsed.type === 'free' ? 'Free'
+      : parsed.type === 'percent' ? parsed.rate + '%'
+      : parsed.type === 'specific' ? (p.duty_rate || '').split(' ')[0]
+      : p.duty_rate || '';
+    return `
+    <div class="product-item ${selectedId === p.id ? 'selected' : ''}" onclick="selectProduct(${p.id})">
+      <button class="delete-btn" onclick="event.stopPropagation(); deleteProduct(${p.id})" title="Remove">×</button>
+      <div class="p-name">${esc(p.name)}</div>
+      <div class="p-code">${esc(p.hts_code)}</div>
+      <div class="p-meta">${esc(rateLabel)} duty${p.origin ? ' &middot; ' + esc(p.origin) : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectProduct(id) {
+  selectedId  = id;
+  calcProduct = savedProducts.find(p => p.id === id) || null;
+  renderProducts();
+  renderCalculator();
+}
+
+async function deleteProduct(id) {
+  try {
+    await api('DELETE', '/api/products/' + id);
+    savedProducts = savedProducts.filter(p => p.id !== id);
+    if (selectedId === id) { selectedId = null; calcProduct = null; renderCalculator(); }
+    renderProducts();
+  } catch {}
+}
+
+// ── Search mode ────────────────────────────────────────────────────────────
+
+let searchMode = 'semantic'; // 'semantic' | 'keyword'
+
+function setSearchMode(mode) {
+  searchMode = mode;
+  document.getElementById('mode-semantic').classList.toggle('active', mode === 'semantic');
+  document.getElementById('mode-keyword').classList.toggle('active', mode === 'keyword');
+  const ta = document.getElementById('hts-query');
+  if (mode === 'semantic') {
+    ta.placeholder = 'Describe your product in plain English (e.g. "leather shoes with rubber soles")...';
+  } else {
+    ta.placeholder = 'Enter keywords or an HTS code prefix (e.g. "cotton shirt" or "6109")...';
+  }
+  document.getElementById('search-status').textContent = '';
+}
+
+// ── HTS Search ─────────────────────────────────────────────────────────────
+
+async function doHTSSearch() {
+  const q = document.getElementById('hts-query').value.trim();
+  if (!q) return;
+
+  const btn    = document.getElementById('btn-search');
+  const status = document.getElementById('search-status');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Searching…';
+  status.textContent = '';
+
+  const el = document.getElementById('hts-results');
+  el.innerHTML = '';
+
+  try {
+    let data;
+
+    if (searchMode === 'semantic') {
+      data = await api('GET', '/api/semantic-search?q=' + encodeURIComponent(q) + '&limit=10');
+      status.textContent = `Semantic match · ${data.count} results`;
+    } else {
+      const isCode = /^[\d.]+$/.test(q);
+      const url = isCode
+        ? '/api/lookup/' + encodeURIComponent(q)
+        : '/api/search?q=' + encodeURIComponent(q);
+      data = await api('GET', url);
+      status.textContent = `Keyword match · ${data.count ?? data.results?.length ?? 0} results`;
+    }
+
+    _lastResults = data.results || [];
+
+    if (_lastResults.length === 0) {
+      el.innerHTML = '<div class="empty-state">No results found for "' + esc(q) + '"</div>';
       return;
     }
 
-    const status = `<div class="status">${data.count} result${data.count !== 1 ? 's' : ''}</div>`;
+    el.innerHTML = _lastResults.map((r, i) => {
+      const parsed   = parseDutyRate(r.general);
+      const tagClass = parsed.type;
+      const tagText  = parsed.type === 'free'     ? 'Free'
+                     : parsed.type === 'percent'  ? parsed.rate + '%'
+                     : parsed.type === 'specific' ? 'Specific'
+                     : parsed.type === 'compound' ? 'Compound'
+                     : r.general || '—';
 
-    const cards = data.results.map(r => {
-      const code = r.hts_code
-        ? `<span class="hts-code">${esc(r.hts_code)}</span>`
-        : '';
+      const confHtml = (r.confidence != null) ? buildConfidenceBar(r.confidence) : '';
 
-      const duties = [];
-      if (r.general) duties.push(`<span class="duty-tag">General: <strong>${esc(r.general)}</strong></span>`);
-      if (r.special) duties.push(`<span class="duty-tag">Special: <strong>${esc(r.special)}</strong></span>`);
-      if (r.unit)    duties.push(`<span class="duty-tag">Unit: <strong>${esc(r.unit)}</strong></span>`);
+      const ratesHtml = [
+        r.general ? `<div class="hts-rate-item">General: <span>${esc(r.general)}</span></div>` : '',
+        r.special ? `<div class="hts-rate-item">Special: <span>${esc(r.special)}</span></div>` : '',
+        r.other   ? `<div class="hts-rate-item">Other: <span>${esc(r.other)}</span></div>`     : '',
+        r.unit    ? `<div class="hts-rate-item">Unit: <span>${esc(r.unit)}</span></div>`       : '',
+      ].filter(Boolean).join('');
 
       return `
-        <div class="result">
-          <div class="result-header">${code}</div>
-          <div class="description">${esc(r.description)}</div>
-          ${duties.length ? `<div class="duty-row">${duties.join('')}</div>` : ''}
-        </div>`;
+      <div class="hts-result">
+        ${confHtml}
+        <div class="hts-result-header">
+          <span class="hts-code-badge">${esc(r.hts_code || '—')}</span>
+          <span class="rate-tag ${tagClass}">${esc(tagText)}</span>
+        </div>
+        <div class="hts-desc">${esc(r.description)}</div>
+        ${ratesHtml ? '<div class="hts-rates">' + ratesHtml + '</div>' : ''}
+        <div class="result-actions">
+          <button class="save-btn" data-idx="${i}">+ Save to Dashboard</button>
+          <button class="calc-btn" data-idx="${i}">Use in Calculator</button>
+        </div>
+      </div>`;
     }).join('');
 
-    resultsEl.innerHTML = status + cards;
+    el.querySelectorAll('.save-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const r = _lastResults[parseInt(btn.dataset.idx)];
+        openSaveModal({ hts_code: r.hts_code, description: r.description, duty_rate: r.general || '', special: r.special || '' });
+      });
+    });
+
+    el.querySelectorAll('.calc-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        useInCalculator(_lastResults[parseInt(btn.dataset.idx)]);
+      });
+    });
+
+  } catch (e) {
+    if (e.message.includes('still loading')) {
+      el.innerHTML = '<div class="empty-state">Smart Search is still loading — try again in a moment, or switch to Keyword mode.</div>';
+    } else {
+      el.innerHTML = '<div class="empty-state">Error: ' + esc(e.message) + '</div>';
+    }
+    status.textContent = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Search HTS Codes';
+  }
+}
+
+function buildConfidenceBar(score) {
+  const pct       = Math.min(Math.max(score, 0), 100);
+  const tierClass = pct >= 70 ? 'high' : pct >= 45 ? 'mid' : 'low';
+  const tierLabel = pct >= 70 ? 'Strong match' : pct >= 45 ? 'Possible match' : 'Weak match';
+  return `
+    <div class="confidence-wrap">
+      <div class="confidence-bar-bg">
+        <div class="confidence-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <span class="confidence-label ${tierClass}">${pct.toFixed(0)}% — ${tierLabel}</span>
+    </div>`;
+}
+
+function useInCalculator(r) {
+  selectedId  = null;
+  calcProduct = {
+    hts_code:  r.hts_code,
+    name:      r.description,
+    duty_rate: r.general || '',
+    special:   r.special  || '',
+    other:     r.other    || '',
+    unit:      r.unit     || '',
+    unsaved:   true,
+  };
+  renderProducts();
+  renderCalculator();
+  // Scroll calculator into view on mobile
+  document.getElementById('calc-body').closest('.card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Save modal ─────────────────────────────────────────────────────────────
+
+function openSaveModal(data) {
+  _pendingSave = data;
+  const nameDefault = (data.description || '').substring(0, 60);
+  document.getElementById('modal-name').value   = nameDefault;
+  document.getElementById('modal-origin').value = data.origin || '';
+  document.getElementById('modal-meta').textContent =
+    (data.hts_code || '—') + '  ·  General: ' + (data.duty_rate || 'N/A') +
+    (data.special ? '  ·  Special: ' + data.special : '');
+  document.getElementById('save-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('modal-name').focus(), 50);
+}
+
+function closeSaveModal() {
+  document.getElementById('save-modal').classList.add('hidden');
+  _pendingSave = null;
+}
+
+function handleModalBackdrop(e) {
+  if (e.target === document.getElementById('save-modal')) closeSaveModal();
+}
+
+async function confirmSave() {
+  if (!_pendingSave) return;
+  const name   = document.getElementById('modal-name').value.trim();
+  const origin = document.getElementById('modal-origin').value.trim();
+  if (!name) { document.getElementById('modal-name').focus(); return; }
+
+  const { hts_code, description, duty_rate } = _pendingSave;
+
+  try {
+    await api('POST', '/api/products', { name, hts_code, description: description || '', duty_rate: duty_rate || '', origin });
+    closeSaveModal();
+    await loadProducts();
+  } catch (e) {
+    alert('Could not save: ' + e.message);
+  }
+}
+
+// Opens the save modal pre-filled with the current unsaved calc product
+function saveCalcProduct() {
+  if (!calcProduct || !calcProduct.unsaved) return;
+  openSaveModal({
+    hts_code:    calcProduct.hts_code,
+    description: calcProduct.name,
+    duty_rate:   calcProduct.duty_rate,
+    special:     calcProduct.special || '',
+  });
+}
+
+// ── Duty Calculator ────────────────────────────────────────────────────────
+
+/**
+ * Parse an HTS duty rate string into a structured object.
+ * Handles: Free, percent (5.6%), specific (1.7¢/kg, $1.12/t), compound (2¢/kg + 2.8%)
+ */
+function parseDutyRate(rateStr) {
+  if (!rateStr) return { type: 'unknown', display: '' };
+  const s = rateStr.trim();
+  const lower = s.toLowerCase();
+
+  if (lower === 'free' || lower === '') return { type: 'free', display: 'Free' };
+
+  // Compound: "X% + Y¢/unit" or "Y¢/unit + X%"
+  const comp1 = s.match(/([\d.]+)\s*%\s*\+\s*([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
+  if (comp1) return { type: 'compound', pct: parseFloat(comp1[1]), cents: parseFloat(comp1[2]), unit: comp1[3], display: s };
+
+  const comp2 = s.match(/([\d.]+)\s*[¢c]\s*\/\s*(\w+)\s*\+\s*([\d.]+)\s*%/i);
+  if (comp2) return { type: 'compound', cents: parseFloat(comp2[1]), unit: comp2[2], pct: parseFloat(comp2[3]), display: s };
+
+  // Simple percent (handles "5.6%" and "5.6% on the value of...")
+  // Make sure it doesn't also have a ¢/unit portion
+  if (s.match(/([\d.]+)\s*%/) && !s.match(/[¢c$]\/\w+/i)) {
+    const m = s.match(/([\d.]+)\s*%/);
+    return { type: 'percent', rate: parseFloat(m[1]), display: s };
   }
 
-  function esc(s) {
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
+  // Specific cents: "1.7¢/kg"
+  const centsM = s.match(/^([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
+  if (centsM) return { type: 'specific', amountPerUnit: parseFloat(centsM[1]) / 100, unit: centsM[2], display: s };
+
+  // Dollar specific: "$1.12/t"
+  const dollarM = s.match(/^\$([\d.]+)\s*\/\s*(\w+)/);
+  if (dollarM) return { type: 'specific', amountPerUnit: parseFloat(dollarM[1]), unit: dollarM[2], display: s };
+
+  // Fallback: has a % somewhere (e.g., "5% on certain articles")
+  const anyPct = s.match(/([\d.]+)\s*%/);
+  if (anyPct) return { type: 'percent', rate: parseFloat(anyPct[1]), display: s };
+
+  return { type: 'unknown', display: s };
+}
+
+function renderCalculator() {
+  const el = document.getElementById('calc-body');
+
+  if (!calcProduct) {
+    el.innerHTML = '<div class="empty-state" style="padding:3rem 1rem;">Select a saved product or click "Use in Calculator" on a search result</div>';
+    return;
   }
+
+  const p      = calcProduct;
+  const parsed = parseDutyRate(p.duty_rate);
+  const needsQty = parsed.type === 'specific' || parsed.type === 'compound';
+
+  const unsavedBadge = p.unsaved
+    ? '<div><span class="cs-unsaved">Unsaved — not in your dashboard yet</span></div>'
+    : '';
+
+  const saveRowHtml = p.unsaved
+    ? `<div class="calc-save-row"><button class="save-btn" onclick="saveCalcProduct()">+ Save to Dashboard</button></div>`
+    : '';
+
+  let bodyHtml = '';
+
+  if (parsed.type === 'free') {
+    bodyHtml = `
+      <div class="rate-free-notice">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>This product enters duty-free under the general rate. No import duty applies.</span>
+      </div>
+      ${p.special ? '<div class="hts-rate-item" style="font-size:0.8rem;margin-bottom:0.5rem;">Special (FTA): <span style="color:var(--text-secondary);font-weight:500">' + esc(p.special) + '</span></div>' : ''}
+      ${saveRowHtml}`;
+  } else {
+    const unknownNote = parsed.type === 'unknown' && parsed.display ? `
+      <div class="rate-unknown-notice">
+        <strong>Complex rate:</strong> ${esc(parsed.display)}<br>
+        Enter an estimated percentage below for an approximate calculation.
+      </div>` : '';
+
+    const qtyLabel = needsQty ? (parsed.unit ? `Quantity / Weight (${parsed.unit})` : 'Quantity / Weight') : '';
+
+    bodyHtml = `
+      ${unknownNote}
+      <div class="calc-fields">
+        <div class="calc-field">
+          <label>Product Value (USD)</label>
+          <input type="number" id="cv-value" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+        </div>
+        <div class="calc-field">
+          <label>Shipping &amp; Freight (USD)</label>
+          <input type="number" id="cv-shipping" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+        </div>
+        <div class="calc-field">
+          <label>Insurance (USD)</label>
+          <input type="number" id="cv-insurance" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+        </div>
+        ${needsQty ? `
+        <div class="calc-field">
+          <label>${esc(qtyLabel)}</label>
+          <input type="number" id="cv-quantity" min="0" step="0.001" placeholder="0" oninput="updateCalc()">
+        </div>` : ''}
+        ${parsed.type === 'unknown' ? `
+        <div class="calc-field">
+          <label>Override Rate (%)</label>
+          <input type="number" id="cv-override" min="0" step="0.01" placeholder="e.g. 5" oninput="updateCalc()">
+        </div>` : ''}
+      </div>
+      <div id="calc-output" class="calc-results hidden"></div>
+      ${saveRowHtml}`;
+  }
+
+  el.innerHTML = `
+    <div class="calc-selected">
+      <div class="cs-name">${esc(p.name || p.description || p.hts_code)}</div>
+      <div class="cs-detail" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--indigo-600)">${esc(p.hts_code)}</div>
+      <div class="cs-detail">General rate: ${esc(p.duty_rate || 'N/A')}</div>
+      ${p.special ? '<div class="cs-detail">Special (FTA): ' + esc(p.special) + '</div>' : ''}
+      ${p.origin  ? '<div class="cs-detail">Origin: ' + esc(p.origin) + '</div>' : ''}
+      ${unsavedBadge}
+    </div>
+    ${bodyHtml}`;
+}
+
+function updateCalc() {
+  if (!calcProduct) return;
+  const el = document.getElementById('calc-output');
+  if (!el) return;
+
+  const val  = parseFloat(document.getElementById('cv-value')?.value)    || 0;
+  const ship = parseFloat(document.getElementById('cv-shipping')?.value)  || 0;
+  const ins  = parseFloat(document.getElementById('cv-insurance')?.value) || 0;
+  const qty  = parseFloat(document.getElementById('cv-quantity')?.value)  || 0;
+  const ovr  = parseFloat(document.getElementById('cv-override')?.value)  || 0;
+
+  const customs = val + ship + ins;
+  const parsed  = parseDutyRate(calcProduct.duty_rate);
+
+  if (customs === 0 && qty === 0) { el.classList.add('hidden'); return; }
+
+  let dutyAmount = 0;
+  let dutyRows   = [];
+
+  if (parsed.type === 'percent') {
+    dutyAmount = (customs * parsed.rate) / 100;
+    dutyRows.push({ label: `Ad valorem (${parsed.rate}%)`, value: dutyAmount });
+
+  } else if (parsed.type === 'specific') {
+    dutyAmount = qty * parsed.amountPerUnit;
+    dutyRows.push({ label: `Specific ($${parsed.amountPerUnit.toFixed(4)}/${parsed.unit})`, value: dutyAmount });
+
+  } else if (parsed.type === 'compound') {
+    const adVal   = (customs * parsed.pct) / 100;
+    const specVal = qty * (parsed.cents / 100);
+    dutyAmount    = adVal + specVal;
+    dutyRows.push({ label: `Ad valorem (${parsed.pct}%)`, value: adVal, sub: true });
+    dutyRows.push({ label: `Specific (${parsed.cents}¢/${parsed.unit})`, value: specVal, sub: true });
+    dutyRows.push({ label: 'Total Duty', value: dutyAmount });
+
+  } else {
+    // unknown — use override rate if provided
+    if (ovr > 0) {
+      dutyAmount = (customs * ovr) / 100;
+      dutyRows.push({ label: `Estimated duty (${ovr}%)`, value: dutyAmount });
+    } else {
+      el.classList.add('hidden');
+      return;
+    }
+  }
+
+  const total = customs + dutyAmount;
+
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="calc-row"><span class="label">Customs Value (CIF):</span><span class="value">$${fmt(customs)}</span></div>
+    ${dutyRows.map(r =>
+      `<div class="calc-row${r.sub ? ' sub' : ''}"><span class="label">${esc(r.label)}:</span><span class="value">$${fmt(r.value)}</span></div>`
+    ).join('')}
+    <div class="calc-total"><span class="label">Estimated Total Cost:</span><span class="value">$${fmt(total)}</span></div>`;
+}
+
+// ── Utility ────────────────────────────────────────────────────────────────
+
+function fmt(n) {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+// Enter key on auth forms
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (!document.getElementById('view-signin').classList.contains('hidden')) doSignIn();
+  else if (!document.getElementById('view-signup').classList.contains('hidden')) doSignUp();
+  else if (!document.getElementById('save-modal').classList.contains('hidden')) confirmSave();
+});
+
+// Escape key closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSaveModal();
+});
+
+// ── Init: check session ────────────────────────────────────────────────────
+
+(async () => {
+  try {
+    const user = await api('GET', '/api/me');
+    currentUser = user;
+    await enterDashboard();
+  } catch {
+    showView('signin');
+  }
+})();
 </script>
-
 </body>
 </html>
