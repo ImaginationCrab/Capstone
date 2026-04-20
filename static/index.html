@@ -3,797 +3,805 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTS Code Lookup</title>
+<title>Atlas Global — HTS Classification Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --bg: #f9fafb;
-    --surface: #ffffff;
-    --text: #111827;
-    --text-secondary: #6b7280;
-    --text-muted: #9ca3af;
-    --indigo-50: #eef2ff;
-    --indigo-100: #e0e7ff;
-    --indigo-500: #6366f1;
-    --indigo-600: #4f46e5;
-    --indigo-700: #4338ca;
-    --green-50: #f0fdf4;
-    --green-700: #15803d;
-    --red-50: #fef2f2;
-    --red-600: #dc2626;
-    --red-800: #991b1b;
-    --amber-50: #fffbeb;
-    --amber-700: #b45309;
-    --border: #e5e7eb;
-    --radius: 0.5rem;
-    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-  }
-
-  body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-
-  .hidden { display: none !important; }
-
-  /* ── Auth pages ───────────────────────────── */
-
-  .auth-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-  }
-
-  .auth-card {
-    width: 100%;
-    max-width: 28rem;
-  }
-
-  .auth-card h2 {
-    text-align: center;
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 2rem;
-  }
-
-  .auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-
-  .form-input::placeholder { color: var(--text-muted); }
-  .form-input:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .btn-primary {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    background: var(--indigo-600);
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-primary:hover { background: var(--indigo-700); }
-
-  .auth-footer {
-    text-align: center;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-top: 1rem;
-  }
-  .auth-footer a { color: var(--indigo-600); text-decoration: none; font-weight: 500; }
-  .auth-footer a:hover { color: var(--indigo-700); }
-
-  .form-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.875rem;
-  }
-  .form-row label { display: flex; align-items: center; gap: 0.5rem; color: var(--text); }
-  .form-row a { color: var(--indigo-600); text-decoration: none; font-weight: 500; }
-
-  .error-box {
-    background: var(--red-50);
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    color: var(--red-800);
-  }
-
-  .checkbox { width: 1rem; height: 1rem; accent-color: var(--indigo-600); }
-
-  /* ── App shell ────────────────────────────── */
-
-  .app-header {
-    background: var(--surface);
-    box-shadow: var(--shadow);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .header-inner {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .header-inner h1 { font-size: 1.25rem; font-weight: 700; }
-
-  .header-right { display: flex; align-items: center; gap: 0.5rem; }
-  .header-user { font-size: 0.875rem; color: var(--text-secondary); }
-
-  .btn-ghost {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    background: none;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: color 0.15s;
-  }
-  .btn-ghost:hover { color: var(--text); }
-
-  .dashboard {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  @media (min-width: 1024px) {
-    .dashboard { grid-template-columns: 1fr 1fr 1fr; }
-  }
-
-  .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 1.5rem;
-  }
-
-  .card-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 1rem;
-  }
-  .card-title svg { color: var(--indigo-600); }
-
-  /* ── Saved products ───────────────────────── */
-
-  .search-input-wrap { position: relative; margin-bottom: 1rem; }
-  .search-input-wrap svg {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
-  }
-  .search-input-wrap input {
-    width: 100%;
-    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-input-wrap input:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .product-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-height: 26rem;
-    overflow-y: auto;
-  }
-
-  .product-item {
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    position: relative;
-  }
-  .product-item:hover { border-color: #a5b4fc; background: #fafafa; }
-  .product-item.selected { border-color: var(--indigo-600); background: var(--indigo-50); }
-  .product-item .p-name { font-weight: 500; color: var(--text); font-size: 0.9rem; padding-right: 1.5rem; }
-  .product-item .p-code {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--indigo-600);
-    margin-top: 0.1rem;
-  }
-  .product-item .p-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
-
-  .delete-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    padding: 0.2rem;
-    border-radius: 4px;
-    opacity: 0;
-    transition: opacity 0.15s, color 0.15s;
-  }
-  .product-item:hover .delete-btn { opacity: 1; }
-  .delete-btn:hover { color: var(--red-600); }
-
-  .empty-state {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
-
-  /* ── HTS search panel ────────────────────── */
-
-  .search-row { display: flex; gap: 0.5rem; margin-bottom: 0; }
-
-  .search-textarea {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    resize: none;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-textarea:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .btn-search {
-    width: 100%;
-    margin-top: 0.75rem;
-    padding: 0.5rem 1rem;
-    background: var(--indigo-600);
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-search:hover { background: var(--indigo-700); }
-  .btn-search:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .hts-results {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-height: 26rem;
-    overflow-y: auto;
-    margin-top: 1rem;
-  }
-
-  .hts-result {
-    padding: 1rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: border-color 0.15s;
-  }
-  .hts-result:hover { border-color: #a5b4fc; }
-
-  .hts-result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.4rem;
-    gap: 0.5rem;
-  }
-
-  .hts-code-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--indigo-600);
-    white-space: nowrap;
-  }
-
-  .rate-tag {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-  .rate-tag.free     { background: var(--green-50);  color: var(--green-700); }
-  .rate-tag.percent  { background: var(--indigo-50); color: var(--indigo-700); }
-  .rate-tag.specific { background: var(--amber-50);  color: var(--amber-700); }
-  .rate-tag.compound { background: var(--amber-50);  color: var(--amber-700); }
-  .rate-tag.unknown  { background: var(--bg);        color: var(--text-secondary); }
-
-  /* Confidence bar */
-  .confidence-wrap {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
-  }
-  .confidence-bar-bg {
-    flex: 1;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .confidence-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--indigo-500);
-    transition: width 0.3s ease;
-  }
-  .confidence-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    white-space: nowrap;
-    min-width: 3.5rem;
-    text-align: right;
-  }
-  .confidence-label.high  { color: var(--green-700); }
-  .confidence-label.mid   { color: var(--indigo-600); }
-  .confidence-label.low   { color: var(--text-muted); }
-
-  /* Search mode toggle */
-  .search-mode-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-  .mode-btn {
-    flex: 1;
-    padding: 0.35rem 0.5rem;
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 500;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .mode-btn.active {
-    background: var(--indigo-600);
-    border-color: var(--indigo-600);
-    color: #fff;
-  }
-
-  .search-status {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.4rem;
-    min-height: 1rem;
-  }
-
-  .hts-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 0.4rem; }
-  .hts-rates { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
-  .hts-rate-item { font-size: 0.75rem; color: var(--text-muted); }
-  .hts-rate-item span { color: var(--text-secondary); font-weight: 500; }
-
-  .result-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-
-  .save-btn, .calc-btn {
-    padding: 0.3rem 0.75rem;
-    font-family: inherit;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .save-btn {
-    color: var(--indigo-600);
-    background: var(--indigo-50);
-    border: 1px solid var(--indigo-100);
-  }
-  .save-btn:hover { background: var(--indigo-100); }
-  .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .calc-btn {
-    color: var(--text-secondary);
-    background: var(--bg);
-    border: 1px solid var(--border);
-  }
-  .calc-btn:hover { background: var(--border); color: var(--text); }
-
-  /* ── Duty calculator ──────────────────────── */
-
-  .calc-selected {
-    padding: 0.75rem;
-    background: var(--indigo-50);
-    border: 1px solid var(--indigo-100);
-    border-radius: var(--radius);
-    margin-bottom: 1rem;
-  }
-  .calc-selected .cs-name { font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
-  .calc-selected .cs-detail { font-size: 0.8rem; color: var(--text-secondary); }
-  .calc-selected .cs-unsaved {
-    display: inline-block;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    padding: 0.2rem 0.6rem;
-    background: var(--amber-50);
-    color: var(--amber-700);
-    border-radius: 999px;
-    border: 1px solid #fde68a;
-  }
-
-  .calc-fields { display: flex; flex-direction: column; gap: 0.75rem; }
-  .calc-field label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 0.25rem;
-  }
-  .calc-field input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .calc-field input:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .rate-free-notice {
-    padding: 1rem;
-    background: var(--green-50);
-    border: 1px solid #bbf7d0;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    color: var(--green-700);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .rate-unknown-notice {
-    padding: 0.75rem 1rem;
-    background: var(--amber-50);
-    border: 1px solid #fde68a;
-    border-radius: var(--radius);
-    font-size: 0.8rem;
-    color: var(--amber-700);
-    margin-bottom: 0.75rem;
-  }
-
-  .calc-results {
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .calc-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.875rem;
-  }
-  .calc-row .label { color: var(--text-secondary); }
-  .calc-row .value { font-weight: 500; color: var(--text); }
-  .calc-row.sub { padding-left: 1rem; }
-  .calc-row.sub .label { color: var(--text-muted); font-size: 0.8rem; }
-  .calc-row.sub .value { font-size: 0.8rem; }
-
-  .calc-total {
-    margin-top: 0.25rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-  }
-  .calc-total .label { font-weight: 600; color: var(--text); }
-  .calc-total .value { font-weight: 700; color: var(--indigo-600); font-size: 1rem; }
-
-  .calc-save-row { margin-top: 1rem; text-align: right; }
-
-  /* ── Save modal ───────────────────────────── */
-
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 1rem;
-  }
-
-  .modal-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-md);
-    width: 100%;
-    max-width: 26rem;
-    padding: 1.5rem;
-  }
-
-  .modal-card h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
-  }
-
-  .modal-fields { display: flex; flex-direction: column; gap: 1rem; }
-  .modal-field label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 0.25rem;
-  }
-
-  .modal-meta {
-    padding: 0.6rem 0.75rem;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-  }
-
-  .modal-footer {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-  }
-
-  .btn-outline {
-    padding: 0.5rem 1.25rem;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-outline:hover { background: var(--bg); }
-
-  .btn-solid {
-    padding: 0.5rem 1.25rem;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #fff;
-    background: var(--indigo-600);
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-solid:hover { background: var(--indigo-700); }
-
-  /* ── Spinner ──────────────────────────────── */
-
-  .spinner {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-    vertical-align: middle;
-    margin-right: 0.4rem;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* ── Reset & Design Tokens ───────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#0b1f3a;
+  --navy2:#142848;
+  --blue:#1a5cad;
+  --blue-mid:#1e6fd9;
+  --blue-light:#eff6ff;
+  --accent:#f0b429;
+  --accent2:#e8a800;
+  --white:#fff;
+  --off:#f5f7fb;
+  --gray:#6b7280;
+  --gray2:#9ca3af;
+  --text:#111827;
+  --border:#e5e7eb;
+  --green:#15803d;
+  --green-bg:#f0fdf4;
+  --red:#dc2626;
+  --red-bg:#fef2f2;
+  --amber:#b45309;
+  --amber-bg:#fffbeb;
+  --radius:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.1);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text);background:var(--off);min-height:100vh;font-size:15px;line-height:1.5;}
+.hidden{display:none!important;}
+a{color:inherit;text-decoration:none;}
+
+/* ── Auth ────────────────────────────────────────────────── */
+.auth-view{
+  min-height:100vh;display:flex;
+  background:linear-gradient(135deg,var(--navy) 0%,#0e2d56 100%);
+}
+.auth-left{
+  width:420px;flex-shrink:0;
+  background:rgba(255,255,255,0.04);border-right:1px solid rgba(255,255,255,0.07);
+  display:none;flex-direction:column;justify-content:center;padding:3.5rem;
+}
+@media(min-width:900px){.auth-left{display:flex;}}
+.auth-brand-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:2.5rem;}
+.auth-mark{width:40px;height:40px;border-radius:9px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;}
+.auth-brand-name{font-size:1.15rem;font-weight:700;color:#fff;}
+.auth-brand-name span{color:var(--accent);}
+.auth-tagline{font-size:1.55rem;font-weight:800;color:#fff;line-height:1.25;margin-bottom:0.8rem;letter-spacing:-0.02em;}
+.auth-tagline span{color:var(--accent);}
+.auth-sub{font-size:0.88rem;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:2.5rem;}
+.auth-feat-list{display:flex;flex-direction:column;gap:0.9rem;}
+.auth-feat{display:flex;align-items:center;gap:0.75rem;font-size:0.85rem;color:rgba(255,255,255,0.6);}
+.auth-feat-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+.auth-right{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;}
+.auth-card{
+  background:#fff;border-radius:14px;padding:2.5rem;width:100%;max-width:400px;
+  box-shadow:0 24px 64px rgba(0,0,0,0.3);
+}
+.auth-card-logo{display:flex;align-items:center;gap:0.5rem;justify-content:center;margin-bottom:1.75rem;}
+.auth-card-mark{width:32px;height:32px;border-radius:7px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:#fff;}
+.auth-card-brand{font-size:1rem;font-weight:700;color:var(--navy);}
+.auth-card-brand span{color:var(--blue-mid);}
+.auth-card h2{font-size:1.35rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:0.3rem;letter-spacing:-0.01em;}
+.auth-card-sub{font-size:0.83rem;color:var(--gray);text-align:center;margin-bottom:1.5rem;}
+.auth-form{display:flex;flex-direction:column;gap:0.85rem;}
+.form-group label{display:block;font-size:0.8rem;font-weight:600;color:var(--text);margin-bottom:0.3rem;}
+.form-input{
+  width:100%;padding:0.6rem 0.9rem;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-family:inherit;font-size:0.88rem;color:var(--text);
+  outline:none;transition:border-color 0.15s,box-shadow 0.15s;background:#fff;
+}
+.form-input::placeholder{color:var(--gray2);}
+.form-input:focus{border-color:var(--blue-mid);box-shadow:0 0 0 3px rgba(30,111,217,0.12);}
+.btn-primary{
+  width:100%;padding:0.7rem 1rem;
+  background:var(--blue-mid);color:#fff;
+  font-family:inherit;font-size:0.9rem;font-weight:700;
+  border:none;border-radius:var(--radius);cursor:pointer;
+  transition:background 0.15s,transform 0.1s;letter-spacing:0.01em;
+}
+.btn-primary:hover{background:#1657c4;}
+.btn-primary:active{transform:scale(0.98);}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;}
+.auth-switch{text-align:center;font-size:0.83rem;color:var(--gray);margin-top:0.75rem;}
+.auth-switch a{color:var(--blue-mid);font-weight:600;cursor:pointer;}
+.auth-switch a:hover{color:var(--blue);}
+.error-box{background:var(--red-bg);border:1px solid #fecaca;padding:0.6rem 0.85rem;border-radius:var(--radius);font-size:0.82rem;color:var(--red);margin-bottom:0.25rem;}
+
+/* ── App Shell ───────────────────────────────────────────── */
+#view-app{display:flex;flex-direction:column;min-height:100vh;}
+
+/* NAV */
+.app-nav{
+  position:sticky;top:0;z-index:100;
+  background:var(--navy);height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.75rem;
+  box-shadow:0 2px 12px rgba(0,0,0,0.25);
+}
+.nav-brand{display:flex;align-items:center;gap:0.5rem;cursor:pointer;}
+.nav-brand-mark{width:26px;height:26px;border-radius:6px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:#fff;}
+.nav-brand-name{font-size:0.9rem;font-weight:700;color:#fff;}
+.nav-brand-name span{color:var(--accent);}
+.nav-links{display:flex;align-items:center;gap:0.15rem;}
+.nav-link{
+  padding:0.38rem 0.85rem;border-radius:20px;
+  font-size:0.82rem;font-weight:500;color:rgba(255,255,255,0.6);
+  background:none;border:none;cursor:pointer;font-family:inherit;
+  transition:color 0.15s,background 0.15s;
+}
+.nav-link:hover{color:#fff;}
+.nav-link.active{background:rgba(255,255,255,0.12);color:#fff;font-weight:600;}
+.nav-right{display:flex;align-items:center;gap:0.75rem;position:relative;}
+.nav-user-btn{
+  display:flex;align-items:center;gap:0.45rem;
+  padding:0.3rem 0.75rem;border-radius:20px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+  color:#fff;font-family:inherit;font-size:0.82rem;font-weight:500;cursor:pointer;
+  transition:background 0.15s;
+}
+.nav-user-btn:hover{background:rgba(255,255,255,0.15);}
+.nav-avatar{width:22px;height:22px;border-radius:50%;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#fff;flex-shrink:0;}
+.nav-chevron{font-size:0.65rem;opacity:0.6;transition:transform 0.15s;}
+.nav-dropdown{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--shadow-md);min-width:190px;display:none;z-index:200;overflow:hidden;
+}
+.nav-dropdown.open{display:block;}
+.nav-dd-header{padding:0.75rem 1rem;border-bottom:1px solid var(--border);background:var(--off);}
+.nav-dd-name{font-size:0.88rem;font-weight:700;color:var(--text);}
+.nav-dd-email{font-size:0.75rem;color:var(--gray2);}
+.nav-dd-item{
+  display:flex;align-items:center;gap:0.55rem;
+  padding:0.6rem 1rem;font-size:0.85rem;color:var(--text);
+  cursor:pointer;background:none;border:none;font-family:inherit;width:100%;text-align:left;
+  transition:background 0.1s;
+}
+.nav-dd-item:hover{background:var(--off);}
+.nav-dd-item.danger{color:var(--red);}
+.nav-dd-divider{height:1px;background:var(--border);margin:0.25rem 0;}
+
+/* ── Content ─────────────────────────────────────────────── */
+.content-area{flex:1;padding:1.75rem 2rem;}
+@media(max-width:768px){.content-area{padding:1rem;}}
+.content-section{display:none;}
+.content-section.active{display:block;}
+.page-header{margin-bottom:1.5rem;}
+.page-title{font-size:1.35rem;font-weight:800;color:var(--navy);letter-spacing:-0.01em;}
+.page-sub{font-size:0.86rem;color:var(--gray);margin-top:0.2rem;}
+
+/* ── Home ────────────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.stat-card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.2rem 1.4rem;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:0.3rem;
+}
+.stat-icon{font-size:1.3rem;margin-bottom:0.2rem;}
+.stat-label{font-size:0.75rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:0.06em;}
+.stat-value{font-size:1.9rem;font-weight:800;color:var(--navy);line-height:1;}
+.stat-sub{font-size:0.75rem;color:var(--gray2);}
+
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:800px){.home-grid{grid-template-columns:1fr;}}
+.home-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);}
+.home-card-title{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;}
+.quick-form{display:flex;gap:0.5rem;}
+.quick-input{
+  flex:1;padding:0.55rem 0.9rem;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-family:inherit;font-size:0.88rem;outline:none;transition:border-color 0.15s;
+}
+.quick-input:focus{border-color:var(--blue-mid);}
+.btn-accent{
+  padding:0.55rem 1.1rem;background:var(--accent);color:var(--navy);
+  font-family:inherit;font-size:0.85rem;font-weight:700;border:none;
+  border-radius:var(--radius);cursor:pointer;white-space:nowrap;transition:background 0.15s;
+}
+.btn-accent:hover{background:var(--accent2);}
+.recent-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.65rem 0;border-bottom:1px solid var(--border);
+}
+.recent-item:last-child{border-bottom:none;}
+.ri-left{display:flex;flex-direction:column;gap:0.1rem;}
+.ri-name{font-size:0.87rem;font-weight:600;color:var(--text);}
+.ri-code{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--blue-mid);}
+.ri-right .btn-mini{
+  padding:0.22rem 0.6rem;font-family:inherit;font-size:0.73rem;font-weight:600;
+  background:var(--blue-light);color:var(--blue-mid);border:1px solid #bfdbfe;
+  border-radius:5px;cursor:pointer;transition:background 0.1s;
+}
+.ri-right .btn-mini:hover{background:#dbeafe;}
+
+/* ── Search ──────────────────────────────────────────────── */
+.search-layout{display:grid;grid-template-columns:340px 1fr;gap:1rem;align-items:start;}
+@media(max-width:960px){.search-layout{grid-template-columns:1fr;}}
+.panel{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);}
+.panel-title{font-size:0.97rem;font-weight:700;color:var(--text);margin-bottom:1rem;}
+.mode-tabs{display:flex;background:var(--off);border-radius:var(--radius);padding:3px;gap:3px;margin-bottom:1rem;}
+.mode-tab{
+  flex:1;padding:0.38rem 0.5rem;border-radius:6px;
+  font-family:inherit;font-size:0.79rem;font-weight:500;
+  border:none;background:none;color:var(--gray);cursor:pointer;transition:all 0.15s;
+}
+.mode-tab.active{background:#fff;color:var(--navy);font-weight:700;box-shadow:var(--shadow);}
+.search-textarea{
+  width:100%;padding:0.65rem 0.9rem;min-height:88px;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-family:inherit;font-size:0.88rem;resize:none;outline:none;transition:border-color 0.15s;
+}
+.search-textarea:focus{border-color:var(--blue-mid);}
+.btn-search{
+  width:100%;margin-top:0.75rem;padding:0.65rem 1rem;
+  background:var(--blue-mid);color:#fff;
+  font-family:inherit;font-size:0.9rem;font-weight:700;
+  border:none;border-radius:var(--radius);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.15s;
+}
+.btn-search:hover{background:#1657c4;}
+.btn-search:disabled{opacity:0.55;cursor:not-allowed;}
+.search-note{font-size:0.73rem;color:var(--gray2);text-align:center;margin-top:0.5rem;line-height:1.5;}
+.search-note a{color:var(--blue-mid);font-weight:600;cursor:pointer;}
+.results-status{font-size:0.78rem;color:var(--gray);margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;}
+.results-list{display:flex;flex-direction:column;gap:0.75rem;max-height:72vh;overflow-y:auto;padding-right:4px;}
+.results-list::-webkit-scrollbar{width:4px;}
+.results-list::-webkit-scrollbar-track{background:transparent;}
+.results-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.result-card{
+  padding:1rem;border:1.5px solid var(--border);border-radius:var(--radius);
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.result-card:hover{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(30,111,217,0.06);}
+.result-header{display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.35rem;}
+.result-code{font-family:'JetBrains Mono',monospace;font-size:0.88rem;font-weight:500;color:var(--blue-mid);}
+.rate-badge{font-size:0.7rem;font-weight:700;padding:0.18rem 0.55rem;border-radius:999px;white-space:nowrap;flex-shrink:0;}
+.rate-free{background:var(--green-bg);color:var(--green);}
+.rate-percent{background:var(--blue-light);color:var(--blue);}
+.rate-specific,.rate-compound{background:var(--amber-bg);color:var(--amber);}
+.rate-unknown{background:var(--off);color:var(--gray2);}
+.result-desc{font-size:0.84rem;color:var(--gray);line-height:1.45;margin-bottom:0.4rem;}
+.result-rates{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.4rem;}
+.result-rate-item{font-size:0.74rem;color:var(--gray2);}
+.result-rate-item span{color:var(--gray);font-weight:500;}
+.result-actions{display:flex;gap:0.4rem;margin-top:0.45rem;}
+.btn-save-r{
+  padding:0.28rem 0.7rem;font-family:inherit;font-size:0.74rem;font-weight:600;
+  background:var(--blue-light);color:var(--blue-mid);border:1px solid #bfdbfe;border-radius:5px;cursor:pointer;
+  transition:background 0.1s;
+}
+.btn-save-r:hover{background:#dbeafe;}
+.btn-calc-r{
+  padding:0.28rem 0.7rem;font-family:inherit;font-size:0.74rem;font-weight:600;
+  background:var(--off);color:var(--gray);border:1px solid var(--border);border-radius:5px;cursor:pointer;
+  transition:background 0.1s;
+}
+.btn-calc-r:hover{background:var(--border);color:var(--text);}
+.conf-wrap{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;}
+.conf-bar-bg{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.conf-bar-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+.conf-high .conf-bar-fill{background:#22c55e;}
+.conf-mid .conf-bar-fill{background:var(--accent);}
+.conf-low .conf-bar-fill{background:var(--gray2);}
+.conf-label{font-size:0.7rem;font-weight:700;white-space:nowrap;min-width:6rem;text-align:right;}
+.conf-high .conf-label{color:#16a34a;}
+.conf-mid .conf-label{color:var(--amber);}
+.conf-low .conf-label{color:var(--gray2);}
+
+/* ── Calculator ──────────────────────────────────────────── */
+.calc-layout{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;}
+@media(max-width:900px){.calc-layout{grid-template-columns:1fr;}}
+.prod-selector-list{display:flex;flex-direction:column;gap:0.4rem;max-height:260px;overflow-y:auto;}
+.prod-opt{
+  padding:0.6rem 0.85rem;border:1.5px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;transition:all 0.15s;
+}
+.prod-opt:hover{border-color:#93c5fd;}
+.prod-opt.active{border-color:var(--blue-mid);background:var(--blue-light);}
+.po-name{font-size:0.87rem;font-weight:600;color:var(--text);}
+.po-code{font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:var(--blue-mid);}
+.po-rate{font-size:0.74rem;color:var(--gray2);}
+.divider{height:1px;background:var(--border);margin:1rem 0;}
+.field-group{display:flex;flex-direction:column;gap:0.25rem;margin-bottom:0.75rem;}
+.field-label{font-size:0.81rem;font-weight:600;color:var(--gray);}
+.field-input{
+  width:100%;padding:0.55rem 0.9rem;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-family:inherit;font-size:0.88rem;outline:none;transition:border-color 0.15s;
+}
+.field-input:focus{border-color:var(--blue-mid);}
+.calc-product-info{
+  padding:0.9rem;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  border-radius:var(--radius);margin-bottom:1.25rem;
+}
+.cpi-code{font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--accent);font-weight:600;margin-bottom:0.2rem;}
+.cpi-name{font-size:0.9rem;font-weight:600;color:#fff;margin-bottom:0.15rem;}
+.cpi-rate{font-size:0.78rem;color:rgba(255,255,255,0.55);}
+.notice-free{background:var(--green-bg);border:1px solid #bbf7d0;padding:0.85rem;border-radius:var(--radius);font-size:0.85rem;color:var(--green);display:flex;gap:0.5rem;align-items:flex-start;margin-bottom:0.75rem;}
+.notice-warn{background:var(--amber-bg);border:1px solid #fde68a;padding:0.75rem 0.9rem;border-radius:var(--radius);font-size:0.82rem;color:var(--amber);margin-bottom:0.75rem;}
+.calc-out{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+.calc-row{display:flex;justify-content:space-between;font-size:0.87rem;padding:0.18rem 0;}
+.calc-row .cl{color:var(--gray);}
+.calc-row .cv{font-weight:500;}
+.calc-row.sub{padding-left:1rem;}
+.calc-row.sub .cl{font-size:0.8rem;color:var(--gray2);}
+.calc-row.sub .cv{font-size:0.8rem;}
+.calc-total{display:flex;justify-content:space-between;margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid var(--border);}
+.calc-total .cl{font-weight:800;color:var(--navy);}
+.calc-total .cv{font-weight:800;color:var(--blue-mid);font-size:1.05rem;}
+.btn-save-calc{
+  margin-top:1rem;padding:0.5rem 1rem;width:100%;
+  font-family:inherit;font-size:0.85rem;font-weight:600;
+  background:var(--blue-light);color:var(--blue-mid);border:1px solid #bfdbfe;
+  border-radius:var(--radius);cursor:pointer;transition:background 0.1s;
+}
+.btn-save-calc:hover{background:#dbeafe;}
+
+/* ── History ─────────────────────────────────────────────── */
+.hist-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem;gap:0;}
+.hist-tab{
+  padding:0.55rem 1.1rem;font-family:inherit;font-size:0.87rem;font-weight:500;
+  background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;
+  cursor:pointer;color:var(--gray);transition:all 0.15s;
+}
+.hist-tab.active{color:var(--blue-mid);border-bottom-color:var(--blue-mid);font-weight:700;}
+.hist-panel{display:none;}
+.hist-panel.active{display:block;}
+.hist-list{display:flex;flex-direction:column;gap:0.5rem;}
+.hist-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.85rem 1rem;background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  transition:border-color 0.15s;
+}
+.hist-item:hover{border-color:#93c5fd;}
+.hi-query{font-size:0.88rem;font-weight:600;color:var(--text);}
+.hi-meta{font-size:0.74rem;color:var(--gray2);margin-top:0.1rem;}
+.hi-right{display:flex;align-items:center;gap:0.5rem;}
+.mode-pill{font-size:0.68rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:3px;}
+.mode-ai{background:var(--blue-light);color:var(--blue-mid);}
+.mode-keyword{background:var(--off);color:var(--gray);}
+.btn-rerun{
+  padding:0.24rem 0.65rem;font-family:inherit;font-size:0.74rem;font-weight:600;
+  background:var(--off);color:var(--gray);border:1px solid var(--border);border-radius:5px;
+  cursor:pointer;transition:background 0.1s;
+}
+.btn-rerun:hover{background:var(--border);}
+
+.saved-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.85rem 1rem;background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  transition:border-color 0.15s;cursor:pointer;
+}
+.saved-item:hover{border-color:#93c5fd;}
+.saved-item.selected{border-color:var(--blue-mid);background:var(--blue-light);}
+.si-name{font-size:0.88rem;font-weight:600;color:var(--text);}
+.si-code{font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:var(--blue-mid);}
+.si-meta{font-size:0.74rem;color:var(--gray2);}
+.si-actions{display:flex;gap:0.4rem;align-items:center;}
+.btn-del{
+  padding:0.24rem 0.5rem;font-family:inherit;font-size:0.74rem;font-weight:600;
+  background:none;color:var(--gray2);border:none;border-radius:4px;cursor:pointer;
+  transition:color 0.1s,background 0.1s;
+}
+.btn-del:hover{color:var(--red);background:var(--red-bg);}
+.filter-box{
+  width:100%;padding:0.5rem 0.9rem;margin-bottom:0.85rem;
+  border:1.5px solid var(--border);border-radius:var(--radius);
+  font-family:inherit;font-size:0.87rem;outline:none;transition:border-color 0.15s;
+}
+.filter-box:focus{border-color:var(--blue-mid);}
+
+/* ── Profile ─────────────────────────────────────────────── */
+.profile-layout{display:grid;grid-template-columns:280px 1fr;gap:1rem;align-items:start;}
+@media(max-width:800px){.profile-layout{grid-template-columns:1fr;}}
+.profile-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);text-align:center;}
+.profile-avatar{
+  width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;
+  background:linear-gradient(135deg,var(--blue-mid),var(--navy));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;font-weight:800;color:#fff;
+}
+.profile-name{font-size:1.1rem;font-weight:800;color:var(--navy);}
+.profile-email{font-size:0.82rem;color:var(--gray2);margin-bottom:1rem;}
+.profile-stats{display:flex;gap:0.5rem;justify-content:center;margin-top:1rem;}
+.pstat{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem 1rem;flex:1;text-align:center;}
+.pstat-val{font-size:1.3rem;font-weight:800;color:var(--navy);}
+.pstat-label{font-size:0.72rem;color:var(--gray2);font-weight:600;}
+.settings-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);}
+.settings-section{margin-bottom:1.75rem;}
+.settings-section:last-child{margin-bottom:0;}
+.settings-title{font-size:0.9rem;font-weight:700;color:var(--text);padding-bottom:0.6rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.btn-sm{
+  padding:0.5rem 1.1rem;font-family:inherit;font-size:0.85rem;font-weight:700;
+  background:var(--blue-mid);color:#fff;border:none;border-radius:var(--radius);
+  cursor:pointer;transition:background 0.15s;
+}
+.btn-sm:hover{background:#1657c4;}
+.success-msg{font-size:0.82rem;color:var(--green);margin-top:0.4rem;font-weight:500;}
+.error-msg{font-size:0.82rem;color:var(--red);margin-top:0.4rem;font-weight:500;}
+
+/* ── Modal ───────────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  display:flex;align-items:center;justify-content:center;
+  z-index:500;padding:1rem;backdrop-filter:blur(4px);
+}
+.modal-card{
+  background:#fff;border-radius:14px;padding:1.75rem;
+  width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,0.25);
+}
+.modal-title{font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:1.25rem;}
+.modal-fields{display:flex;flex-direction:column;gap:0.85rem;}
+.modal-field label{display:block;font-size:0.8rem;font-weight:600;color:var(--gray);margin-bottom:0.3rem;}
+.modal-meta{padding:0.55rem 0.85rem;background:var(--off);border:1px solid var(--border);border-radius:var(--radius);font-size:0.8rem;color:var(--gray);}
+.modal-footer{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;}
+.btn-outline{padding:0.48rem 1rem;font-family:inherit;font-size:0.85rem;font-weight:600;color:var(--gray);background:#fff;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:background 0.15s;}
+.btn-outline:hover{background:var(--off);}
+.btn-solid{padding:0.48rem 1rem;font-family:inherit;font-size:0.85rem;font-weight:700;color:#fff;background:var(--blue-mid);border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s;}
+.btn-solid:hover{background:#1657c4;}
+
+/* ── Shared ──────────────────────────────────────────────── */
+.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--gray2);font-size:0.87rem;line-height:1.65;}
+.empty-state .ei{font-size:2.2rem;margin-bottom:0.5rem;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.tag-pill{display:inline-flex;align-items:center;font-size:0.7rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:0.18rem 0.5rem;border-radius:3px;}
+.tag-blue{background:var(--blue-light);color:var(--blue-mid);}
+.tag-green{background:var(--green-bg);color:var(--green);}
+.tag-accent{background:#fef9e7;color:var(--amber);}
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════
-     VIEW: Sign In
-     ════════════════════════════════════════════ -->
-<div id="view-signin" class="auth-page hidden">
-  <div class="auth-card">
-    <h2>Sign in to your account</h2>
-    <div id="signin-error" class="error-box hidden"></div>
-    <div class="auth-form">
-      <input type="email" id="si-email" class="form-input" placeholder="Email address">
-      <input type="password" id="si-password" class="form-input" placeholder="Password">
-      <div class="form-row">
-        <label><input type="checkbox" class="checkbox"> Remember me</label>
+<!-- ═══════════════ AUTH: SIGN IN ════════════════════ -->
+<div id="view-signin" class="auth-view hidden">
+  <div class="auth-left">
+    <div class="auth-brand-row">
+      <div class="auth-mark">AG</div>
+      <span class="auth-brand-name">Atlas <span>Global</span></span>
+    </div>
+    <div class="auth-tagline">Import compliance, <span>powered by AI.</span></div>
+    <p class="auth-sub">Identify HTS codes, estimate duties, and ship with confidence — all from one intelligent platform.</p>
+    <div class="auth-feat-list">
+      <div class="auth-feat"><div class="auth-feat-dot"></div>AI-powered HTS code classification</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Real-time duty & tariff calculations</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Saved products & search history</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Live USITC database — 99+ chapters</div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-logo">
+        <div class="auth-card-mark">AG</div>
+        <span class="auth-card-brand">Atlas <span>Global</span></span>
       </div>
-      <button id="si-submit" class="btn-primary" onclick="doSignIn()">Sign in</button>
-      <div class="auth-footer">
-        Don't have an account? <a href="#" onclick="showView('signup'); return false;">Sign up</a>
+      <h2>Welcome back</h2>
+      <p class="auth-card-sub">Sign in to your account to continue</p>
+      <div id="signin-error" class="error-box hidden"></div>
+      <div class="auth-form">
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="si-email" class="form-input" placeholder="you@company.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="si-password" class="form-input" placeholder="••••••••">
+        </div>
+        <button id="si-submit" class="btn-primary" onclick="doSignIn()">Sign In</button>
+        <div class="auth-switch">Don't have an account? <a onclick="showView('signup')">Create one free</a></div>
+        <div class="auth-switch" style="margin-top:0.25rem;"><a onclick="window.location.href='/'">← Back to Atlas Global</a></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════
-     VIEW: Sign Up
-     ════════════════════════════════════════════ -->
-<div id="view-signup" class="auth-page hidden">
-  <div class="auth-card">
-    <h2>Create your account</h2>
-    <div id="signup-error" class="error-box hidden"></div>
-    <div class="auth-form">
-      <input type="text" id="su-name" class="form-input" placeholder="Full name">
-      <input type="email" id="su-email" class="form-input" placeholder="Email address">
-      <input type="password" id="su-password" class="form-input" placeholder="Password (min. 6 characters)">
-      <input type="password" id="su-confirm" class="form-input" placeholder="Confirm password">
-      <label style="font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
-        <input type="checkbox" class="checkbox" id="su-terms">
-        I agree to the Terms and Conditions
-      </label>
-      <button class="btn-primary" onclick="doSignUp()">Sign up</button>
-      <div class="auth-footer">
-        Already have an account? <a href="#" onclick="showView('signin'); return false;">Sign in</a>
+<!-- ═══════════════ AUTH: SIGN UP ════════════════════ -->
+<div id="view-signup" class="auth-view hidden">
+  <div class="auth-left">
+    <div class="auth-brand-row">
+      <div class="auth-mark">AG</div>
+      <span class="auth-brand-name">Atlas <span>Global</span></span>
+    </div>
+    <div class="auth-tagline">Start classifying with <span>confidence.</span></div>
+    <p class="auth-sub">Join thousands of importers who trust Atlas Global for fast, accurate HTS code identification and duty estimation.</p>
+    <div class="auth-feat-list">
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Free to get started</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Claude AI-powered smart search</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Save unlimited products</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>Full search history</div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-logo">
+        <div class="auth-card-mark">AG</div>
+        <span class="auth-card-brand">Atlas <span>Global</span></span>
+      </div>
+      <h2>Create your account</h2>
+      <p class="auth-card-sub">Get started in seconds — no credit card required</p>
+      <div id="signup-error" class="error-box hidden"></div>
+      <div class="auth-form">
+        <div class="form-group">
+          <label>Full name</label>
+          <input type="text" id="su-name" class="form-input" placeholder="Jane Smith">
+        </div>
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="su-email" class="form-input" placeholder="you@company.com">
+        </div>
+        <div class="form-group">
+          <label>Password <span style="font-weight:400;color:var(--gray2)">(min 6 characters)</span></label>
+          <input type="password" id="su-password" class="form-input" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label>Confirm password</label>
+          <input type="password" id="su-confirm" class="form-input" placeholder="••••••••">
+        </div>
+        <button class="btn-primary" onclick="doSignUp()">Create Account</button>
+        <div class="auth-switch">Already have an account? <a onclick="showView('signin')">Sign in</a></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════
-     VIEW: Dashboard
-     ════════════════════════════════════════════ -->
-<div id="view-dashboard" class="hidden">
-  <header class="app-header">
-    <div class="header-inner">
-      <h1>HTS Code Lookup</h1>
-      <div class="header-right">
-        <span class="header-user" id="header-user-name"></span>
-        <button class="btn-ghost" onclick="doSignOut()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign out
+<!-- ═══════════════ APP SHELL ════════════════════════ -->
+<div id="view-app" class="hidden">
+
+  <!-- NAV -->
+  <nav class="app-nav">
+    <div class="nav-brand" onclick="showSection('home')">
+      <div class="nav-brand-mark">AG</div>
+      <span class="nav-brand-name">Atlas <span>Global</span></span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link" id="nav-home" onclick="showSection('home')">Home</button>
+      <button class="nav-link" id="nav-search" onclick="showSection('search')">Search</button>
+      <button class="nav-link" id="nav-calculator" onclick="showSection('calculator')">Calculator</button>
+      <button class="nav-link" id="nav-history" onclick="showSection('history')">History</button>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user">
+        <button class="nav-user-btn" onclick="toggleDropdown()">
+          <div class="nav-avatar" id="nav-avatar">U</div>
+          <span id="nav-username">User</span>
+          <span class="nav-chevron">▾</span>
         </button>
-      </div>
-    </div>
-  </header>
-
-  <main class="dashboard">
-
-    <!-- Col 1: Saved Products -->
-    <div class="card">
-      <div class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-        Saved Products
-      </div>
-      <div class="search-input-wrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="product-filter" placeholder="Filter saved products..." oninput="renderProducts()">
-      </div>
-      <div id="product-list" class="product-list">
-        <div class="empty-state">No saved products yet</div>
-      </div>
-    </div>
-
-    <!-- Col 2: HTS Search -->
-    <div class="card">
-      <div class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Find HTS Code
-      </div>
-      <div class="search-mode-row">
-        <button id="mode-semantic" class="mode-btn active" onclick="setSearchMode('semantic')">Smart Search</button>
-        <button id="mode-keyword" class="mode-btn" onclick="setSearchMode('keyword')">Keyword / Code</button>
-      </div>
-      <textarea id="hts-query" class="search-textarea" rows="3"
-        placeholder="Describe your product in plain English (e.g. 'leather shoes with rubber soles')..."></textarea>
-      <div id="search-status" class="search-status"></div>
-      <button id="btn-search" class="btn-search" onclick="doHTSSearch()">Search HTS Codes</button>
-      <div id="hts-results" class="hts-results">
-        <div class="empty-state">Describe your product above to find matching HTS codes</div>
-      </div>
-    </div>
-
-    <!-- Col 3: Duty Calculator -->
-    <div class="card">
-      <div class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="14" stroke-width="3"/><line x1="16" y1="18" x2="16" y2="18" stroke-width="3"/><line x1="12" y1="14" x2="12" y2="14" stroke-width="3"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/><line x1="8" y1="14" x2="8" y2="14" stroke-width="3"/><line x1="8" y1="18" x2="8" y2="18" stroke-width="3"/></svg>
-        Duty Calculator
-      </div>
-      <div id="calc-body">
-        <div class="empty-state" style="padding:3rem 1rem;">
-          Select a saved product or click "Use in Calculator" on a search result
+        <div class="nav-dropdown" id="nav-dropdown">
+          <div class="nav-dd-header">
+            <div class="nav-dd-name" id="dd-name">User</div>
+            <div class="nav-dd-email" id="dd-email">user@example.com</div>
+          </div>
+          <button class="nav-dd-item" onclick="showSection('profile');closeDropdown()">
+            👤 &nbsp;Profile &amp; Settings
+          </button>
+          <div class="nav-dd-divider"></div>
+          <button class="nav-dd-item danger" onclick="doSignOut()">
+            ↩ &nbsp;Sign Out
+          </button>
         </div>
       </div>
     </div>
+  </nav>
 
-  </main>
-</div>
+  <!-- CONTENT -->
+  <div class="content-area">
 
-<!-- ════════════════════════════════════════════
-     MODAL: Save Product
-     ════════════════════════════════════════════ -->
+    <!-- ── HOME ── -->
+    <section id="section-home" class="content-section">
+      <div class="page-header">
+        <div class="page-title" id="home-title">Welcome back</div>
+        <div class="page-sub">Here's an overview of your import compliance activity.</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-label">Saved Products</div>
+          <div class="stat-value" id="stat-products">—</div>
+          <div class="stat-sub">in your dashboard</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔍</div>
+          <div class="stat-label">Total Searches</div>
+          <div class="stat-value" id="stat-searches">—</div>
+          <div class="stat-sub">HTS classifications run</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-label">HTS Codes in DB</div>
+          <div class="stat-value" id="stat-hts">—</div>
+          <div class="stat-sub">live tariff entries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🤖</div>
+          <div class="stat-label">AI Search</div>
+          <div class="stat-value" id="stat-ai">—</div>
+          <div class="stat-sub">powered by Claude</div>
+        </div>
+      </div>
+      <div class="home-grid">
+        <div class="home-card">
+          <div class="home-card-title">🚀 Quick Classify</div>
+          <div class="quick-form">
+            <input type="text" id="quick-query" class="quick-input" placeholder="Describe a product…" onkeydown="if(event.key==='Enter')quickSearch()">
+            <button class="btn-accent" onclick="quickSearch()">Classify →</button>
+          </div>
+          <p style="font-size:0.75rem;color:var(--gray2);margin-top:0.6rem;">Uses AI-powered search. Click to see full results.</p>
+        </div>
+        <div class="home-card">
+          <div class="home-card-title">📦 Recent Products</div>
+          <div id="home-recent-products">
+            <div class="empty-state" style="padding:1rem 0;"><div class="ei">📭</div>No saved products yet</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SEARCH ── -->
+    <section id="section-search" class="content-section">
+      <div class="page-header">
+        <div class="page-title">HTS Code Search</div>
+        <div class="page-sub">Find the right tariff code for any product using AI or keyword search.</div>
+      </div>
+      <div class="search-layout">
+        <!-- Left: search input -->
+        <div class="panel">
+          <div class="panel-title">Search Mode</div>
+          <div class="mode-tabs">
+            <button id="tab-ai" class="mode-tab active" onclick="setMode('ai')">🤖 AI Smart Search</button>
+            <button id="tab-kw" class="mode-tab" onclick="setMode('keyword')">🔑 Keyword / Code</button>
+          </div>
+          <textarea id="search-query" class="search-textarea" rows="3"
+            placeholder="Describe your product in plain English e.g. 'stainless steel cookware set'…"></textarea>
+          <button id="btn-search" class="btn-search" onclick="doSearch()">
+            Search HTS Codes
+          </button>
+          <p class="search-note" id="search-note">
+            AI mode uses <strong>Claude</strong> to intelligently classify your product.
+            <a onclick="setMode('keyword')">Switch to keyword →</a>
+          </p>
+        </div>
+        <!-- Right: results -->
+        <div class="panel">
+          <div id="results-status" class="results-status" style="display:none;"></div>
+          <div id="search-results" class="results-list">
+            <div class="empty-state">
+              <div class="ei">🔍</div>
+              Describe your product on the left to find matching HTS codes.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CALCULATOR ── -->
+    <section id="section-calculator" class="content-section">
+      <div class="page-header">
+        <div class="page-title">Duty Calculator</div>
+        <div class="page-sub">Estimate landed costs including duties, taxes, and fees for any HTS code.</div>
+      </div>
+      <div class="calc-layout">
+        <!-- Left: product selector + inputs -->
+        <div class="panel">
+          <div class="panel-title">Select a Product</div>
+          <div id="calc-product-list" class="prod-selector-list">
+            <div class="empty-state" style="padding:1rem 0;"><div class="ei">📭</div>No saved products</div>
+          </div>
+          <div class="divider"></div>
+          <div id="calc-fields" style="display:none;">
+            <div class="panel-title" style="margin-bottom:0.75rem;">Shipment Details</div>
+            <div class="field-group">
+              <label class="field-label">Product Value (USD)</label>
+              <input type="number" id="cv-val" class="field-input" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Shipping &amp; Freight (USD)</label>
+              <input type="number" id="cv-ship" class="field-input" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Insurance (USD)</label>
+              <input type="number" id="cv-ins" class="field-input" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+            </div>
+            <div id="cv-qty-group" class="field-group" style="display:none;">
+              <label class="field-label" id="cv-qty-label">Quantity / Weight</label>
+              <input type="number" id="cv-qty" class="field-input" min="0" step="0.001" placeholder="0" oninput="updateCalc()">
+            </div>
+            <div id="cv-ovr-group" class="field-group" style="display:none;">
+              <label class="field-label">Override Rate (%)</label>
+              <input type="number" id="cv-ovr" class="field-input" min="0" step="0.01" placeholder="e.g. 5" oninput="updateCalc()">
+            </div>
+          </div>
+        </div>
+        <!-- Right: results -->
+        <div class="panel">
+          <div class="panel-title">Calculation Results</div>
+          <div id="calc-output">
+            <div class="empty-state"><div class="ei">🧮</div>Select a product from the left to begin calculating.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HISTORY ── -->
+    <section id="section-history" class="content-section">
+      <div class="page-header">
+        <div class="page-title">History</div>
+        <div class="page-sub">Your saved products and past search activity.</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);">
+        <div class="hist-tabs">
+          <button class="hist-tab active" id="htab-products" onclick="switchHistTab('products')">📦 Saved Products</button>
+          <button class="hist-tab" id="htab-searches" onclick="switchHistTab('searches')">🔍 Search History</button>
+        </div>
+
+        <!-- Products panel -->
+        <div id="hist-products" class="hist-panel active">
+          <input type="text" class="filter-box" id="product-filter" placeholder="Filter by name, code, or origin…" oninput="renderProducts()">
+          <div id="products-list" class="hist-list">
+            <div class="empty-state"><div class="ei">📭</div>No saved products yet.</div>
+          </div>
+        </div>
+
+        <!-- Searches panel -->
+        <div id="hist-searches" class="hist-panel">
+          <div id="searches-list" class="hist-list">
+            <div class="empty-state"><div class="ei">⌛</div>No search history yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PROFILE ── -->
+    <section id="section-profile" class="content-section">
+      <div class="page-header">
+        <div class="page-title">Profile &amp; Settings</div>
+        <div class="page-sub">Manage your account information and preferences.</div>
+      </div>
+      <div class="profile-layout">
+        <!-- Left: profile card -->
+        <div class="profile-card">
+          <div class="profile-avatar" id="profile-avatar">U</div>
+          <div class="profile-name" id="profile-name">Loading…</div>
+          <div class="profile-email" id="profile-email">—</div>
+          <div style="font-size:0.75rem;color:var(--gray2);margin-bottom:0.5rem;">Member since <span id="profile-since">—</span></div>
+          <div class="profile-stats">
+            <div class="pstat">
+              <div class="pstat-val" id="pstat-products">—</div>
+              <div class="pstat-label">Products</div>
+            </div>
+            <div class="pstat">
+              <div class="pstat-val" id="pstat-searches">—</div>
+              <div class="pstat-label">Searches</div>
+            </div>
+          </div>
+        </div>
+        <!-- Right: settings -->
+        <div class="settings-card">
+          <div class="settings-section">
+            <div class="settings-title">Update Name</div>
+            <div class="form-group" style="margin-bottom:0.75rem;">
+              <label>Display Name</label>
+              <input type="text" id="prof-name" class="form-input" placeholder="Your name">
+            </div>
+            <button class="btn-sm" onclick="updateName()">Save Name</button>
+            <div id="name-msg" style="display:none;"></div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">Account Info</div>
+            <div style="font-size:0.85rem;color:var(--gray);line-height:1.8;">
+              <div>Email: <strong id="info-email">—</strong></div>
+              <div>Account created: <strong id="info-since">—</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content-area -->
+</div><!-- /view-app -->
+
+<!-- ═══════════════ MODAL: SAVE PRODUCT ══════════════ -->
 <div id="save-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
   <div class="modal-card">
-    <h3>Save Product to Dashboard</h3>
+    <div class="modal-title">Save Product to Dashboard</div>
     <div class="modal-fields">
       <div class="modal-field">
         <label>Product Name</label>
-        <input type="text" id="modal-name" class="form-input" placeholder="Enter a name for this product">
+        <input type="text" id="modal-name" class="form-input" placeholder="e.g. Stainless Steel Cookware Set">
       </div>
       <div class="modal-field">
         <label>HTS Code &amp; Rate</label>
         <div class="modal-meta" id="modal-meta"></div>
       </div>
       <div class="modal-field">
-        <label>Country of Origin <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+        <label>Country of Origin <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
         <input type="text" id="modal-origin" class="form-input" placeholder="e.g. China, Vietnam, Mexico">
       </div>
     </div>
@@ -805,27 +813,50 @@
 </div>
 
 <script>
-// ── State ──────────────────────────────────────────────────────────────────
-
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
 let currentUser   = null;
 let savedProducts = [];
-let selectedId    = null;  // id of selected saved product
-let calcProduct   = null;  // product loaded into calculator (may be unsaved)
-let _pendingSave  = null;  // data waiting for modal confirmation
-let _lastResults  = [];    // last HTS search results
+let searchHistory = [];
+let calcProduct   = null;   // product loaded in calculator
+let _pendingSave  = null;   // data waiting for modal
+let _lastResults  = [];     // last search results
+let searchMode    = 'ai';   // 'ai' | 'keyword'
+let calcSelectedId = null;
 
-// ── View routing ───────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  ROUTING
+// ════════════════════════════════════════════════════════
 
 function showView(name) {
-  document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-  document.getElementById('view-' + name).classList.remove('hidden');
+  ['signin','signup','app'].forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (el) el.classList.toggle('hidden', v !== name);
+  });
   document.querySelectorAll('.error-box').forEach(el => { el.classList.add('hidden'); el.textContent = ''; });
 }
 
-// ── API helper ─────────────────────────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+  const sec = document.getElementById('section-' + name);
+  if (sec) sec.classList.add('active');
+  const nav = document.getElementById('nav-' + name);
+  if (nav) nav.classList.add('active');
+
+  if (name === 'history') { loadProducts(); loadHistory(); }
+  if (name === 'home')    { loadHomeStats(); }
+  if (name === 'calculator') { renderCalcProductList(); }
+  if (name === 'profile') { renderProfile(); }
+}
+
+// ════════════════════════════════════════════════════════
+//  API HELPER
+// ════════════════════════════════════════════════════════
 
 async function api(method, path, body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+  const opts = { method, headers: {'Content-Type':'application/json'}, credentials: 'same-origin' };
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(path, opts);
   let data;
@@ -836,21 +867,30 @@ async function api(method, path, body) {
 
 function showError(id, msg) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.textContent = msg;
   el.classList.remove('hidden');
 }
 
-// ── Auth ───────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════════════
 
 async function doSignIn() {
   const email    = document.getElementById('si-email').value.trim();
   const password = document.getElementById('si-password').value;
-  if (!email || !password) return showError('signin-error', 'Please fill in all fields');
+  if (!email || !password) return showError('signin-error', 'Please fill in all fields.');
+  const btn = document.getElementById('si-submit');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Signing in…';
   try {
     const data = await api('POST', '/api/login', { email, password });
     currentUser = data.user;
-    await enterDashboard();
-  } catch (e) { showError('signin-error', e.message); }
+    await enterApp();
+  } catch (e) {
+    showError('signin-error', e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
 }
 
 async function doSignUp() {
@@ -858,31 +898,268 @@ async function doSignUp() {
   const email    = document.getElementById('su-email').value.trim();
   const password = document.getElementById('su-password').value;
   const confirm  = document.getElementById('su-confirm').value;
-  if (!name || !email || !password || !confirm) return showError('signup-error', 'Please fill in all fields');
-  if (password !== confirm) return showError('signup-error', 'Passwords do not match');
-  if (password.length < 6) return showError('signup-error', 'Password must be at least 6 characters');
+  if (!name || !email || !password || !confirm) return showError('signup-error', 'Please fill in all fields.');
+  if (password !== confirm) return showError('signup-error', 'Passwords do not match.');
+  if (password.length < 6) return showError('signup-error', 'Password must be at least 6 characters.');
   try {
     const data = await api('POST', '/api/register', { name, email, password });
     currentUser = data.user;
-    await enterDashboard();
+    await enterApp();
   } catch (e) { showError('signup-error', e.message); }
 }
 
 async function doSignOut() {
+  closeDropdown();
   await api('POST', '/api/logout');
-  currentUser = null; savedProducts = []; selectedId = null; calcProduct = null;
+  currentUser = null; savedProducts = []; searchHistory = []; calcProduct = null;
   showView('signin');
 }
 
-// ── Dashboard entry ────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  APP ENTRY
+// ════════════════════════════════════════════════════════
 
-async function enterDashboard() {
-  document.getElementById('header-user-name').textContent = currentUser?.name || '';
-  showView('dashboard');
+async function enterApp() {
+  // Set nav user info
+  const name = currentUser?.name || '';
+  document.getElementById('nav-username').textContent = name.split(' ')[0];
+  document.getElementById('nav-avatar').textContent = (name[0] || 'U').toUpperCase();
+  document.getElementById('dd-name').textContent = name;
+  document.getElementById('dd-email').textContent = currentUser?.email || '';
+  document.getElementById('home-title').textContent = 'Welcome back, ' + name.split(' ')[0] + ' 👋';
+
+  showView('app');
   await loadProducts();
+  await loadHomeStats();
+  showSection('home');
 }
 
-// ── Saved Products ─────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  NAV DROPDOWN
+// ════════════════════════════════════════════════════════
+
+function toggleDropdown() {
+  document.getElementById('nav-dropdown').classList.toggle('open');
+}
+function closeDropdown() {
+  document.getElementById('nav-dropdown').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-user')) closeDropdown();
+});
+
+// ════════════════════════════════════════════════════════
+//  HOME
+// ════════════════════════════════════════════════════════
+
+async function loadHomeStats() {
+  try {
+    const health = await api('GET', '/api/health');
+    document.getElementById('stat-hts').textContent = (health.total_codes || 0).toLocaleString();
+    document.getElementById('stat-ai').textContent = health.ai_search ? 'Active' : 'Off';
+  } catch {}
+
+  document.getElementById('stat-products').textContent = savedProducts.length;
+
+  try {
+    const me = await api('GET', '/api/me');
+    currentUser = { ...currentUser, ...me };
+    document.getElementById('stat-searches').textContent = me.searches_count || 0;
+  } catch {}
+
+  renderHomeRecent();
+}
+
+function renderHomeRecent() {
+  const el = document.getElementById('home-recent-products');
+  const recent = savedProducts.slice(0, 4);
+  if (!recent.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:1rem 0;"><div class="ei">📭</div>No saved products yet</div>';
+    return;
+  }
+  el.innerHTML = recent.map(p => `
+    <div class="recent-item">
+      <div class="ri-left">
+        <div class="ri-name">${esc(p.name)}</div>
+        <div class="ri-code">${esc(p.hts_code)}</div>
+      </div>
+      <div class="ri-right">
+        <button class="btn-mini" onclick="loadInCalc(${p.id})">Calculate</button>
+      </div>
+    </div>`).join('');
+}
+
+function quickSearch() {
+  const q = document.getElementById('quick-query').value.trim();
+  if (!q) return;
+  document.getElementById('search-query').value = q;
+  showSection('search');
+  doSearch();
+}
+
+function loadInCalc(id) {
+  const p = savedProducts.find(x => x.id === id);
+  if (!p) return;
+  calcProduct = p; calcSelectedId = id;
+  showSection('calculator');
+  renderCalcProductList();
+  renderCalcOutput();
+  document.getElementById('calc-fields').style.display = 'block';
+  const parsed = parseDutyRate(p.duty_rate);
+  document.getElementById('cv-qty-group').style.display =
+    (parsed.type === 'specific' || parsed.type === 'compound') ? 'block' : 'none';
+  if (parsed.type === 'specific' || parsed.type === 'compound') {
+    document.getElementById('cv-qty-label').textContent =
+      parsed.unit ? `Quantity / Weight (${parsed.unit})` : 'Quantity / Weight';
+  }
+  document.getElementById('cv-ovr-group').style.display = parsed.type === 'unknown' ? 'block' : 'none';
+}
+
+// ════════════════════════════════════════════════════════
+//  SEARCH
+// ════════════════════════════════════════════════════════
+
+function setMode(mode) {
+  searchMode = mode;
+  document.getElementById('tab-ai').classList.toggle('active', mode === 'ai');
+  document.getElementById('tab-kw').classList.toggle('active', mode === 'keyword');
+  const ta = document.getElementById('search-query');
+  const note = document.getElementById('search-note');
+  if (mode === 'ai') {
+    ta.placeholder = 'Describe your product in plain English e.g. "stainless steel cookware set"…';
+    note.innerHTML = 'AI mode uses <strong>Claude</strong> to intelligently classify your product. <a onclick="setMode(\'keyword\')">Switch to keyword →</a>';
+  } else {
+    ta.placeholder = 'Enter keywords or an HTS code prefix e.g. "cotton shirt" or "6109"…';
+    note.innerHTML = 'Keyword mode searches the full HTS database using text matching. <a onclick="setMode(\'ai\')">Switch to AI →</a>';
+  }
+}
+
+async function doSearch() {
+  const q = document.getElementById('search-query').value.trim();
+  if (!q) return;
+
+  const btn = document.getElementById('btn-search');
+  const resultsEl = document.getElementById('search-results');
+  const statusEl = document.getElementById('results-status');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Searching…';
+  resultsEl.innerHTML = '';
+  statusEl.style.display = 'none';
+
+  try {
+    let data;
+    if (searchMode === 'ai') {
+      data = await api('GET', '/api/ai-search?q=' + encodeURIComponent(q) + '&limit=10');
+      statusEl.innerHTML = `<span>🤖 AI match &nbsp;·&nbsp; ${data.count} results</span><span class="tag-pill tag-blue">Claude</span>`;
+    } else {
+      const isCode = /^[\d.]+$/.test(q);
+      const url = isCode ? '/api/lookup/' + encodeURIComponent(q) : '/api/search?q=' + encodeURIComponent(q);
+      data = await api('GET', url);
+      statusEl.innerHTML = `<span>🔑 Keyword match &nbsp;·&nbsp; ${data.count ?? data.results?.length ?? 0} results</span>`;
+    }
+
+    statusEl.style.display = 'flex';
+    _lastResults = data.results || [];
+
+    if (!_lastResults.length) {
+      resultsEl.innerHTML = '<div class="empty-state"><div class="ei">🔍</div>No results found for "' + esc(q) + '"</div>';
+      return;
+    }
+
+    resultsEl.innerHTML = _lastResults.map((r, i) => buildResultCard(r, i)).join('');
+
+    resultsEl.querySelectorAll('.btn-save-r').forEach(b => {
+      b.addEventListener('click', () => {
+        const r = _lastResults[+b.dataset.idx];
+        openSaveModal({ hts_code: r.hts_code, description: r.description, duty_rate: r.general || '', special: r.special || '' });
+      });
+    });
+    resultsEl.querySelectorAll('.btn-calc-r').forEach(b => {
+      b.addEventListener('click', () => useInCalculator(_lastResults[+b.dataset.idx]));
+    });
+
+  } catch (e) {
+    if (e.message.includes('not available') || e.message.includes('not configured')) {
+      resultsEl.innerHTML = `<div class="empty-state"><div class="ei">⚙️</div>AI search requires <strong>ANTHROPIC_API_KEY</strong>.<br>Switch to Keyword mode or set the key in your environment.</div>`;
+    } else {
+      resultsEl.innerHTML = '<div class="empty-state"><div class="ei">⚠️</div>' + esc(e.message) + '</div>';
+    }
+    statusEl.style.display = 'none';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Search HTS Codes';
+  }
+}
+
+function buildResultCard(r, i) {
+  const parsed = parseDutyRate(r.general);
+  const rateClass = 'rate-' + (parsed.type || 'unknown');
+  const rateText = parsed.type === 'free' ? 'Free'
+    : parsed.type === 'percent' ? parsed.rate + '%'
+    : parsed.type === 'specific' ? 'Specific'
+    : parsed.type === 'compound' ? 'Compound'
+    : r.general || '—';
+
+  const confHtml = (r.confidence != null) ? buildConfBar(r.confidence) : '';
+
+  const rates = [
+    r.general ? `<div class="result-rate-item">General: <span>${esc(r.general)}</span></div>` : '',
+    r.special ? `<div class="result-rate-item">Special: <span>${esc(r.special)}</span></div>` : '',
+    r.other   ? `<div class="result-rate-item">Other: <span>${esc(r.other)}</span></div>`     : '',
+    r.unit    ? `<div class="result-rate-item">Unit: <span>${esc(r.unit)}</span></div>`       : '',
+  ].filter(Boolean).join('');
+
+  return `<div class="result-card">
+    ${confHtml}
+    <div class="result-header">
+      <span class="result-code">${esc(r.hts_code || '—')}</span>
+      <span class="rate-badge ${rateClass}">${esc(rateText)}</span>
+    </div>
+    <div class="result-desc">${esc(r.description)}</div>
+    ${rates ? '<div class="result-rates">' + rates + '</div>' : ''}
+    <div class="result-actions">
+      <button class="btn-save-r" data-idx="${i}">+ Save</button>
+      <button class="btn-calc-r" data-idx="${i}">→ Calculator</button>
+    </div>
+  </div>`;
+}
+
+function buildConfBar(score) {
+  const pct = Math.min(Math.max(score, 0), 100);
+  const cls = pct >= 70 ? 'conf-high' : pct >= 45 ? 'conf-mid' : 'conf-low';
+  const lbl = pct >= 70 ? 'Strong match' : pct >= 45 ? 'Possible match' : 'Weak match';
+  return `<div class="conf-wrap ${cls}">
+    <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${pct}%"></div></div>
+    <span class="conf-label">${pct.toFixed(0)}% — ${lbl}</span>
+  </div>`;
+}
+
+function useInCalculator(r) {
+  calcProduct = {
+    id: null,
+    hts_code: r.hts_code,
+    name: r.description,
+    duty_rate: r.general || '',
+    special: r.special || '',
+    other: r.other || '',
+    unit: r.unit || '',
+    unsaved: true,
+  };
+  calcSelectedId = null;
+  showSection('calculator');
+  renderCalcProductList();
+  renderCalcOutput();
+  document.getElementById('calc-fields').style.display = 'block';
+  const parsed = parseDutyRate(r.general || '');
+  document.getElementById('cv-qty-group').style.display =
+    (parsed.type === 'specific' || parsed.type === 'compound') ? 'block' : 'none';
+  document.getElementById('cv-ovr-group').style.display = parsed.type === 'unknown' ? 'block' : 'none';
+}
+
+// ════════════════════════════════════════════════════════
+//  PRODUCTS
+// ════════════════════════════════════════════════════════
 
 async function loadProducts() {
   try {
@@ -893,205 +1170,58 @@ async function loadProducts() {
 }
 
 function renderProducts() {
-  const filter   = (document.getElementById('product-filter')?.value || '').toLowerCase();
+  const filter = (document.getElementById('product-filter')?.value || '').toLowerCase();
   const filtered = savedProducts.filter(p =>
     p.name.toLowerCase().includes(filter) ||
     p.hts_code.toLowerCase().includes(filter) ||
     (p.origin || '').toLowerCase().includes(filter)
   );
-  const el = document.getElementById('product-list');
+  const el = document.getElementById('products-list');
+  if (!el) return;
 
-  if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state">' +
-      (savedProducts.length === 0
-        ? 'No saved products yet — search for HTS codes and save them'
-        : 'No products match your filter') +
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">' +
+      (savedProducts.length === 0 ? '📭' : '🔍') + '</div>' +
+      (savedProducts.length === 0 ? 'No saved products yet.' : 'No products match your filter.') +
       '</div>';
     return;
   }
 
   el.innerHTML = filtered.map(p => {
     const parsed = parseDutyRate(p.duty_rate);
-    const rateLabel = parsed.type === 'free' ? 'Free'
-      : parsed.type === 'percent' ? parsed.rate + '%'
-      : parsed.type === 'specific' ? (p.duty_rate || '').split(' ')[0]
-      : p.duty_rate || '';
-    return `
-    <div class="product-item ${selectedId === p.id ? 'selected' : ''}" onclick="selectProduct(${p.id})">
-      <button class="delete-btn" onclick="event.stopPropagation(); deleteProduct(${p.id})" title="Remove">×</button>
-      <div class="p-name">${esc(p.name)}</div>
-      <div class="p-code">${esc(p.hts_code)}</div>
-      <div class="p-meta">${esc(rateLabel)} duty${p.origin ? ' &middot; ' + esc(p.origin) : ''}</div>
+    const rateStr = parsed.type === 'free' ? 'Free' : parsed.type === 'percent' ? parsed.rate + '%' : p.duty_rate || '';
+    return `<div class="saved-item ${calcSelectedId === p.id ? 'selected' : ''}" onclick="loadInCalc(${p.id})">
+      <div>
+        <div class="si-name">${esc(p.name)}</div>
+        <div class="si-code">${esc(p.hts_code)}</div>
+        <div class="si-meta">${esc(rateStr)} duty${p.origin ? ' · ' + esc(p.origin) : ''}</div>
+      </div>
+      <div class="si-actions">
+        <button class="btn-del" onclick="event.stopPropagation();deleteProduct(${p.id})" title="Delete">✕</button>
+      </div>
     </div>`;
   }).join('');
-}
-
-function selectProduct(id) {
-  selectedId  = id;
-  calcProduct = savedProducts.find(p => p.id === id) || null;
-  renderProducts();
-  renderCalculator();
 }
 
 async function deleteProduct(id) {
   try {
     await api('DELETE', '/api/products/' + id);
     savedProducts = savedProducts.filter(p => p.id !== id);
-    if (selectedId === id) { selectedId = null; calcProduct = null; renderCalculator(); }
+    if (calcSelectedId === id) { calcProduct = null; calcSelectedId = null; renderCalcOutput(); }
     renderProducts();
+    renderCalcProductList();
+    renderHomeRecent();
+    document.getElementById('stat-products').textContent = savedProducts.length;
   } catch {}
 }
 
-// ── Search mode ────────────────────────────────────────────────────────────
-
-let searchMode = 'semantic'; // 'semantic' | 'keyword'
-
-function setSearchMode(mode) {
-  searchMode = mode;
-  document.getElementById('mode-semantic').classList.toggle('active', mode === 'semantic');
-  document.getElementById('mode-keyword').classList.toggle('active', mode === 'keyword');
-  const ta = document.getElementById('hts-query');
-  if (mode === 'semantic') {
-    ta.placeholder = 'Describe your product in plain English (e.g. "leather shoes with rubber soles")...';
-  } else {
-    ta.placeholder = 'Enter keywords or an HTS code prefix (e.g. "cotton shirt" or "6109")...';
-  }
-  document.getElementById('search-status').textContent = '';
-}
-
-// ── HTS Search ─────────────────────────────────────────────────────────────
-
-async function doHTSSearch() {
-  const q = document.getElementById('hts-query').value.trim();
-  if (!q) return;
-
-  const btn    = document.getElementById('btn-search');
-  const status = document.getElementById('search-status');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Searching…';
-  status.textContent = '';
-
-  const el = document.getElementById('hts-results');
-  el.innerHTML = '';
-
-  try {
-    let data;
-
-    if (searchMode === 'semantic') {
-      data = await api('GET', '/api/semantic-search?q=' + encodeURIComponent(q) + '&limit=10');
-      status.textContent = `Semantic match · ${data.count} results`;
-    } else {
-      const isCode = /^[\d.]+$/.test(q);
-      const url = isCode
-        ? '/api/lookup/' + encodeURIComponent(q)
-        : '/api/search?q=' + encodeURIComponent(q);
-      data = await api('GET', url);
-      status.textContent = `Keyword match · ${data.count ?? data.results?.length ?? 0} results`;
-    }
-
-    _lastResults = data.results || [];
-
-    if (_lastResults.length === 0) {
-      el.innerHTML = '<div class="empty-state">No results found for "' + esc(q) + '"</div>';
-      return;
-    }
-
-    el.innerHTML = _lastResults.map((r, i) => {
-      const parsed   = parseDutyRate(r.general);
-      const tagClass = parsed.type;
-      const tagText  = parsed.type === 'free'     ? 'Free'
-                     : parsed.type === 'percent'  ? parsed.rate + '%'
-                     : parsed.type === 'specific' ? 'Specific'
-                     : parsed.type === 'compound' ? 'Compound'
-                     : r.general || '—';
-
-      const confHtml = (r.confidence != null) ? buildConfidenceBar(r.confidence) : '';
-
-      const ratesHtml = [
-        r.general ? `<div class="hts-rate-item">General: <span>${esc(r.general)}</span></div>` : '',
-        r.special ? `<div class="hts-rate-item">Special: <span>${esc(r.special)}</span></div>` : '',
-        r.other   ? `<div class="hts-rate-item">Other: <span>${esc(r.other)}</span></div>`     : '',
-        r.unit    ? `<div class="hts-rate-item">Unit: <span>${esc(r.unit)}</span></div>`       : '',
-      ].filter(Boolean).join('');
-
-      return `
-      <div class="hts-result">
-        ${confHtml}
-        <div class="hts-result-header">
-          <span class="hts-code-badge">${esc(r.hts_code || '—')}</span>
-          <span class="rate-tag ${tagClass}">${esc(tagText)}</span>
-        </div>
-        <div class="hts-desc">${esc(r.description)}</div>
-        ${ratesHtml ? '<div class="hts-rates">' + ratesHtml + '</div>' : ''}
-        <div class="result-actions">
-          <button class="save-btn" data-idx="${i}">+ Save to Dashboard</button>
-          <button class="calc-btn" data-idx="${i}">Use in Calculator</button>
-        </div>
-      </div>`;
-    }).join('');
-
-    el.querySelectorAll('.save-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const r = _lastResults[parseInt(btn.dataset.idx)];
-        openSaveModal({ hts_code: r.hts_code, description: r.description, duty_rate: r.general || '', special: r.special || '' });
-      });
-    });
-
-    el.querySelectorAll('.calc-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        useInCalculator(_lastResults[parseInt(btn.dataset.idx)]);
-      });
-    });
-
-  } catch (e) {
-    if (e.message.includes('still loading')) {
-      el.innerHTML = '<div class="empty-state">Smart Search is still loading — try again in a moment, or switch to Keyword mode.</div>';
-    } else {
-      el.innerHTML = '<div class="empty-state">Error: ' + esc(e.message) + '</div>';
-    }
-    status.textContent = '';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Search HTS Codes';
-  }
-}
-
-function buildConfidenceBar(score) {
-  const pct       = Math.min(Math.max(score, 0), 100);
-  const tierClass = pct >= 70 ? 'high' : pct >= 45 ? 'mid' : 'low';
-  const tierLabel = pct >= 70 ? 'Strong match' : pct >= 45 ? 'Possible match' : 'Weak match';
-  return `
-    <div class="confidence-wrap">
-      <div class="confidence-bar-bg">
-        <div class="confidence-bar-fill" style="width:${pct}%"></div>
-      </div>
-      <span class="confidence-label ${tierClass}">${pct.toFixed(0)}% — ${tierLabel}</span>
-    </div>`;
-}
-
-function useInCalculator(r) {
-  selectedId  = null;
-  calcProduct = {
-    hts_code:  r.hts_code,
-    name:      r.description,
-    duty_rate: r.general || '',
-    special:   r.special  || '',
-    other:     r.other    || '',
-    unit:      r.unit     || '',
-    unsaved:   true,
-  };
-  renderProducts();
-  renderCalculator();
-  // Scroll calculator into view on mobile
-  document.getElementById('calc-body').closest('.card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ── Save modal ─────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  SAVE MODAL
+// ════════════════════════════════════════════════════════
 
 function openSaveModal(data) {
   _pendingSave = data;
-  const nameDefault = (data.description || '').substring(0, 60);
-  document.getElementById('modal-name').value   = nameDefault;
+  document.getElementById('modal-name').value = (data.description || '').substring(0, 60);
   document.getElementById('modal-origin').value = data.origin || '';
   document.getElementById('modal-meta').textContent =
     (data.hts_code || '—') + '  ·  General: ' + (data.duty_rate || 'N/A') +
@@ -1114,210 +1244,268 @@ async function confirmSave() {
   const name   = document.getElementById('modal-name').value.trim();
   const origin = document.getElementById('modal-origin').value.trim();
   if (!name) { document.getElementById('modal-name').focus(); return; }
-
   const { hts_code, description, duty_rate } = _pendingSave;
-
   try {
     await api('POST', '/api/products', { name, hts_code, description: description || '', duty_rate: duty_rate || '', origin });
     closeSaveModal();
     await loadProducts();
-  } catch (e) {
-    alert('Could not save: ' + e.message);
-  }
+    renderHomeRecent();
+    document.getElementById('stat-products').textContent = savedProducts.length;
+    if (calcProduct?.unsaved && calcProduct?.hts_code === hts_code) {
+      calcProduct.unsaved = false;
+      calcProduct.name = name;
+    }
+  } catch (e) { alert('Could not save: ' + e.message); }
 }
 
-// Opens the save modal pre-filled with the current unsaved calc product
-function saveCalcProduct() {
-  if (!calcProduct || !calcProduct.unsaved) return;
-  openSaveModal({
-    hts_code:    calcProduct.hts_code,
-    description: calcProduct.name,
-    duty_rate:   calcProduct.duty_rate,
-    special:     calcProduct.special || '',
-  });
-}
+// ════════════════════════════════════════════════════════
+//  CALCULATOR
+// ════════════════════════════════════════════════════════
 
-// ── Duty Calculator ────────────────────────────────────────────────────────
-
-/**
- * Parse an HTS duty rate string into a structured object.
- * Handles: Free, percent (5.6%), specific (1.7¢/kg, $1.12/t), compound (2¢/kg + 2.8%)
- */
-function parseDutyRate(rateStr) {
-  if (!rateStr) return { type: 'unknown', display: '' };
-  const s = rateStr.trim();
-  const lower = s.toLowerCase();
-
-  if (lower === 'free' || lower === '') return { type: 'free', display: 'Free' };
-
-  // Compound: "X% + Y¢/unit" or "Y¢/unit + X%"
-  const comp1 = s.match(/([\d.]+)\s*%\s*\+\s*([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
-  if (comp1) return { type: 'compound', pct: parseFloat(comp1[1]), cents: parseFloat(comp1[2]), unit: comp1[3], display: s };
-
-  const comp2 = s.match(/([\d.]+)\s*[¢c]\s*\/\s*(\w+)\s*\+\s*([\d.]+)\s*%/i);
-  if (comp2) return { type: 'compound', cents: parseFloat(comp2[1]), unit: comp2[2], pct: parseFloat(comp2[3]), display: s };
-
-  // Simple percent (handles "5.6%" and "5.6% on the value of...")
-  // Make sure it doesn't also have a ¢/unit portion
-  if (s.match(/([\d.]+)\s*%/) && !s.match(/[¢c$]\/\w+/i)) {
-    const m = s.match(/([\d.]+)\s*%/);
-    return { type: 'percent', rate: parseFloat(m[1]), display: s };
-  }
-
-  // Specific cents: "1.7¢/kg"
-  const centsM = s.match(/^([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
-  if (centsM) return { type: 'specific', amountPerUnit: parseFloat(centsM[1]) / 100, unit: centsM[2], display: s };
-
-  // Dollar specific: "$1.12/t"
-  const dollarM = s.match(/^\$([\d.]+)\s*\/\s*(\w+)/);
-  if (dollarM) return { type: 'specific', amountPerUnit: parseFloat(dollarM[1]), unit: dollarM[2], display: s };
-
-  // Fallback: has a % somewhere (e.g., "5% on certain articles")
-  const anyPct = s.match(/([\d.]+)\s*%/);
-  if (anyPct) return { type: 'percent', rate: parseFloat(anyPct[1]), display: s };
-
-  return { type: 'unknown', display: s };
-}
-
-function renderCalculator() {
-  const el = document.getElementById('calc-body');
-
-  if (!calcProduct) {
-    el.innerHTML = '<div class="empty-state" style="padding:3rem 1rem;">Select a saved product or click "Use in Calculator" on a search result</div>';
+function renderCalcProductList() {
+  const el = document.getElementById('calc-product-list');
+  if (!el) return;
+  if (!savedProducts.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:1rem 0;"><div class="ei">📭</div>No saved products.<br><a onclick="showSection(\'search\')" style="color:var(--blue-mid);font-weight:600;cursor:pointer;">Search for one →</a></div>';
     return;
   }
+  el.innerHTML = savedProducts.map(p => {
+    const parsed = parseDutyRate(p.duty_rate);
+    const rateStr = parsed.type === 'free' ? 'Free' : parsed.type === 'percent' ? parsed.rate + '%' : p.duty_rate || 'N/A';
+    return `<div class="prod-opt ${calcSelectedId === p.id ? 'active' : ''}" onclick="selectCalcProduct(${p.id})">
+      <div class="po-name">${esc(p.name)}</div>
+      <div class="po-code">${esc(p.hts_code)}</div>
+      <div class="po-rate">${esc(rateStr)} duty${p.origin ? ' · ' + esc(p.origin) : ''}</div>
+    </div>`;
+  }).join('');
+}
 
-  const p      = calcProduct;
+function selectCalcProduct(id) {
+  const p = savedProducts.find(x => x.id === id);
+  if (!p) return;
+  calcProduct = p; calcSelectedId = id;
+  renderCalcProductList();
+  renderCalcOutput();
+  document.getElementById('calc-fields').style.display = 'block';
+  // Reset inputs
+  ['cv-val','cv-ship','cv-ins','cv-qty','cv-ovr'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
   const parsed = parseDutyRate(p.duty_rate);
-  const needsQty = parsed.type === 'specific' || parsed.type === 'compound';
-
-  const unsavedBadge = p.unsaved
-    ? '<div><span class="cs-unsaved">Unsaved — not in your dashboard yet</span></div>'
-    : '';
-
-  const saveRowHtml = p.unsaved
-    ? `<div class="calc-save-row"><button class="save-btn" onclick="saveCalcProduct()">+ Save to Dashboard</button></div>`
-    : '';
-
-  let bodyHtml = '';
-
-  if (parsed.type === 'free') {
-    bodyHtml = `
-      <div class="rate-free-notice">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>This product enters duty-free under the general rate. No import duty applies.</span>
-      </div>
-      ${p.special ? '<div class="hts-rate-item" style="font-size:0.8rem;margin-bottom:0.5rem;">Special (FTA): <span style="color:var(--text-secondary);font-weight:500">' + esc(p.special) + '</span></div>' : ''}
-      ${saveRowHtml}`;
-  } else {
-    const unknownNote = parsed.type === 'unknown' && parsed.display ? `
-      <div class="rate-unknown-notice">
-        <strong>Complex rate:</strong> ${esc(parsed.display)}<br>
-        Enter an estimated percentage below for an approximate calculation.
-      </div>` : '';
-
-    const qtyLabel = needsQty ? (parsed.unit ? `Quantity / Weight (${parsed.unit})` : 'Quantity / Weight') : '';
-
-    bodyHtml = `
-      ${unknownNote}
-      <div class="calc-fields">
-        <div class="calc-field">
-          <label>Product Value (USD)</label>
-          <input type="number" id="cv-value" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
-        </div>
-        <div class="calc-field">
-          <label>Shipping &amp; Freight (USD)</label>
-          <input type="number" id="cv-shipping" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
-        </div>
-        <div class="calc-field">
-          <label>Insurance (USD)</label>
-          <input type="number" id="cv-insurance" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
-        </div>
-        ${needsQty ? `
-        <div class="calc-field">
-          <label>${esc(qtyLabel)}</label>
-          <input type="number" id="cv-quantity" min="0" step="0.001" placeholder="0" oninput="updateCalc()">
-        </div>` : ''}
-        ${parsed.type === 'unknown' ? `
-        <div class="calc-field">
-          <label>Override Rate (%)</label>
-          <input type="number" id="cv-override" min="0" step="0.01" placeholder="e.g. 5" oninput="updateCalc()">
-        </div>` : ''}
-      </div>
-      <div id="calc-output" class="calc-results hidden"></div>
-      ${saveRowHtml}`;
+  document.getElementById('cv-qty-group').style.display =
+    (parsed.type === 'specific' || parsed.type === 'compound') ? 'block' : 'none';
+  if (parsed.type === 'specific' || parsed.type === 'compound') {
+    document.getElementById('cv-qty-label').textContent =
+      parsed.unit ? `Quantity / Weight (${parsed.unit})` : 'Quantity / Weight';
   }
+  document.getElementById('cv-ovr-group').style.display = parsed.type === 'unknown' ? 'block' : 'none';
+  // Hide output until user enters values
+  document.getElementById('calc-output').innerHTML = `
+    <div class="calc-product-info">
+      <div class="cpi-code">${esc(p.hts_code)}</div>
+      <div class="cpi-name">${esc(p.name)}</div>
+      <div class="cpi-rate">General duty: ${esc(p.duty_rate || 'N/A')}${p.origin ? ' · Origin: ' + esc(p.origin) : ''}</div>
+    </div>
+    <div class="empty-state" style="padding:1.5rem 0;"><div class="ei">💡</div>Enter shipment values on the left.</div>`;
+}
 
+function renderCalcOutput() {
+  const el = document.getElementById('calc-output');
+  if (!calcProduct) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">🧮</div>Select a product from the left to begin calculating.</div>';
+    return;
+  }
+  const p = calcProduct;
+  const parsed = parseDutyRate(p.duty_rate);
+  const unsavedBadge = p.unsaved ? `<div style="margin-top:0.4rem;"><span class="tag-pill tag-accent">Unsaved — not in dashboard</span></div>` : '';
   el.innerHTML = `
-    <div class="calc-selected">
-      <div class="cs-name">${esc(p.name || p.description || p.hts_code)}</div>
-      <div class="cs-detail" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--indigo-600)">${esc(p.hts_code)}</div>
-      <div class="cs-detail">General rate: ${esc(p.duty_rate || 'N/A')}</div>
-      ${p.special ? '<div class="cs-detail">Special (FTA): ' + esc(p.special) + '</div>' : ''}
-      ${p.origin  ? '<div class="cs-detail">Origin: ' + esc(p.origin) + '</div>' : ''}
+    <div class="calc-product-info">
+      <div class="cpi-code">${esc(p.hts_code)}</div>
+      <div class="cpi-name">${esc(p.name || p.description || p.hts_code)}</div>
+      <div class="cpi-rate">General duty: ${esc(p.duty_rate || 'N/A')}${p.origin ? ' · Origin: ' + esc(p.origin) : ''}</div>
       ${unsavedBadge}
     </div>
-    ${bodyHtml}`;
+    ${parsed.type === 'free' ? buildFreeNotice(p) : ''}
+    ${parsed.type === 'unknown' && p.duty_rate ? `<div class="notice-warn"><strong>Complex rate:</strong> ${esc(p.duty_rate)} — enter an estimated percentage.</div>` : ''}
+    <div id="calc-result-rows"></div>
+    ${p.unsaved ? `<button class="btn-save-calc" onclick="openSaveModal({hts_code:'${esc(p.hts_code)}',description:'${esc(p.name)}',duty_rate:'${esc(p.duty_rate||'')}',special:'${esc(p.special||'')}' })">+ Save to Dashboard</button>` : ''}`;
+}
+
+function buildFreeNotice(p) {
+  return `<div class="notice-free">
+    <span>✓</span>
+    <span>This product enters duty-free under the general rate. No import duty applies.
+    ${p.special ? '<br><small>Special (FTA): ' + esc(p.special) + '</small>' : ''}</span>
+  </div>`;
 }
 
 function updateCalc() {
   if (!calcProduct) return;
-  const el = document.getElementById('calc-output');
-  if (!el) return;
+  const rows = document.getElementById('calc-result-rows');
+  if (!rows) return;
 
-  const val  = parseFloat(document.getElementById('cv-value')?.value)    || 0;
-  const ship = parseFloat(document.getElementById('cv-shipping')?.value)  || 0;
-  const ins  = parseFloat(document.getElementById('cv-insurance')?.value) || 0;
-  const qty  = parseFloat(document.getElementById('cv-quantity')?.value)  || 0;
-  const ovr  = parseFloat(document.getElementById('cv-override')?.value)  || 0;
-
+  const val  = parseFloat(document.getElementById('cv-val')?.value)  || 0;
+  const ship = parseFloat(document.getElementById('cv-ship')?.value) || 0;
+  const ins  = parseFloat(document.getElementById('cv-ins')?.value)  || 0;
+  const qty  = parseFloat(document.getElementById('cv-qty')?.value)  || 0;
+  const ovr  = parseFloat(document.getElementById('cv-ovr')?.value)  || 0;
   const customs = val + ship + ins;
-  const parsed  = parseDutyRate(calcProduct.duty_rate);
 
-  if (customs === 0 && qty === 0) { el.classList.add('hidden'); return; }
+  const parsed = parseDutyRate(calcProduct.duty_rate);
+  if (customs === 0 && qty === 0) { rows.innerHTML = ''; return; }
 
-  let dutyAmount = 0;
-  let dutyRows   = [];
+  let duty = 0, dutyRows = [];
 
-  if (parsed.type === 'percent') {
-    dutyAmount = (customs * parsed.rate) / 100;
-    dutyRows.push({ label: `Ad valorem (${parsed.rate}%)`, value: dutyAmount });
-
+  if (parsed.type === 'free') {
+    rows.innerHTML = '';
+    return;
+  } else if (parsed.type === 'percent') {
+    duty = (customs * parsed.rate) / 100;
+    dutyRows.push({ label: `Ad valorem (${parsed.rate}%)`, val: duty });
   } else if (parsed.type === 'specific') {
-    dutyAmount = qty * parsed.amountPerUnit;
-    dutyRows.push({ label: `Specific ($${parsed.amountPerUnit.toFixed(4)}/${parsed.unit})`, value: dutyAmount });
-
+    duty = qty * parsed.amountPerUnit;
+    dutyRows.push({ label: `Specific ($${parsed.amountPerUnit.toFixed(4)}/${parsed.unit})`, val: duty });
   } else if (parsed.type === 'compound') {
-    const adVal   = (customs * parsed.pct) / 100;
-    const specVal = qty * (parsed.cents / 100);
-    dutyAmount    = adVal + specVal;
-    dutyRows.push({ label: `Ad valorem (${parsed.pct}%)`, value: adVal, sub: true });
-    dutyRows.push({ label: `Specific (${parsed.cents}¢/${parsed.unit})`, value: specVal, sub: true });
-    dutyRows.push({ label: 'Total Duty', value: dutyAmount });
-
+    const av  = (customs * parsed.pct) / 100;
+    const sp  = qty * (parsed.cents / 100);
+    duty      = av + sp;
+    dutyRows.push({ label: `Ad valorem (${parsed.pct}%)`, val: av, sub: true });
+    dutyRows.push({ label: `Specific (${parsed.cents}¢/${parsed.unit})`, val: sp, sub: true });
+    dutyRows.push({ label: 'Total Duty', val: duty });
   } else {
-    // unknown — use override rate if provided
     if (ovr > 0) {
-      dutyAmount = (customs * ovr) / 100;
-      dutyRows.push({ label: `Estimated duty (${ovr}%)`, value: dutyAmount });
-    } else {
-      el.classList.add('hidden');
-      return;
-    }
+      duty = (customs * ovr) / 100;
+      dutyRows.push({ label: `Estimated duty (${ovr}%)`, val: duty });
+    } else { rows.innerHTML = ''; return; }
   }
 
-  const total = customs + dutyAmount;
-
-  el.classList.remove('hidden');
-  el.innerHTML = `
-    <div class="calc-row"><span class="label">Customs Value (CIF):</span><span class="value">$${fmt(customs)}</span></div>
-    ${dutyRows.map(r =>
-      `<div class="calc-row${r.sub ? ' sub' : ''}"><span class="label">${esc(r.label)}:</span><span class="value">$${fmt(r.value)}</span></div>`
-    ).join('')}
-    <div class="calc-total"><span class="label">Estimated Total Cost:</span><span class="value">$${fmt(total)}</span></div>`;
+  const total = customs + duty;
+  rows.innerHTML = `
+    <div class="calc-out">
+      <div class="calc-row"><span class="cl">Customs Value (CIF):</span><span class="cv">$${fmt(customs)}</span></div>
+      ${dutyRows.map(r => `<div class="calc-row ${r.sub ? 'sub' : ''}"><span class="cl">${esc(r.label)}:</span><span class="cv">$${fmt(r.val)}</span></div>`).join('')}
+      <div class="calc-total"><span class="cl">Estimated Total Cost:</span><span class="cv">$${fmt(total)}</span></div>
+    </div>`;
 }
 
-// ── Utility ────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  HISTORY
+// ════════════════════════════════════════════════════════
+
+async function loadHistory() {
+  try {
+    const data = await api('GET', '/api/history');
+    searchHistory = data.history || [];
+  } catch { searchHistory = []; }
+  renderHistory();
+}
+
+function switchHistTab(tab) {
+  document.querySelectorAll('.hist-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.hist-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('htab-' + tab).classList.add('active');
+  document.getElementById('hist-' + tab).classList.add('active');
+}
+
+function renderHistory() {
+  const el = document.getElementById('searches-list');
+  if (!el) return;
+  if (!searchHistory.length) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">⌛</div>No search history yet.</div>';
+    return;
+  }
+  el.innerHTML = searchHistory.map(h => {
+    const date = new Date(h.created_at + 'Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return `<div class="hist-item">
+      <div>
+        <div class="hi-query">${esc(h.query)}</div>
+        <div class="hi-meta">${date} · ${h.result_count} results</div>
+      </div>
+      <div class="hi-right">
+        <span class="mode-pill ${h.mode === 'ai' ? 'mode-ai' : 'mode-keyword'}">${h.mode === 'ai' ? 'AI' : 'Keyword'}</span>
+        <button class="btn-rerun" onclick="rerunSearch(${JSON.stringify(h.query)}, ${JSON.stringify(h.mode)})">Re-run</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function rerunSearch(query, mode) {
+  document.getElementById('search-query').value = query;
+  searchMode = mode;
+  setMode(mode);
+  showSection('search');
+  doSearch();
+}
+
+// ════════════════════════════════════════════════════════
+//  PROFILE
+// ════════════════════════════════════════════════════════
+
+async function renderProfile() {
+  try {
+    const me = await api('GET', '/api/me');
+    currentUser = { ...currentUser, ...me };
+    const initials = (me.name || '').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+    document.getElementById('profile-avatar').textContent = initials;
+    document.getElementById('profile-name').textContent = me.name || '—';
+    document.getElementById('profile-email').textContent = me.email || '—';
+    document.getElementById('prof-name').value = me.name || '';
+    document.getElementById('info-email').textContent = me.email || '—';
+    const since = me.created_at ? new Date(me.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : '—';
+    document.getElementById('profile-since').textContent = since;
+    document.getElementById('info-since').textContent = since;
+    document.getElementById('pstat-products').textContent = me.products_count ?? '—';
+    document.getElementById('pstat-searches').textContent = me.searches_count ?? '—';
+  } catch {}
+}
+
+async function updateName() {
+  const name = document.getElementById('prof-name').value.trim();
+  const msg  = document.getElementById('name-msg');
+  if (!name) { msg.className = 'error-msg'; msg.textContent = 'Name cannot be empty.'; msg.style.display = 'block'; return; }
+  try {
+    await api('PATCH', '/api/me', { name });
+    currentUser.name = name;
+    document.getElementById('nav-username').textContent = name.split(' ')[0];
+    document.getElementById('nav-avatar').textContent = name[0].toUpperCase();
+    document.getElementById('dd-name').textContent = name;
+    msg.className = 'success-msg'; msg.textContent = 'Name updated successfully.'; msg.style.display = 'block';
+    await renderProfile();
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+  } catch (e) { msg.className = 'error-msg'; msg.textContent = e.message; msg.style.display = 'block'; }
+}
+
+// ════════════════════════════════════════════════════════
+//  DUTY RATE PARSER
+// ════════════════════════════════════════════════════════
+
+function parseDutyRate(rateStr) {
+  if (!rateStr) return { type: 'unknown', display: '' };
+  const s = rateStr.trim();
+  const lower = s.toLowerCase();
+  if (lower === 'free' || lower === '') return { type: 'free', display: 'Free' };
+
+  const comp1 = s.match(/([\d.]+)\s*%\s*\+\s*([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
+  if (comp1) return { type: 'compound', pct: parseFloat(comp1[1]), cents: parseFloat(comp1[2]), unit: comp1[3], display: s };
+  const comp2 = s.match(/([\d.]+)\s*[¢c]\s*\/\s*(\w+)\s*\+\s*([\d.]+)\s*%/i);
+  if (comp2) return { type: 'compound', cents: parseFloat(comp2[1]), unit: comp2[2], pct: parseFloat(comp2[3]), display: s };
+
+  if (s.match(/([\d.]+)\s*%/) && !s.match(/[¢c$]\/\w+/i)) {
+    const m = s.match(/([\d.]+)\s*%/);
+    return { type: 'percent', rate: parseFloat(m[1]), display: s };
+  }
+  const centsM = s.match(/^([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
+  if (centsM) return { type: 'specific', amountPerUnit: parseFloat(centsM[1]) / 100, unit: centsM[2], display: s };
+  const dollarM = s.match(/^\$([\d.]+)\s*\/\s*(\w+)/);
+  if (dollarM) return { type: 'specific', amountPerUnit: parseFloat(dollarM[1]), unit: dollarM[2], display: s };
+  const anyPct = s.match(/([\d.]+)\s*%/);
+  if (anyPct) return { type: 'percent', rate: parseFloat(anyPct[1]), display: s };
+  return { type: 'unknown', display: s };
+}
+
+// ════════════════════════════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════════════════════════════
 
 function fmt(n) {
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1330,26 +1518,38 @@ function esc(s) {
   return d.innerHTML;
 }
 
-// Enter key on auth forms
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  if (!document.getElementById('view-signin').classList.contains('hidden')) doSignIn();
-  else if (!document.getElementById('view-signup').classList.contains('hidden')) doSignUp();
-  else if (!document.getElementById('save-modal').classList.contains('hidden')) confirmSave();
-});
+// ════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ════════════════════════════════════════════════════════
 
-// Escape key closes modal
 document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!document.getElementById('view-signin').classList.contains('hidden')) doSignIn();
+    else if (!document.getElementById('view-signup').classList.contains('hidden')) doSignUp();
+    else if (!document.getElementById('save-modal').classList.contains('hidden')) confirmSave();
+  }
   if (e.key === 'Escape') closeSaveModal();
 });
 
-// ── Init: check session ────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
 
 (async () => {
   try {
     const user = await api('GET', '/api/me');
     currentUser = user;
-    await enterDashboard();
+    await loadProducts();
+    await enterApp();
+
+    // If landing page sent a ?q= param, jump to search
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) {
+      document.getElementById('search-query').value = q;
+      showSection('search');
+      doSearch();
+    }
   } catch {
     showView('signin');
   }

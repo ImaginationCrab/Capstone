@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Global — Classify with Confidence</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#0b1f3a;
+  --navy2:#142848;
+  --blue:#1a5cad;
+  --blue-mid:#1e6fd9;
+  --accent:#f0b429;
+  --white:#ffffff;
+  --off:#f5f7fb;
+  --gray:#6b7280;
+  --gray2:#9ca3af;
+  --text:#111827;
+  --border:#e5e7eb;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#fff;overflow-x:hidden;}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 3.5rem;height:68px;
+  background:rgba(11,31,58,0.97);
+  backdrop-filter:blur(10px);
+}
+.nav-logo{display:flex;align-items:center;gap:0.5rem;text-decoration:none;}
+.nav-logo-mark{width:30px;height:30px;border-radius:6px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:#fff;}
+.nav-logo-text{font-size:1.08rem;font-weight:700;color:#fff;}
+.nav-logo-text span{color:var(--accent);}
+nav ul{list-style:none;display:flex;gap:2rem;}
+nav ul a{text-decoration:none;color:rgba(255,255,255,0.75);font-size:0.88rem;font-weight:500;transition:color 0.2s;}
+nav ul a:hover{color:#fff;}
+.nav-right{display:flex;align-items:center;gap:1rem;}
+.nav-signup{color:rgba(255,255,255,0.75);font-size:0.88rem;font-weight:500;text-decoration:none;transition:color 0.2s;}
+.nav-signup:hover{color:#fff;}
+.nav-btn{background:var(--blue-mid);color:#fff;font-size:0.85rem;font-weight:600;padding:0.5rem 1.3rem;border-radius:20px;text-decoration:none;border:none;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;gap:0.3rem;}
+.nav-btn:hover{background:#1657c4;}
+
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:linear-gradient(to right, rgba(10,25,50,0.88) 38%, rgba(10,25,50,0.2) 100%),
+    url('https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1600&q=80') center/cover no-repeat;
+}
+.hero-content{position:relative;z-index:1;padding:8rem 3.5rem 4rem;max-width:620px;}
+.hero-pill{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:#fff;font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:0.35rem 0.9rem;border-radius:20px;margin-bottom:1.4rem;}
+.hero-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.hero h1{font-size:clamp(2.4rem,4.5vw,3.6rem);font-weight:800;color:#fff;line-height:1.1;margin-bottom:1.2rem;letter-spacing:-0.02em;}
+.hero h1 span{color:var(--accent);}
+.hero-sub{font-size:1.02rem;color:rgba(255,255,255,0.75);line-height:1.72;margin-bottom:2.2rem;max-width:480px;}
+.hero-search{display:flex;max-width:460px;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.25);}
+.hero-search input{flex:1;border:none;outline:none;padding:0.9rem 1.2rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;color:var(--text);background:transparent;}
+.hero-search input::placeholder{color:var(--gray2);}
+.hero-search button{background:var(--blue-mid);color:#fff;border:none;cursor:pointer;padding:0 1.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:600;display:flex;align-items:center;gap:0.4rem;transition:background 0.2s;white-space:nowrap;}
+.hero-search button:hover{background:#1657c4;}
+
+.trust-strip{background:#fff;padding:1.8rem 3.5rem;border-bottom:1px solid var(--border);}
+.trust-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap;}
+.trust-label{font-size:0.72rem;color:var(--gray2);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;white-space:nowrap;}
+.trust-logos{display:flex;gap:2.5rem;align-items:center;flex-wrap:wrap;flex:1;}
+.trust-logo{font-size:0.82rem;font-weight:700;color:var(--gray2);letter-spacing:0.04em;text-transform:uppercase;}
+
+.testimonial-section{padding:5rem 3.5rem;background:#fff;}
+.testimonial-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;}
+.testi-tag{font-size:0.72rem;font-weight:700;color:var(--blue-mid);letter-spacing:0.1em;text-transform:uppercase;display:inline-block;background:#e8f0fc;padding:0.3rem 0.75rem;border-radius:4px;margin-bottom:1rem;}
+.testi-quote{font-size:1.3rem;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:1.2rem;}
+.testi-quote span{color:var(--blue-mid);}
+.testi-stars{color:var(--accent);font-size:1rem;margin-bottom:0.6rem;}
+.testi-attr{font-size:0.84rem;color:var(--gray);}
+.testi-attr strong{color:var(--text);}
+.testi-img{border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#1a5cad 0%,#0b2d6e 100%);height:280px;display:flex;align-items:center;justify-content:center;}
+.testi-img-inner{text-align:center;color:#fff;}
+.testi-img-inner .big-num{font-size:4rem;font-weight:800;display:block;color:rgba(255,255,255,0.15);}
+.testi-img-inner .caption{font-size:0.9rem;font-weight:500;opacity:0.8;}
+
+.section-tag{display:inline-block;font-size:0.72rem;font-weight:700;color:var(--blue-mid);letter-spacing:0.1em;text-transform:uppercase;background:#e8f0fc;padding:0.3rem 0.75rem;border-radius:4px;margin-bottom:0.85rem;}
+.section-title{font-size:clamp(1.7rem,3vw,2.3rem);font-weight:800;color:var(--text);line-height:1.2;margin-bottom:0.8rem;letter-spacing:-0.02em;}
+.section-sub{font-size:0.97rem;color:var(--gray);line-height:1.7;max-width:480px;}
+
+.services-section{padding:5rem 3.5rem;background:var(--off);}
+.services-inner{max-width:1100px;margin:0 auto;}
+.services-header{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:end;margin-bottom:2.5rem;}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
+.service-card{border-radius:10px;overflow:hidden;background:#fff;border:1px solid var(--border);transition:transform 0.2s,box-shadow 0.2s;}
+.service-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.09);}
+.service-card-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative;overflow:hidden;}
+.service-card-img.blue{background:linear-gradient(135deg,#1a5cad,#0b2d6e);}
+.service-card-img.steel{background:linear-gradient(135deg,#2d4a7a,#162a4f);}
+.service-card-img.teal{background:linear-gradient(135deg,#0d7a6e,#094f49);}
+.service-chip{position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.2);color:#fff;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.25rem 0.6rem;border-radius:3px;}
+.service-card-body{padding:1.2rem 1.3rem;}
+.service-card-body h4{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;}
+.service-card-body p{font-size:0.82rem;color:var(--gray);line-height:1.6;}
+
+.solution-section{padding:5rem 3.5rem;background:#fff;}
+.solution-inner{max-width:1100px;margin:0 auto;}
+.solution-header{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;margin-bottom:3rem;}
+.features-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;}
+.feature-block{background:var(--off);border:1px solid var(--border);border-radius:10px;padding:1.6rem;transition:border-color 0.2s,transform 0.2s;}
+.feature-block:hover{border-color:var(--blue-mid);transform:translateY(-3px);}
+.feature-block.wide{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;background:var(--navy);border:none;color:#fff;}
+.feature-main-text .feat-eyebrow{font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.6rem;}
+.feature-main-text h3{font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:0.7rem;line-height:1.3;}
+.feature-main-text p{font-size:0.87rem;color:rgba(255,255,255,0.7);line-height:1.65;}
+.feature-visual{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:1.4rem;}
+.mini-code{display:flex;flex-direction:column;gap:0;}
+.mini-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:0.8rem;}
+.mini-row:last-child{border-bottom:none;}
+.mini-key{color:rgba(255,255,255,0.45);}
+.mini-val{color:#fff;font-weight:600;text-align:right;}
+.mini-val.hts{color:var(--accent);font-size:1.1rem;}
+.mini-val.green{color:#4ade80;}
+.conf-track{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:4px;}
+.conf-fill{height:100%;width:91%;background:#4ade80;border-radius:2px;animation:barGrow 1.5s ease-out 0.5s both;}
+@keyframes barGrow{from{width:0}}
+.feature-block-small .feat-icon{width:40px;height:40px;border-radius:8px;background:#e8f0fc;display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:0.8rem;}
+.feature-block-small h3{font-size:0.98rem;font-weight:700;color:var(--text);margin-bottom:0.45rem;}
+.feature-block-small p{font-size:0.83rem;color:var(--gray);line-height:1.6;}
+.feat-chips{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem;}
+.feat-chip{font-size:0.72rem;font-weight:700;color:var(--blue-mid);background:#e8f0fc;padding:0.2rem 0.6rem;border-radius:3px;}
+
+.how-section{padding:5rem 3.5rem;background:var(--off);}
+.how-inner{max-width:1100px;margin:0 auto;}
+.how-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3rem;position:relative;}
+.how-steps::before{content:'';position:absolute;top:27px;left:calc(12.5% + 14px);right:calc(12.5% + 14px);height:2px;background:var(--border);z-index:0;}
+.how-step{text-align:center;position:relative;z-index:1;}
+.how-num{width:56px;height:56px;border-radius:50%;margin:0 auto 1rem;background:#fff;border:2px solid var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:var(--blue-mid);}
+.how-step h4{font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;}
+.how-step p{font-size:0.8rem;color:var(--gray);line-height:1.6;}
+
+.audience-section{padding:5rem 3.5rem;background:#fff;}
+.audience-inner{max-width:1100px;margin:0 auto;}
+.audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;margin-top:3rem;}
+.persona-list{display:flex;flex-direction:column;gap:0.9rem;}
+.persona-item{display:flex;align-items:center;gap:1rem;background:#fff;border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;transition:border-color 0.2s;}
+.persona-item:hover{border-color:var(--blue-mid);}
+.persona-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue-mid),var(--navy));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.persona-name{font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:0.15rem;}
+.persona-desc{font-size:0.78rem;color:var(--gray);line-height:1.4;}
+.audience-right{display:flex;flex-direction:column;gap:1rem;}
+.scope-card{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:1.3rem 1.4rem;}
+.scope-card h4{font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;}
+.scope-card p{font-size:0.82rem;color:var(--gray);line-height:1.6;}
+.scope-card.hl{border-left:3px solid var(--blue-mid);}
+
+.insights-section{padding:5rem 3.5rem;background:var(--off);}
+.insights-inner{max-width:1100px;margin:0 auto;}
+.insights-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;}
+.insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
+.insight-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
+.insight-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.07);}
+.insight-img{height:140px;display:flex;align-items:flex-end;padding:0.8rem;position:relative;}
+.insight-img.i1{background:linear-gradient(135deg,#1e3a5f,#0b1f3a);}
+.insight-img.i2{background:linear-gradient(135deg,#0d4f47,#062e2b);}
+.insight-img.i3{background:linear-gradient(135deg,#4a2060,#2a1040);}
+.insight-meta{display:flex;justify-content:space-between;width:100%;align-items:center;}
+.insight-date{font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.05em;}
+.insight-tag-pill{font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1);padding:0.2rem 0.5rem;border-radius:3px;}
+.insight-body{padding:1.1rem 1.2rem;}
+.insight-body h5{font-size:0.88rem;font-weight:700;color:var(--text);margin-bottom:0.35rem;line-height:1.4;}
+.insight-body p{font-size:0.82rem;color:var(--gray);line-height:1.55;}
+
+.faq-section{padding:5rem 3.5rem;background:#fff;}
+.faq-inner{max-width:760px;margin:0 auto;}
+.faq-item{border-bottom:1px solid var(--border);padding:1.1rem 0;cursor:pointer;}
+.faq-q{display:flex;justify-content:space-between;align-items:center;font-size:0.97rem;font-weight:600;color:var(--text);}
+.faq-icon{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--gray);transition:transform 0.2s;flex-shrink:0;}
+.faq-a{font-size:0.87rem;color:var(--gray);line-height:1.7;margin-top:0.75rem;display:none;}
+.faq-item.open .faq-a{display:block;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+
+.cta-section{padding:5rem 3.5rem;background:var(--navy);text-align:center;}
+.cta-inner{max-width:580px;margin:0 auto;}
+.cta-section h2{font-size:2rem;font-weight:800;color:#fff;margin-bottom:0.9rem;letter-spacing:-0.02em;}
+.cta-section p{font-size:1rem;color:rgba(255,255,255,0.65);margin-bottom:2rem;line-height:1.65;}
+.cta-form{display:flex;max-width:420px;margin:0 auto;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+.cta-form input{flex:1;background:#fff;border:none;outline:none;padding:0.9rem 1.1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;color:var(--text);}
+.cta-form input::placeholder{color:var(--gray2);}
+.cta-form button{background:var(--blue-mid);color:#fff;border:none;cursor:pointer;padding:0 1.4rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:700;white-space:nowrap;transition:background 0.2s;}
+.cta-form button:hover{background:#1657c4;}
+.cta-note{font-size:0.76rem;color:rgba(255,255,255,0.4);margin-top:0.9rem;}
+
+footer{background:var(--navy2);padding:3.5rem 3.5rem 2rem;}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.5fr;gap:2.5rem;margin-bottom:3rem;}
+.footer-logo{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.9rem;}
+.footer-logo-mark{width:28px;height:28px;border-radius:5px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:#fff;}
+.footer-logo-text{font-size:0.98rem;font-weight:700;color:#fff;}
+.footer-logo-text span{color:var(--accent);}
+.footer-brand p{font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.65;max-width:220px;}
+.footer-col h5{font-size:0.78rem;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.9rem;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:0.55rem;}
+.footer-col ul li a{font-size:0.83rem;color:rgba(255,255,255,0.55);text-decoration:none;transition:color 0.2s;}
+.footer-col ul li a:hover{color:#fff;}
+.footer-contact h5{font-size:0.78rem;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.9rem;}
+.cf{margin-bottom:0.65rem;}
+.cf label{display:block;font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:0.3rem;}
+.cf input,.cf select,.cf textarea{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:0.5rem 0.7rem;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;outline:none;}
+.cf textarea{resize:none;height:56px;}
+.cf select option{background:var(--navy2);}
+.contact-btn{width:100%;background:var(--blue-mid);color:#fff;border:none;border-radius:4px;padding:0.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;margin-top:0.3rem;transition:background 0.2s;}
+.contact-btn:hover{background:#1657c4;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;}
+.footer-bottom p{font-size:0.78rem;color:rgba(255,255,255,0.35);}
+.social-row{display:flex;gap:0.6rem;}
+.social-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:rgba(255,255,255,0.5);text-decoration:none;transition:background 0.2s;}
+.social-btn:hover{background:var(--blue-mid);color:#fff;}
+.see-more{font-size:0.82rem;font-weight:600;color:var(--blue-mid);text-decoration:none;display:flex;align-items:center;gap:0.3rem;border:1px solid var(--border);padding:0.45rem 0.9rem;border-radius:20px;transition:border-color 0.2s;}
+.see-more:hover{border-color:var(--blue-mid);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.hero-content>*{animation:fadeUp 0.7s ease-out both;}
+.hero-content>*:nth-child(1){animation-delay:0.1s;}
+.hero-content>*:nth-child(2){animation-delay:0.2s;}
+.hero-content>*:nth-child(3){animation-delay:0.3s;}
+.hero-content>*:nth-child(4){animation-delay:0.42s;}
+
+@media(max-width:900px){
+  nav ul{display:none;}
+  nav,section,footer,.trust-strip{padding-left:1.5rem !important;padding-right:1.5rem !important;}
+  .testimonial-inner,.services-header,.solution-header,.audience-grid,.footer-top{grid-template-columns:1fr !important;}
+  .services-grid,.features-row,.how-steps,.insights-grid{grid-template-columns:1fr !important;}
+  .feature-block.wide{grid-column:auto !important;grid-template-columns:1fr !important;}
+  .how-steps::before{display:none;}
+  .footer-top{grid-template-columns:1fr 1fr !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">AG</div>
+    <span class="nav-logo-text">Atlas<span> Global</span></span>
+  </a>
+  <ul>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#audience">Who It's For</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="/app" class="nav-signup">Sign in</a>
+    <a href="/app" class="nav-btn">Get Started ›</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-pill">Import Compliance Intelligence</div>
+    <h1>Precision in Every <span>Classification.</span></h1>
+    <p class="hero-sub">Ensure every shipment is compliant, on time, and fully protected with AI-powered HTS code identification and real-time tariff guidance.</p>
+    <div class="hero-search">
+      <input type="text" id="hero-query" placeholder="Describe your product to get an HTS code…" />
+      <button onclick="heroSearch()">🔍 Classify</button>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    <span class="trust-label">Data sourced from</span>
+    <div class="trust-logos">
+      <span class="trust-logo">CBP.gov</span>
+      <span class="trust-logo">USITC</span>
+      <span class="trust-logo">WCO Data</span>
+      <span class="trust-logo">Schedule B</span>
+      <span class="trust-logo">HTS Online</span>
+      <span class="trust-logo">Census Bureau</span>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial-section">
+  <div class="testimonial-inner">
+    <div>
+      <span class="testi-tag">Customers Say</span>
+      <p class="testi-quote">"Atlas Global transformed how we handle import compliance. <span>Real-time HTS classification and AI confidence scores</span> keep our operations running without costly mistakes."</p>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-attr"><strong>Maria Chen</strong>, Operations Manager at Pacific Trade Co.</p>
+    </div>
+    <div class="testi-img">
+      <div class="testi-img-inner">
+        <span class="big-num">91%</span>
+        <span class="caption">Average AI confidence score<br/>on first classification</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM / SERVICES -->
+<section class="services-section" id="problem">
+  <div class="services-inner">
+    <div class="services-header">
+      <div>
+        <div class="section-tag">Our Services</div>
+        <h2 class="section-title">Compliance Solutions That Move You Forward</h2>
+      </div>
+      <p class="section-sub">Misclassification mistakes are "high stakes" — they lead to penalties that far exceed any savings from route optimization. Atlas Global tackles the real risk head-on.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-card-img blue">
+          <span class="service-chip">Priority #1</span>
+          🔍
+        </div>
+        <div class="service-card-body">
+          <h4>HTS Code Identification</h4>
+          <p>AI-powered tariff code lookup powered by a continuously updating live database. Enter products in plain language — no prior classification expertise required.</p>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-card-img steel">
+          <span class="service-chip">Priority #2</span>
+          💰
+        </div>
+        <div class="service-card-body">
+          <h4>Duty &amp; Cost Estimation</h4>
+          <p>Automatic calculation of all applicable duties, taxes, and fees based on your shipment details — full financial transparency before you commit to a shipment.</p>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-card-img teal">
+          <span class="service-chip">Priority #3</span>
+          🎯
+        </div>
+        <div class="service-card-body">
+          <h4>AI Confidence Scoring</h4>
+          <p>Every classification gets a High / Medium / Low confidence rating with a plain-language explanation, so you know exactly when to seek expert review.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION / FEATURES -->
+<section class="solution-section" id="solution">
+  <div class="solution-inner">
+    <div class="solution-header">
+      <div>
+        <div class="section-tag">Our Solution</div>
+        <h2 class="section-title">All-in-One Import Compliance System</h2>
+      </div>
+      <p class="section-sub">Simplify tariff classification, track live compliance data, and protect your business from costly HTS mistakes — all in one purpose-built tool.</p>
+    </div>
+    <div class="features-row">
+      <div class="feature-block wide">
+        <div class="feature-main-text">
+          <div class="feat-eyebrow">Core Feature</div>
+          <h3>Unified Dashboard for Total Classification Control</h3>
+          <p>Enter product details in plain language. Our engine matches your goods to the most accurate HTS code from a live, government-sourced database — and shows you exactly how confident it is in the result.</p>
+        </div>
+        <div class="feature-visual">
+          <div class="mini-code">
+            <div class="mini-row"><span class="mini-key">Product</span><span class="mini-val">Stainless Steel Cookware Set</span></div>
+            <div class="mini-row"><span class="mini-key">Origin</span><span class="mini-val">Vietnam</span></div>
+            <div class="mini-row"><span class="mini-key">HTS Code</span><span class="mini-val hts">7323.93.0060</span></div>
+            <div class="mini-row"><span class="mini-key">Est. Duty</span><span class="mini-val">$496.00 (2.0%)</span></div>
+            <div class="mini-row">
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px;">
+                  <span class="mini-key">AI Confidence</span><span class="mini-val green">91% — High</span>
+                </div>
+                <div class="conf-track"><div class="conf-fill"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-block feature-block-small">
+        <div class="feat-icon">⚡</div>
+        <h3>Cut Classification Time</h3>
+        <p>What takes customs brokers hours takes Atlas Global seconds — with smarter AI routing, live data, and verified accuracy you can trust.</p>
+        <div class="feat-chips">
+          <span class="feat-chip">Speed</span>
+          <span class="feat-chip">Accuracy</span>
+        </div>
+      </div>
+      <div class="feature-block feature-block-small">
+        <div class="feat-icon">🛡️</div>
+        <h3>Protect Against Penalties</h3>
+        <p>You want fast, affordable, error-free compliance. Atlas Global delivers all three, costing far less than a single misclassification fine.</p>
+        <div class="feat-chips">
+          <span class="feat-chip">Safety</span>
+          <span class="feat-chip">Reliability</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="how-inner">
+    <div style="text-align:center;margin-bottom:0.5rem;">
+      <div class="section-tag" style="display:inline-block;">How It Works</div>
+    </div>
+    <h2 class="section-title" style="text-align:center;margin-bottom:0;">From input to clarity in four steps</h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <h4>Enter Product Details</h4>
+        <p>Name, description, country of origin, declared value — in plain language. No HTS expertise needed.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <h4>System Validates Input</h4>
+        <p>We check completeness before searching. Missing info? We prompt you — with your previous entries saved.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <h4>Live Database Search</h4>
+        <p>Our continuously updated HTS database finds the most accurate tariff code using current government sources.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <h4>Review &amp; Ship Confidently</h4>
+        <p>See your HTS code, duty estimate, and AI confidence score. Accept or refine — then proceed with total clarity.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCE -->
+<section class="audience-section" id="audience">
+  <div class="audience-inner">
+    <div class="section-tag">Who It's For</div>
+    <h2 class="section-title">Built for the People Doing the Work</h2>
+    <div class="audience-grid">
+      <div class="persona-list">
+        <div class="persona-item">
+          <div class="persona-av">👩‍💼</div>
+          <div>
+            <div class="persona-name">Operations Manager</div>
+            <div class="persona-desc">Responsible for compliance without a dedicated team. Needs confidence before submitting declarations.</div>
+          </div>
+        </div>
+        <div class="persona-item">
+          <div class="persona-av">🚢</div>
+          <div>
+            <div class="persona-name">Freight Coordinator</div>
+            <div class="persona-desc">Manages international shipments daily. Wants fast, reliable HTS lookups without hours of manual research.</div>
+          </div>
+        </div>
+        <div class="persona-item">
+          <div class="persona-av">🏭</div>
+          <div>
+            <div class="persona-name">SMB Owner / Founder</div>
+            <div class="persona-desc">Imports goods at volume but can't justify a full customs team. Needs affordable, accurate tooling.</div>
+          </div>
+        </div>
+        <div class="persona-item">
+          <div class="persona-av">🔗</div>
+          <div>
+            <div class="persona-name">Supply Chain Professional</div>
+            <div class="persona-desc">Navigates multi-origin sourcing and tariff exposure. Values live data over static resources.</div>
+          </div>
+        </div>
+      </div>
+      <div class="audience-right">
+        <div class="scope-card hl">
+          <h4>Primary Focus: SMBs (10–500 Employees)</h4>
+          <p>Small and medium businesses that import regularly but lack dedicated compliance teams. Most exposed to tariff volatility, least protected by existing tooling.</p>
+        </div>
+        <div class="scope-card">
+          <h4>Why Not Enterprise?</h4>
+          <p>Larger businesses have invested in compliance infrastructure, leaving less room for improvement. SMBs have the highest need and the biggest gap in the market.</p>
+        </div>
+        <div class="scope-card">
+          <h4>Psychographic Profile</h4>
+          <p>Pragmatic, risk-aware professionals who focus on their core product or service — and need logistics compliance to be fast, affordable, and frictionless.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSIGHTS -->
+<section class="insights-section">
+  <div class="insights-inner">
+    <div class="insights-header">
+      <div>
+        <div class="section-tag">Latest Insights</div>
+        <h2 class="section-title" style="margin-bottom:0;">What We Learned from the Field</h2>
+      </div>
+      <a href="#" class="see-more">See more ›</a>
+    </div>
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-img i1">
+          <div class="insight-meta">
+            <span class="insight-date">Discovery · July 2025</span>
+            <span class="insight-tag-pill">News</span>
+          </div>
+        </div>
+        <div class="insight-body">
+          <h5>HTS misclassification is the #1 pain point for SMB importers — not shipping costs</h5>
+          <p>Customer interviews across LinkedIn and Reddit revealed that professionals fear classification errors far more than freight prices.</p>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-img i2">
+          <div class="insight-meta">
+            <span class="insight-date">Discovery · July 2025</span>
+            <span class="insight-tag-pill">News</span>
+          </div>
+        </div>
+        <div class="insight-body">
+          <h5>How live compliance data integration keeps tariff recommendations reliable and current</h5>
+          <p>Outdated HTS schedules are as dangerous as no schedule at all. We track changes in real time from official government sources.</p>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-img i3">
+          <div class="insight-meta">
+            <span class="insight-date">Product · July 2025</span>
+            <span class="insight-tag-pill">News</span>
+          </div>
+        </div>
+        <div class="insight-body">
+          <h5>Why we built AI confidence scoring into the core MVP — not as an afterthought</h5>
+          <p>Professionals need to know how certain a classification is before submitting. A score without context isn't enough.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="faq-inner">
+    <div style="margin-bottom:2.5rem;">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Questions &amp; Answers</h2>
+    </div>
+    <div class="faq-item open" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What is Atlas Global and how does it work? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Atlas Global is an AI-powered import compliance tool. You enter your product details in plain language, and our system searches a live, continuously updated HTS database to return the most accurate tariff code, duty estimate, and an AI confidence score — all in under a minute.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Do I need to understand HTS codes to use Atlas Global? <span class="faq-icon">+</span></div>
+      <div class="faq-a">No. Atlas Global is built specifically for professionals who aren't customs experts. Just describe your product in plain language — the system handles all the classification logic.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">How accurate is the HTS code identification? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Our classification engine is tested against known product-HTS pairings and verified duty amounts. Every result includes a confidence rating so you know exactly how reliable the match is and when human review is advisable.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What does the AI confidence score mean? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Every classification receives a High, Medium, or Low confidence rating with a plain-language explanation. A Low score triggers a clear warning to double-check before proceeding — reducing the risk of costly misclassifications.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">How does Atlas Global handle tariff changes and updates? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Our database syncs continuously with official government tariff schedule sources, ensuring recommendations always reflect the most current codes and rates — never outdated data that could lead to penalties.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="cta-inner">
+    <div class="section-tag" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);display:inline-block;margin-bottom:1rem;">Early Access</div>
+    <h2>Stop guessing. Start classifying.</h2>
+    <p>Join the waitlist and be among the first importers to use Atlas Global when we launch. Help us build the compliance tool SMBs actually need.</p>
+    <div class="cta-form">
+      <input type="email" placeholder="your@company.com" />
+      <button>Join Waitlist →</button>
+    </div>
+    <p class="cta-note">No spam. Early access only. Unsubscribe anytime.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-mark">AG</div>
+        <span class="footer-logo-text">Atlas<span> Global</span></span>
+      </div>
+      <p>An intelligent import compliance platform that helps you identify HTS codes, estimate duties, and ship with confidence.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Leadership</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press &amp; Media</a></li>
+        <li><a href="#">Partnerships</a></li>
+        <li><a href="#">Sustainability</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Features</h5>
+      <ul>
+        <li><a href="#">HTS Identification</a></li>
+        <li><a href="#">Duty Estimator</a></li>
+        <li><a href="#">AI Confidence Score</a></li>
+        <li><a href="#">Live Compliance Data</a></li>
+        <li><a href="#">Product Updates</a></li>
+        <li><a href="#">Download Center</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Support</h5>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Plan Your Shipment</a></li>
+        <li><a href="#">Live Chat</a></li>
+        <li><a href="#">Report an Issue</a></li>
+      </ul>
+    </div>
+    <div class="footer-contact">
+      <h5>Contact Us</h5>
+      <div class="cf">
+        <label>Email Address (Required)</label>
+        <input type="email" placeholder="you@company.com" />
+      </div>
+      <div class="cf">
+        <label>Full Name (Required)</label>
+        <input type="text" placeholder="Jane Smith" />
+      </div>
+      <div class="cf">
+        <label>Service Type</label>
+        <select><option>HTS Classification</option><option>Duty Estimation</option><option>General Inquiry</option></select>
+      </div>
+      <div class="cf">
+        <label>Message</label>
+        <textarea placeholder="How can we help?"></textarea>
+      </div>
+      <button class="contact-btn">Send →</button>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Atlas Global. All rights reserved.</p>
+    <div class="social-row">
+      <a href="#" class="social-btn">in</a>
+      <a href="#" class="social-btn">tw</a>
+      <a href="#" class="social-btn">ig</a>
+      <a href="#" class="social-btn">yt</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function heroSearch() {
+  const q = document.getElementById('hero-query').value.trim();
+  if (q) {
+    window.location.href = '/app?q=' + encodeURIComponent(q);
+  } else {
+    window.location.href = '/app';
+  }
+}
+document.getElementById('hero-query').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') heroSearch();
+});
+// FAQ accordion (already inline via onclick, keep as-is)
+</script>
+</body>
+</html>
