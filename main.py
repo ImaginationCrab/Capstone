@@ -364,4 +364,4 @@ async def semantic_search(
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    return HTMLResponse((STATIC_DIR / "index.html").read_text())
+    return HTMLResponse((STATIC_DIR / "index.html").read_text(encoding="utf-8"))

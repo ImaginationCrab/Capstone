@@ -126,13 +126,13 @@ def fetch_chapter(chapter: int) -> list[dict]:
             return []
 
     except urllib.error.HTTPError as e:
-        print(f"  ⚠  Chapter {chapter:02d}: HTTP {e.code} — skipping")
+        print(f"  [!] Chapter {chapter:02d}: HTTP {e.code} — skipping")
         return []
     except json.JSONDecodeError as e:
-        print(f"  ⚠  Chapter {chapter:02d}: Invalid JSON — skipping ({e})")
+        print(f"  [!] Chapter {chapter:02d}: Invalid JSON — skipping ({e})")
         return []
     except Exception as e:
-        print(f"  ⚠  Chapter {chapter:02d}: {e} — skipping")
+        print(f"  [!] Chapter {chapter:02d}: {e} — skipping")
         return []
 
 
@@ -230,7 +230,7 @@ def import_data(db_path: Path, chapters: range) -> None:
     conn.commit()
     conn.close()
 
-    print(f"\n✓ Imported {total} total rows into {db_path}")
+    print(f"\nDone — imported {total} total rows into {db_path}")
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────
