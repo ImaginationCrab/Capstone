@@ -1,805 +1,391 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTS Code Lookup</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas Global - Global Compliance Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface": "#f9f9ff",
+          "primary": "#0056b3",
+          "secondary-fixed-dim": "#b5c7ea",
+          "inverse-surface": "#1f314d",
+          "surface-dim": "#c8dbfe",
+          "on-tertiary-fixed-variant": "#5d4200",
+          "tertiary": "#745400",
+          "on-primary-container": "#f7f7ff",
+          "on-error": "#ffffff",
+          "on-background": "#071c36",
+          "on-primary-fixed-variant": "#004591",
+          "surface-variant": "#d6e3ff",
+          "on-surface": "#071c36",
+          "surface-container-highest": "#d6e3ff",
+          "outline": "#727784",
+          "inverse-primary": "#acc7ff",
+          "background": "#f9f9ff",
+          "surface-bright": "#f9f9ff",
+          "on-primary-fixed": "#001a40",
+          "secondary": "#4d5f7d",
+          "on-surface-variant": "#424753",
+          "on-tertiary": "#ffffff",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-high": "#dee8ff",
+          "on-tertiary-fixed": "#261900",
+          "outline-variant": "#c2c6d5",
+          "primary-fixed": "#d7e2ff",
+          "on-secondary": "#ffffff",
+          "tertiary-container": "#936b00",
+          "on-secondary-fixed": "#071c36",
+          "on-primary": "#ffffff",
+          "surface-container": "#e7eeff",
+          "surface-container-low": "#f0f3ff",
+          "on-tertiary-container": "#fff7ee",
+          "on-secondary-container": "#4e607e",
+          "on-secondary-fixed-variant": "#364764",
+          "surface-tint": "#005cbd",
+          "error-container": "#ffdad6",
+          "primary-fixed-dim": "#acc7ff",
+          "error": "#ba1a1a",
+          "tertiary-fixed": "#ffdea4",
+          "primary-container": "#1e6fd9",
+          "secondary-container": "#c8dbfe",
+          "secondary-fixed": "#d6e3ff",
+          "on-error-container": "#93000a",
+          "tertiary-fixed-dim": "#fabd32",
+          "inverse-on-surface": "#ecf1ff"
+        },
+        "borderRadius": {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        "fontFamily": {
+          "headline": ["Plus Jakarta Sans"],
+          "body": ["Plus Jakarta Sans"],
+          "label": ["Plus Jakarta Sans"]
+        }
+      },
+    },
+  }
+</script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --bg: #f9fafb;
-    --surface: #ffffff;
-    --text: #111827;
-    --text-secondary: #6b7280;
-    --text-muted: #9ca3af;
-    --indigo-50: #eef2ff;
-    --indigo-100: #e0e7ff;
-    --indigo-500: #6366f1;
-    --indigo-600: #4f46e5;
-    --indigo-700: #4338ca;
-    --green-50: #f0fdf4;
-    --green-700: #15803d;
-    --red-50: #fef2f2;
-    --red-600: #dc2626;
-    --red-800: #991b1b;
-    --amber-50: #fffbeb;
-    --amber-700: #b45309;
-    --border: #e5e7eb;
-    --radius: 0.5rem;
-    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-  }
-
-  body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9f9ff; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .bg-primary-gradient { background: linear-gradient(135deg, #0056b3 0%, #1e6fd9 100%); }
+  .shadow-architectural { box-shadow: 0 20px 40px rgba(7, 28, 54, 0.06); }
   .hidden { display: none !important; }
-
-  /* ── Auth pages ───────────────────────────── */
-
-  .auth-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-  }
-
-  .auth-card {
-    width: 100%;
-    max-width: 28rem;
-  }
-
-  .auth-card h2 {
-    text-align: center;
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 2rem;
-  }
-
-  .auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-
-  .form-input::placeholder { color: var(--text-muted); }
-  .form-input:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .btn-primary {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    background: var(--indigo-600);
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-primary:hover { background: var(--indigo-700); }
-
-  .auth-footer {
-    text-align: center;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-top: 1rem;
-  }
-  .auth-footer a { color: var(--indigo-600); text-decoration: none; font-weight: 500; }
-  .auth-footer a:hover { color: var(--indigo-700); }
-
-  .form-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.875rem;
-  }
-  .form-row label { display: flex; align-items: center; gap: 0.5rem; color: var(--text); }
-  .form-row a { color: var(--indigo-600); text-decoration: none; font-weight: 500; }
-
-  .error-box {
-    background: var(--red-50);
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    color: var(--red-800);
-  }
-
-  .checkbox { width: 1rem; height: 1rem; accent-color: var(--indigo-600); }
-
-  /* ── App shell ────────────────────────────── */
-
-  .app-header {
-    background: var(--surface);
-    box-shadow: var(--shadow);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  .header-inner {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .header-inner h1 { font-size: 1.25rem; font-weight: 700; }
-
-  .header-right { display: flex; align-items: center; gap: 0.5rem; }
-  .header-user { font-size: 0.875rem; color: var(--text-secondary); }
-
-  .btn-ghost {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    background: none;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: color 0.15s;
-  }
-  .btn-ghost:hover { color: var(--text); }
-
-  .dashboard {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  @media (min-width: 1024px) {
-    .dashboard { grid-template-columns: 1fr 1fr 1fr; }
-  }
-
-  .card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 1.5rem;
-  }
-
-  .card-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 1rem;
-  }
-  .card-title svg { color: var(--indigo-600); }
-
-  /* ── Saved products ───────────────────────── */
-
-  .search-input-wrap { position: relative; margin-bottom: 1rem; }
-  .search-input-wrap svg {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    pointer-events: none;
-  }
-  .search-input-wrap input {
-    width: 100%;
-    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-input-wrap input:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .product-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-height: 26rem;
-    overflow-y: auto;
-  }
-
-  .product-item {
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    position: relative;
-  }
-  .product-item:hover { border-color: #a5b4fc; background: #fafafa; }
-  .product-item.selected { border-color: var(--indigo-600); background: var(--indigo-50); }
-  .product-item .p-name { font-weight: 500; color: var(--text); font-size: 0.9rem; padding-right: 1.5rem; }
-  .product-item .p-code {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--indigo-600);
-    margin-top: 0.1rem;
-  }
-  .product-item .p-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
-
-  .delete-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    padding: 0.2rem;
-    border-radius: 4px;
-    opacity: 0;
-    transition: opacity 0.15s, color 0.15s;
-  }
-  .product-item:hover .delete-btn { opacity: 1; }
-  .delete-btn:hover { color: var(--red-600); }
-
-  .empty-state {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
-
-  /* ── HTS search panel ────────────────────── */
-
-  .search-row { display: flex; gap: 0.5rem; margin-bottom: 0; }
-
-  .search-textarea {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    resize: none;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-textarea:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .btn-search {
-    width: 100%;
-    margin-top: 0.75rem;
-    padding: 0.5rem 1rem;
-    background: var(--indigo-600);
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-search:hover { background: var(--indigo-700); }
-  .btn-search:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .hts-results {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-height: 26rem;
-    overflow-y: auto;
-    margin-top: 1rem;
-  }
-
-  .hts-result {
-    padding: 1rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: border-color 0.15s;
-  }
-  .hts-result:hover { border-color: #a5b4fc; }
-
-  .hts-result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.4rem;
-    gap: 0.5rem;
-  }
-
-  .hts-code-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--indigo-600);
-    white-space: nowrap;
-  }
-
-  .rate-tag {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-  .rate-tag.free     { background: var(--green-50);  color: var(--green-700); }
-  .rate-tag.percent  { background: var(--indigo-50); color: var(--indigo-700); }
-  .rate-tag.specific { background: var(--amber-50);  color: var(--amber-700); }
-  .rate-tag.compound { background: var(--amber-50);  color: var(--amber-700); }
-  .rate-tag.unknown  { background: var(--bg);        color: var(--text-secondary); }
-
-  /* Confidence bar */
-  .confidence-wrap {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
-  }
-  .confidence-bar-bg {
-    flex: 1;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .confidence-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--indigo-500);
-    transition: width 0.3s ease;
-  }
-  .confidence-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    white-space: nowrap;
-    min-width: 3.5rem;
-    text-align: right;
-  }
-  .confidence-label.high  { color: var(--green-700); }
-  .confidence-label.mid   { color: var(--indigo-600); }
-  .confidence-label.low   { color: var(--text-muted); }
-
-  /* Search mode toggle */
-  .search-mode-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-  .mode-btn {
-    flex: 1;
-    padding: 0.35rem 0.5rem;
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 500;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .mode-btn.active {
-    background: var(--indigo-600);
-    border-color: var(--indigo-600);
-    color: #fff;
-  }
-
-  .search-status {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.4rem;
-    min-height: 1rem;
-  }
-
-  .hts-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 0.4rem; }
-  .hts-rates { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
-  .hts-rate-item { font-size: 0.75rem; color: var(--text-muted); }
-  .hts-rate-item span { color: var(--text-secondary); font-weight: 500; }
-
-  .result-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-
-  .save-btn, .calc-btn {
-    padding: 0.3rem 0.75rem;
-    font-family: inherit;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .save-btn {
-    color: var(--indigo-600);
-    background: var(--indigo-50);
-    border: 1px solid var(--indigo-100);
-  }
-  .save-btn:hover { background: var(--indigo-100); }
-  .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .calc-btn {
-    color: var(--text-secondary);
-    background: var(--bg);
-    border: 1px solid var(--border);
-  }
-  .calc-btn:hover { background: var(--border); color: var(--text); }
-
-  /* ── Duty calculator ──────────────────────── */
-
-  .calc-selected {
-    padding: 0.75rem;
-    background: var(--indigo-50);
-    border: 1px solid var(--indigo-100);
-    border-radius: var(--radius);
-    margin-bottom: 1rem;
-  }
-  .calc-selected .cs-name { font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
-  .calc-selected .cs-detail { font-size: 0.8rem; color: var(--text-secondary); }
-  .calc-selected .cs-unsaved {
-    display: inline-block;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    padding: 0.2rem 0.6rem;
-    background: var(--amber-50);
-    color: var(--amber-700);
-    border-radius: 999px;
-    border: 1px solid #fde68a;
-  }
-
-  .calc-fields { display: flex; flex-direction: column; gap: 0.75rem; }
-  .calc-field label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 0.25rem;
-  }
-  .calc-field input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 0.875rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .calc-field input:focus {
-    border-color: var(--indigo-500);
-    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
-  }
-
-  .rate-free-notice {
-    padding: 1rem;
-    background: var(--green-50);
-    border: 1px solid #bbf7d0;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    color: var(--green-700);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .rate-unknown-notice {
-    padding: 0.75rem 1rem;
-    background: var(--amber-50);
-    border: 1px solid #fde68a;
-    border-radius: var(--radius);
-    font-size: 0.8rem;
-    color: var(--amber-700);
-    margin-bottom: 0.75rem;
-  }
-
-  .calc-results {
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .calc-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.875rem;
-  }
-  .calc-row .label { color: var(--text-secondary); }
-  .calc-row .value { font-weight: 500; color: var(--text); }
-  .calc-row.sub { padding-left: 1rem; }
-  .calc-row.sub .label { color: var(--text-muted); font-size: 0.8rem; }
-  .calc-row.sub .value { font-size: 0.8rem; }
-
-  .calc-total {
-    margin-top: 0.25rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-  }
-  .calc-total .label { font-weight: 600; color: var(--text); }
-  .calc-total .value { font-weight: 700; color: var(--indigo-600); font-size: 1rem; }
-
-  .calc-save-row { margin-top: 1rem; text-align: right; }
-
-  /* ── Save modal ───────────────────────────── */
-
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 1rem;
-  }
-
-  .modal-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-md);
-    width: 100%;
-    max-width: 26rem;
-    padding: 1.5rem;
-  }
-
-  .modal-card h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
-  }
-
-  .modal-fields { display: flex; flex-direction: column; gap: 1rem; }
-  .modal-field label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: 0.25rem;
-  }
-
-  .modal-meta {
-    padding: 0.6rem 0.75rem;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-  }
-
-  .modal-footer {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-  }
-
-  .btn-outline {
-    padding: 0.5rem 1.25rem;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-outline:hover { background: var(--bg); }
-
-  .btn-solid {
-    padding: 0.5rem 1.25rem;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #fff;
-    background: var(--indigo-600);
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-solid:hover { background: var(--indigo-700); }
-
-  /* ── Spinner ──────────────────────────────── */
-
-  .spinner {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-    vertical-align: middle;
-    margin-right: 0.4rem;
-  }
+  .spinner { display: inline-block; width: 1rem; height: 1rem; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 0.4rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .confidence-wrap { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+  .confidence-bar-bg { flex: 1; height: 4px; background: #e7eeff; border-radius: 2px; overflow: hidden; }
+  .confidence-bar-fill { height: 100%; border-radius: 2px; background: #1e6fd9; transition: width 0.3s ease; }
+  .confidence-label { font-size: 0.7rem; font-weight: 600; color: #727784; white-space: nowrap; min-width: 3.5rem; text-align: right; }
+  .confidence-label.high { color: #15803d; }
+  .confidence-label.mid  { color: #1e6fd9; }
+  .confidence-label.low  { color: #727784; }
 </style>
 </head>
-<body>
+<body class="text-on-surface">
 
 <!-- ════════════════════════════════════════════
-     VIEW: Sign In
+     AUTH OVERLAY: Sign In
      ════════════════════════════════════════════ -->
-<div id="view-signin" class="auth-page hidden">
-  <div class="auth-card">
-    <h2>Sign in to your account</h2>
-    <div id="signin-error" class="error-box hidden"></div>
-    <div class="auth-form">
-      <input type="email" id="si-email" class="form-input" placeholder="Email address">
-      <input type="password" id="si-password" class="form-input" placeholder="Password">
-      <div class="form-row">
-        <label><input type="checkbox" class="checkbox"> Remember me</label>
-      </div>
-      <button id="si-submit" class="btn-primary" onclick="doSignIn()">Sign in</button>
-      <div class="auth-footer">
-        Don't have an account? <a href="#" onclick="showView('signup'); return false;">Sign up</a>
-      </div>
+<div id="view-signin" class="fixed inset-0 z-[200] flex items-center justify-center bg-[#071c36]/95 backdrop-blur-sm">
+  <div class="w-full max-w-sm bg-white rounded-lg shadow-2xl p-8">
+    <div class="mb-6 text-center">
+      <h1 class="text-xl font-bold text-[#071c36] tracking-tight">Atlas Global</h1>
+      <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">Global Compliance</p>
+    </div>
+    <h2 class="text-2xl font-extrabold tracking-tight text-on-surface mb-5">Sign In</h2>
+    <div id="signin-error" class="hidden mb-4 p-3 bg-red-50 text-red-800 rounded-lg text-sm"></div>
+    <div class="space-y-3">
+      <input type="email" id="si-email" class="w-full px-4 py-3 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="Email address"/>
+      <input type="password" id="si-password" class="w-full px-4 py-3 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="Password"/>
+      <button id="si-submit" onclick="doSignIn()" class="w-full bg-primary-gradient text-white py-3 rounded-full font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+        Sign In
+      </button>
+      <p class="text-center text-sm text-secondary pt-1">
+        No account? <a href="#" onclick="showView('signup'); return false;" class="text-primary font-semibold hover:underline">Sign up</a>
+      </p>
     </div>
   </div>
 </div>
 
 <!-- ════════════════════════════════════════════
-     VIEW: Sign Up
+     AUTH OVERLAY: Sign Up
      ════════════════════════════════════════════ -->
-<div id="view-signup" class="auth-page hidden">
-  <div class="auth-card">
-    <h2>Create your account</h2>
-    <div id="signup-error" class="error-box hidden"></div>
-    <div class="auth-form">
-      <input type="text" id="su-name" class="form-input" placeholder="Full name">
-      <input type="email" id="su-email" class="form-input" placeholder="Email address">
-      <input type="password" id="su-password" class="form-input" placeholder="Password (min. 6 characters)">
-      <input type="password" id="su-confirm" class="form-input" placeholder="Confirm password">
-      <label style="font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
-        <input type="checkbox" class="checkbox" id="su-terms">
+<div id="view-signup" class="fixed inset-0 z-[200] hidden items-center justify-center bg-[#071c36]/95 backdrop-blur-sm">
+  <div class="w-full max-w-sm bg-white rounded-lg shadow-2xl p-8">
+    <div class="mb-6 text-center">
+      <h1 class="text-xl font-bold text-[#071c36] tracking-tight">Atlas Global</h1>
+      <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">Global Compliance</p>
+    </div>
+    <h2 class="text-2xl font-extrabold tracking-tight text-on-surface mb-5">Create Account</h2>
+    <div id="signup-error" class="hidden mb-4 p-3 bg-red-50 text-red-800 rounded-lg text-sm"></div>
+    <div class="space-y-3">
+      <input type="text"     id="su-name"     class="w-full px-4 py-3 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="Full name"/>
+      <input type="email"    id="su-email"    class="w-full px-4 py-3 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="Email address"/>
+      <input type="password" id="su-password" class="w-full px-4 py-3 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="Password (min. 6 characters)"/>
+      <input type="password" id="su-confirm"  class="w-full px-4 py-3 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="Confirm password"/>
+      <label class="flex items-center gap-2 text-sm text-secondary px-1">
+        <input type="checkbox" id="su-terms" class="rounded accent-primary"/>
         I agree to the Terms and Conditions
       </label>
-      <button class="btn-primary" onclick="doSignUp()">Sign up</button>
-      <div class="auth-footer">
-        Already have an account? <a href="#" onclick="showView('signin'); return false;">Sign in</a>
-      </div>
+      <button onclick="doSignUp()" class="w-full bg-primary-gradient text-white py-3 rounded-full font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+        Sign Up
+      </button>
+      <p class="text-center text-sm text-secondary pt-1">
+        Have an account? <a href="#" onclick="showView('signin'); return false;" class="text-primary font-semibold hover:underline">Sign in</a>
+      </p>
     </div>
   </div>
 </div>
 
 <!-- ════════════════════════════════════════════
-     VIEW: Dashboard
+     SAVE MODAL
+     ════════════════════════════════════════════ -->
+<div id="save-modal" class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/40 backdrop-blur-sm" onclick="handleModalBackdrop(event)">
+  <div class="w-full max-w-sm bg-white rounded-lg shadow-2xl p-6">
+    <h3 class="text-lg font-bold text-on-surface mb-5">Save to Dashboard</h3>
+    <div class="space-y-4">
+      <div>
+        <label class="text-[10px] font-extrabold uppercase tracking-widest text-secondary block mb-1.5">Product Name</label>
+        <input type="text" id="modal-name" class="w-full px-4 py-2.5 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="Enter a name for this product"/>
+      </div>
+      <div>
+        <label class="text-[10px] font-extrabold uppercase tracking-widest text-secondary block mb-1.5">HTS Code &amp; Rate</label>
+        <div id="modal-meta" class="px-4 py-2.5 bg-surface-container-low rounded-lg text-xs text-secondary leading-relaxed"></div>
+      </div>
+      <div>
+        <label class="text-[10px] font-extrabold uppercase tracking-widest text-secondary block mb-1.5">Country of Origin <span class="font-normal normal-case tracking-normal">(optional)</span></label>
+        <input type="text" id="modal-origin" class="w-full px-4 py-2.5 bg-surface-container-low rounded-full text-sm outline-none focus:ring-2 focus:ring-primary/40" placeholder="e.g. China, Vietnam, Mexico"/>
+      </div>
+    </div>
+    <div class="flex gap-3 justify-end mt-6">
+      <button onclick="closeSaveModal()" class="px-5 py-2.5 rounded-full border border-outline-variant text-secondary text-sm font-medium hover:bg-surface-container transition-colors">Cancel</button>
+      <button onclick="confirmSave()" class="px-5 py-2.5 rounded-full bg-primary-gradient text-white text-sm font-bold hover:brightness-110 transition-all">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     DASHBOARD
      ════════════════════════════════════════════ -->
 <div id="view-dashboard" class="hidden">
-  <header class="app-header">
-    <div class="header-inner">
-      <h1>HTS Code Lookup</h1>
-      <div class="header-right">
-        <span class="header-user" id="header-user-name"></span>
-        <button class="btn-ghost" onclick="doSignOut()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign out
-        </button>
+
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-[#071c36] flex flex-col p-6 z-50 shadow-[20px_0_40px_rgba(7,28,54,0.06)] font-['Plus_Jakarta_Sans'] tracking-tight">
+  <div class="mb-10">
+    <h1 class="text-xl font-bold text-white tracking-[-0.02em]">Atlas Global</h1>
+    <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest">Global Compliance</p>
+  </div>
+  <nav class="flex-1 space-y-2">
+    <a class="flex items-center gap-3 px-4 py-3 text-white bg-white/10 rounded-full transition-all" href="#">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span>Dashboard</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white transition-all" href="#">
+      <span class="material-symbols-outlined">history</span>
+      <span>History</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white transition-all" href="#">
+      <span class="material-symbols-outlined">gavel</span>
+      <span>Tariffs</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white transition-all" href="#">
+      <span class="material-symbols-outlined">settings</span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="mt-auto pt-6">
+    <button class="w-full bg-primary-gradient text-white py-3 px-4 rounded-full font-medium flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+      <span class="material-symbols-outlined">download</span>
+      <span>Export Report</span>
+    </button>
+    <div class="mt-4 flex items-center gap-3 p-2 bg-white/5 rounded-2xl">
+      <div id="sidebar-user-avatar" class="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center text-white font-bold text-sm flex-shrink-0">A</div>
+      <div class="flex-1 min-w-0">
+        <p id="sidebar-user-name" class="text-sm font-bold text-white truncate">User</p>
+        <button onclick="doSignOut()" class="text-[10px] text-slate-400 hover:text-white transition-colors">Sign out</button>
       </div>
     </div>
-  </header>
+  </div>
+</aside>
 
-  <main class="dashboard">
-
-    <!-- Col 1: Saved Products -->
-    <div class="card">
-      <div class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-        Saved Products
-      </div>
-      <div class="search-input-wrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="product-filter" placeholder="Filter saved products..." oninput="renderProducts()">
-      </div>
-      <div id="product-list" class="product-list">
-        <div class="empty-state">No saved products yet</div>
-      </div>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 left-64 z-40 h-16 flex items-center justify-between px-8 bg-white/80 backdrop-blur-md font-['Plus_Jakarta_Sans'] font-medium">
+  <div class="flex items-center gap-4 flex-1">
+    <div class="relative max-w-md w-full">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+      <input id="top-search" class="w-full pl-10 pr-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-2 focus:ring-primary/40 text-sm transition-all outline-none" placeholder="Global HTS Lookup..." type="text"/>
     </div>
+  </div>
+  <div class="flex items-center gap-6">
+    <button class="text-slate-500 hover:text-[#1e6fd9] transition-colors relative">
+      <span class="material-symbols-outlined">notifications</span>
+      <span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+    </button>
+    <button class="text-slate-500 hover:text-[#1e6fd9] transition-colors">
+      <span class="material-symbols-outlined">help_outline</span>
+    </button>
+    <div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div>
+    <span id="header-user-name" class="text-sm font-bold text-on-surface">User</span>
+  </div>
+</header>
 
-    <!-- Col 2: HTS Search -->
-    <div class="card">
-      <div class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Find HTS Code
-      </div>
-      <div class="search-mode-row">
-        <button id="mode-semantic" class="mode-btn active" onclick="setSearchMode('semantic')">Smart Search</button>
-        <button id="mode-keyword" class="mode-btn" onclick="setSearchMode('keyword')">Keyword / Code</button>
-      </div>
-      <textarea id="hts-query" class="search-textarea" rows="3"
-        placeholder="Describe your product in plain English (e.g. 'leather shoes with rubber soles')..."></textarea>
-      <div id="search-status" class="search-status"></div>
-      <button id="btn-search" class="btn-search" onclick="doHTSSearch()">Search HTS Codes</button>
-      <div id="hts-results" class="hts-results">
-        <div class="empty-state">Describe your product above to find matching HTS codes</div>
-      </div>
-    </div>
+<!-- Main Content -->
+<main class="ml-64 pt-24 pb-12 px-8 min-h-screen">
+  <div class="max-w-7xl mx-auto">
 
-    <!-- Col 3: Duty Calculator -->
-    <div class="card">
-      <div class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="14" stroke-width="3"/><line x1="16" y1="18" x2="16" y2="18" stroke-width="3"/><line x1="12" y1="14" x2="12" y2="14" stroke-width="3"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/><line x1="8" y1="14" x2="8" y2="14" stroke-width="3"/><line x1="8" y1="18" x2="8" y2="18" stroke-width="3"/></svg>
-        Duty Calculator
+    <!-- Dashboard Header -->
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Compliance Dashboard</h2>
+        <p class="text-secondary mt-1">Manage global HTS classifications and duty calculations.</p>
       </div>
-      <div id="calc-body">
-        <div class="empty-state" style="padding:3rem 1rem;">
-          Select a saved product or click "Use in Calculator" on a search result
+      <div class="flex gap-3">
+        <div class="px-4 py-2 bg-surface-container-high rounded-full flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-tertiary"></span>
+          <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Live Rates: EU/US</span>
         </div>
       </div>
     </div>
 
-  </main>
-</div>
+    <!-- Bento Grid -->
+    <div class="grid grid-cols-12 gap-8 items-start">
 
-<!-- ════════════════════════════════════════════
-     MODAL: Save Product
-     ════════════════════════════════════════════ -->
-<div id="save-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
-  <div class="modal-card">
-    <h3>Save Product to Dashboard</h3>
-    <div class="modal-fields">
-      <div class="modal-field">
-        <label>Product Name</label>
-        <input type="text" id="modal-name" class="form-input" placeholder="Enter a name for this product">
+      <!-- Column 1: Saved Catalog -->
+      <div class="col-span-12 lg:col-span-3 space-y-6">
+        <section class="bg-surface-container-low p-6 rounded-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-extrabold uppercase tracking-widest text-on-surface">Saved Catalog</h3>
+            <button onclick="openAddModal()" class="text-primary hover:bg-primary/10 p-1 rounded-full transition-all" title="Add product">
+              <span class="material-symbols-outlined text-xl">add_circle</span>
+            </button>
+          </div>
+          <!-- Filter -->
+          <div class="relative mb-3">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+            <input type="text" id="product-filter" oninput="renderProducts()" placeholder="Filter products…" class="w-full pl-9 pr-3 py-2 bg-surface-container rounded-full border-none outline-none focus:ring-2 focus:ring-primary/40 text-xs"/>
+          </div>
+          <!-- Product list -->
+          <div id="product-list" class="space-y-2 max-h-[28rem] overflow-y-auto">
+            <div class="text-center py-8 text-sm text-secondary">No saved products yet</div>
+          </div>
+        </section>
       </div>
-      <div class="modal-field">
-        <label>HTS Code &amp; Rate</label>
-        <div class="modal-meta" id="modal-meta"></div>
+
+      <!-- Column 2: Find HTS -->
+      <div class="col-span-12 lg:col-span-6 space-y-8">
+        <section class="bg-surface-container-lowest p-8 rounded-lg shadow-architectural">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold tracking-tight text-on-surface">Find HTS Classification</h3>
+            <p class="text-sm text-secondary">Use our semantic engine to identify the correct Harmonized Tariff Code.</p>
+          </div>
+          <!-- Mode toggle -->
+          <div class="flex gap-2 mb-4">
+            <button id="mode-semantic" onclick="setSearchMode('semantic')" class="flex-1 py-2 px-3 rounded-full text-xs font-bold bg-primary-gradient text-white transition-all">Smart Search</button>
+            <button id="mode-keyword" onclick="setSearchMode('keyword')" class="flex-1 py-2 px-3 rounded-full text-xs font-bold border border-outline-variant text-secondary hover:bg-surface-container transition-all">Keyword / Code</button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="text-[10px] font-extrabold uppercase tracking-widest text-secondary block mb-2 px-1">Product Description</label>
+              <textarea id="hts-query" class="w-full bg-surface-container-low rounded-lg border-none outline-none focus:ring-2 focus:ring-primary/40 p-4 text-on-surface resize-none text-sm" placeholder="Describe your product in plain English (e.g. 'leather shoes with rubber soles')…" rows="3"></textarea>
+              <div id="search-status" class="text-xs text-secondary mt-1 px-1 min-h-4"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="text-[10px] font-extrabold uppercase tracking-widest text-secondary block mb-2 px-1">Country of Origin</label>
+                <select id="origin-select" class="w-full bg-surface-container-low rounded-full border-none outline-none focus:ring-2 focus:ring-primary/40 px-4 py-2.5 text-sm">
+                  <option value="">Any</option>
+                  <option value="China">China (CN)</option>
+                  <option value="Vietnam">Vietnam (VN)</option>
+                  <option value="India">India (IN)</option>
+                  <option value="Mexico">Mexico (MX)</option>
+                  <option value="Bangladesh">Bangladesh (BD)</option>
+                  <option value="Cambodia">Cambodia (KH)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] font-extrabold uppercase tracking-widest text-secondary block mb-2 px-1">Destination</label>
+                <select class="w-full bg-surface-container-low rounded-full border-none outline-none focus:ring-2 focus:ring-primary/40 px-4 py-2.5 text-sm">
+                  <option>United States (US)</option>
+                  <option>European Union (EU)</option>
+                  <option>United Kingdom (UK)</option>
+                </select>
+              </div>
+            </div>
+            <button id="btn-search" onclick="doHTSSearch()" class="w-full bg-primary-gradient text-white py-4 rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">find_in_page</span>
+              Analyze Classification
+            </button>
+          </div>
+
+          <!-- Top Result -->
+          <div id="hts-top-result" class="mt-8 pt-8 border-t border-outline-variant/20">
+            <div class="flex items-start gap-4 p-6 bg-surface-container-low rounded-lg">
+              <div class="bg-primary-container/10 p-3 rounded-full flex-shrink-0">
+                <span class="material-symbols-outlined text-secondary text-3xl">manage_search</span>
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-secondary">Search to classify</h4>
+                <p class="text-sm text-secondary leading-relaxed mt-1">Describe your product above to find matching HTS codes and duty rates.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Results -->
+          <div id="hts-results" class="mt-4 space-y-3 max-h-72 overflow-y-auto"></div>
+        </section>
       </div>
-      <div class="modal-field">
-        <label>Country of Origin <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
-        <input type="text" id="modal-origin" class="form-input" placeholder="e.g. China, Vietnam, Mexico">
+
+      <!-- Column 3: Duty Calculator -->
+      <div class="col-span-12 lg:col-span-3 space-y-6">
+        <section class="bg-[#071c36] text-white p-6 rounded-lg shadow-architectural">
+          <div class="mb-4">
+            <h3 class="text-sm font-extrabold uppercase tracking-widest text-slate-400">Duty Calculator</h3>
+          </div>
+          <div id="calc-body">
+            <div class="text-center py-8 text-slate-400 text-sm">
+              <span class="material-symbols-outlined text-4xl block mb-3 opacity-40">calculate</span>
+              Select a saved product or click "Use in Calculator" on a result
+            </div>
+          </div>
+        </section>
+        <section class="bg-surface-container-low p-6 rounded-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-primary">info</span>
+            <h4 class="text-sm font-bold text-on-surface">Did you know?</h4>
+          </div>
+          <p class="text-xs text-secondary leading-relaxed">
+            Under the US-Mexico-Canada Agreement (USMCA), certain goods may qualify for preferential duty-free treatment if rules of origin are met.
+          </p>
+          <a class="inline-block mt-4 text-[10px] font-bold text-primary uppercase tracking-widest hover:underline" href="#">View USMCA Guide</a>
+        </section>
       </div>
+
     </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeSaveModal()">Cancel</button>
-      <button class="btn-solid" onclick="confirmSave()">Save Product</button>
+  </div>
+</main>
+</div><!-- /view-dashboard -->
+
+<!-- Toast Notification -->
+<div id="toast-success" class="fixed bottom-8 right-8 z-[100] hidden">
+  <div class="bg-white rounded-lg p-4 shadow-xl border-l-4 border-tertiary flex items-center gap-4">
+    <div class="bg-tertiary/10 p-2 rounded-full">
+      <span class="material-symbols-outlined text-tertiary">check_circle</span>
+    </div>
+    <div>
+      <p id="toast-message" class="text-sm font-bold text-on-surface">Classification Saved</p>
+      <p class="text-xs text-secondary">Added to your primary catalog.</p>
     </div>
   </div>
 </div>
@@ -809,17 +395,30 @@
 
 let currentUser   = null;
 let savedProducts = [];
-let selectedId    = null;  // id of selected saved product
-let calcProduct   = null;  // product loaded into calculator (may be unsaved)
-let _pendingSave  = null;  // data waiting for modal confirmation
-let _lastResults  = [];    // last HTS search results
+let selectedId    = null;
+let calcProduct   = null;
+let _pendingSave  = null;
+let _lastResults  = [];
 
 // ── View routing ───────────────────────────────────────────────────────────
 
 function showView(name) {
-  document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
-  document.getElementById('view-' + name).classList.remove('hidden');
-  document.querySelectorAll('.error-box').forEach(el => { el.classList.add('hidden'); el.textContent = ''; });
+  ['signin','signup','dashboard'].forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (!el) return;
+    if (v === name) {
+      el.classList.remove('hidden');
+      // flex overlays need display:flex, not just removing hidden
+      if (v === 'signin' || v === 'signup') el.style.display = 'flex';
+    } else {
+      el.classList.add('hidden');
+      el.style.display = '';
+    }
+  });
+  document.querySelectorAll('.error-box, #signin-error, #signup-error').forEach(el => {
+    el.classList.add('hidden');
+    el.textContent = '';
+  });
 }
 
 // ── API helper ─────────────────────────────────────────────────────────────
@@ -836,6 +435,7 @@ async function api(method, path, body) {
 
 function showError(id, msg) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.textContent = msg;
   el.classList.remove('hidden');
 }
@@ -870,14 +470,17 @@ async function doSignUp() {
 
 async function doSignOut() {
   await api('POST', '/api/logout');
-  currentUser = null; savedProducts = []; selectedId = null; calcProduct = null;
+  currentUser = null; savedProducts = []; selectedId = null; calcProduct = null; _lastResults = [];
   showView('signin');
 }
 
 // ── Dashboard entry ────────────────────────────────────────────────────────
 
 async function enterDashboard() {
-  document.getElementById('header-user-name').textContent = currentUser?.name || '';
+  const name = currentUser?.name || 'User';
+  document.getElementById('header-user-name').textContent = name;
+  document.getElementById('sidebar-user-name').textContent = name;
+  document.getElementById('sidebar-user-avatar').textContent = name.charAt(0).toUpperCase();
   showView('dashboard');
   await loadProducts();
 }
@@ -902,26 +505,30 @@ function renderProducts() {
   const el = document.getElementById('product-list');
 
   if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state">' +
-      (savedProducts.length === 0
-        ? 'No saved products yet — search for HTS codes and save them'
-        : 'No products match your filter') +
+    el.innerHTML = '<div class="text-center py-8 text-sm text-secondary">' +
+      (savedProducts.length === 0 ? 'No saved products yet — search for HTS codes and save them' : 'No products match your filter') +
       '</div>';
     return;
   }
 
   el.innerHTML = filtered.map(p => {
     const parsed = parseDutyRate(p.duty_rate);
-    const rateLabel = parsed.type === 'free' ? 'Free'
-      : parsed.type === 'percent' ? parsed.rate + '%'
-      : parsed.type === 'specific' ? (p.duty_rate || '').split(' ')[0]
-      : p.duty_rate || '';
+    const rateLabel = parsed.type === 'free'    ? 'Free'
+      : parsed.type === 'percent'               ? parsed.rate + '%'
+      : parsed.type === 'specific'              ? (p.duty_rate || '').split(' ')[0]
+      : p.duty_rate || '—';
+    const isSelected = selectedId === p.id;
     return `
-    <div class="product-item ${selectedId === p.id ? 'selected' : ''}" onclick="selectProduct(${p.id})">
-      <button class="delete-btn" onclick="event.stopPropagation(); deleteProduct(${p.id})" title="Remove">×</button>
-      <div class="p-name">${esc(p.name)}</div>
-      <div class="p-code">${esc(p.hts_code)}</div>
-      <div class="p-meta">${esc(rateLabel)} duty${p.origin ? ' &middot; ' + esc(p.origin) : ''}</div>
+    <div class="p-4 bg-surface-container-lowest rounded-lg border ${isSelected ? 'border-primary/40 bg-primary/5' : 'border-transparent hover:border-primary/20'} transition-all cursor-pointer group shadow-architectural relative" onclick="selectProduct(${p.id})">
+      <button class="absolute top-2 right-2 text-slate-300 hover:text-error opacity-0 group-hover:opacity-100 transition-all" onclick="event.stopPropagation(); deleteProduct(${p.id})" title="Remove">
+        <span class="material-symbols-outlined text-base">close</span>
+      </button>
+      <p class="text-xs font-bold text-secondary mb-1">${esc(p.hts_code)}</p>
+      <p class="text-sm font-medium ${isSelected ? 'text-primary' : 'text-on-surface group-hover:text-primary'} transition-colors pr-5">${esc(p.name)}</p>
+      <div class="mt-3 flex items-center justify-between gap-2 flex-wrap">
+        <span class="text-[10px] px-2 py-0.5 bg-secondary-container text-on-secondary-container rounded-full">${esc(p.origin || 'General')}</span>
+        <span class="text-xs font-bold text-tertiary">${esc(rateLabel)} Duty</span>
+      </div>
     </div>`;
   }).join('');
 }
@@ -931,6 +538,7 @@ function selectProduct(id) {
   calcProduct = savedProducts.find(p => p.id === id) || null;
   renderProducts();
   renderCalculator();
+  document.getElementById('calc-body').closest('section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 async function deleteProduct(id) {
@@ -944,17 +552,20 @@ async function deleteProduct(id) {
 
 // ── Search mode ────────────────────────────────────────────────────────────
 
-let searchMode = 'semantic'; // 'semantic' | 'keyword'
+let searchMode = 'semantic';
 
 function setSearchMode(mode) {
   searchMode = mode;
-  document.getElementById('mode-semantic').classList.toggle('active', mode === 'semantic');
-  document.getElementById('mode-keyword').classList.toggle('active', mode === 'keyword');
-  const ta = document.getElementById('hts-query');
+  const semBtn = document.getElementById('mode-semantic');
+  const kwBtn  = document.getElementById('mode-keyword');
   if (mode === 'semantic') {
-    ta.placeholder = 'Describe your product in plain English (e.g. "leather shoes with rubber soles")...';
+    semBtn.className = 'flex-1 py-2 px-3 rounded-full text-xs font-bold bg-primary-gradient text-white transition-all';
+    kwBtn.className  = 'flex-1 py-2 px-3 rounded-full text-xs font-bold border border-outline-variant text-secondary hover:bg-surface-container transition-all';
+    document.getElementById('hts-query').placeholder = 'Describe your product in plain English (e.g. "leather shoes with rubber soles")…';
   } else {
-    ta.placeholder = 'Enter keywords or an HTS code prefix (e.g. "cotton shirt" or "6109")...';
+    kwBtn.className  = 'flex-1 py-2 px-3 rounded-full text-xs font-bold bg-primary-gradient text-white transition-all';
+    semBtn.className = 'flex-1 py-2 px-3 rounded-full text-xs font-bold border border-outline-variant text-secondary hover:bg-surface-container transition-all';
+    document.getElementById('hts-query').placeholder = 'Enter keywords or an HTS code prefix (e.g. "cotton shirt" or "6109")…';
   }
   document.getElementById('search-status').textContent = '';
 }
@@ -971,8 +582,7 @@ async function doHTSSearch() {
   btn.innerHTML = '<span class="spinner"></span>Searching…';
   status.textContent = '';
 
-  const el = document.getElementById('hts-results');
-  el.innerHTML = '';
+  document.getElementById('hts-results').innerHTML = '';
 
   try {
     let data;
@@ -992,79 +602,121 @@ async function doHTSSearch() {
     _lastResults = data.results || [];
 
     if (_lastResults.length === 0) {
-      el.innerHTML = '<div class="empty-state">No results found for "' + esc(q) + '"</div>';
+      document.getElementById('hts-top-result').innerHTML = `
+        <div class="flex items-start gap-4 p-6 bg-surface-container-low rounded-lg">
+          <div class="bg-error-container/30 p-3 rounded-full flex-shrink-0">
+            <span class="material-symbols-outlined text-error text-3xl">search_off</span>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-on-surface">No results found</h4>
+            <p class="text-sm text-secondary mt-1">No HTS codes matched "${esc(q)}". Try different keywords or switch search mode.</p>
+          </div>
+        </div>`;
       return;
     }
 
-    el.innerHTML = _lastResults.map((r, i) => {
-      const parsed   = parseDutyRate(r.general);
-      const tagClass = parsed.type;
-      const tagText  = parsed.type === 'free'     ? 'Free'
-                     : parsed.type === 'percent'  ? parsed.rate + '%'
-                     : parsed.type === 'specific' ? 'Specific'
-                     : parsed.type === 'compound' ? 'Compound'
-                     : r.general || '—';
-
-      const confHtml = (r.confidence != null) ? buildConfidenceBar(r.confidence) : '';
-
-      const ratesHtml = [
-        r.general ? `<div class="hts-rate-item">General: <span>${esc(r.general)}</span></div>` : '',
-        r.special ? `<div class="hts-rate-item">Special: <span>${esc(r.special)}</span></div>` : '',
-        r.other   ? `<div class="hts-rate-item">Other: <span>${esc(r.other)}</span></div>`     : '',
-        r.unit    ? `<div class="hts-rate-item">Unit: <span>${esc(r.unit)}</span></div>`       : '',
-      ].filter(Boolean).join('');
-
-      return `
-      <div class="hts-result">
-        ${confHtml}
-        <div class="hts-result-header">
-          <span class="hts-code-badge">${esc(r.hts_code || '—')}</span>
-          <span class="rate-tag ${tagClass}">${esc(tagText)}</span>
-        </div>
-        <div class="hts-desc">${esc(r.description)}</div>
-        ${ratesHtml ? '<div class="hts-rates">' + ratesHtml + '</div>' : ''}
-        <div class="result-actions">
-          <button class="save-btn" data-idx="${i}">+ Save to Dashboard</button>
-          <button class="calc-btn" data-idx="${i}">Use in Calculator</button>
-        </div>
-      </div>`;
-    }).join('');
-
-    el.querySelectorAll('.save-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const r = _lastResults[parseInt(btn.dataset.idx)];
-        openSaveModal({ hts_code: r.hts_code, description: r.description, duty_rate: r.general || '', special: r.special || '' });
-      });
-    });
-
-    el.querySelectorAll('.calc-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        useInCalculator(_lastResults[parseInt(btn.dataset.idx)]);
-      });
-    });
+    renderTopResult(_lastResults[0], 0);
+    renderAdditionalResults(_lastResults.slice(1));
 
   } catch (e) {
-    if (e.message.includes('still loading')) {
-      el.innerHTML = '<div class="empty-state">Smart Search is still loading — try again in a moment, or switch to Keyword mode.</div>';
-    } else {
-      el.innerHTML = '<div class="empty-state">Error: ' + esc(e.message) + '</div>';
-    }
+    const msg = e.message.includes('still loading')
+      ? 'Smart Search is still loading — try again in a moment, or switch to Keyword mode.'
+      : 'Error: ' + e.message;
+    document.getElementById('hts-top-result').innerHTML = `
+      <div class="p-6 bg-surface-container-low rounded-lg text-sm text-secondary">${esc(msg)}</div>`;
     status.textContent = '';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Search HTS Codes';
+    btn.innerHTML = '<span class="material-symbols-outlined">find_in_page</span> Analyze Classification';
   }
+}
+
+function renderTopResult(r, idx) {
+  const parsed  = parseDutyRate(r.general);
+  const tagText = parsed.type === 'free'     ? 'Free'
+    : parsed.type === 'percent'              ? parsed.rate + '%'
+    : parsed.type === 'specific'             ? 'Specific'
+    : parsed.type === 'compound'             ? 'Compound'
+    : r.general || '—';
+
+  const confBadge = r.confidence != null
+    ? `<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-xs font-bold rounded-full">${r.confidence.toFixed(0)}% match</span>`
+    : '';
+  const specialBadge = r.special
+    ? `<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed text-xs font-bold rounded-full">Special: ${esc(r.special)}</span>`
+    : '';
+
+  document.getElementById('hts-top-result').innerHTML = `
+    <div class="flex items-start gap-4 p-6 bg-surface-container-low rounded-lg">
+      <div class="bg-primary-container/10 p-3 rounded-full flex-shrink-0">
+        <span class="material-symbols-outlined text-primary text-3xl">verified</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h4 class="text-2xl font-black tracking-tighter text-on-surface">${esc(r.hts_code || '—')}</h4>
+        <p class="text-sm font-medium text-secondary leading-relaxed mt-1">${esc(r.description)}</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-xs font-bold rounded-full">General Rate: ${esc(tagText)}</span>
+          ${confBadge}
+          ${specialBadge}
+          <button id="top-calc-btn" class="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full hover:brightness-110 transition-all">Use in Calculator</button>
+          <button id="top-save-btn" class="px-3 py-1 bg-surface-container-high text-on-surface text-xs font-bold rounded-full hover:bg-surface-container-highest transition-all">+ Save</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('top-calc-btn').addEventListener('click', () => useInCalculator(_lastResults[0]));
+  document.getElementById('top-save-btn').addEventListener('click', () => {
+    const t = _lastResults[0];
+    openSaveModal({ hts_code: t.hts_code, description: t.description, duty_rate: t.general || '', special: t.special || '' });
+  });
+}
+
+function renderAdditionalResults(results) {
+  const el = document.getElementById('hts-results');
+  if (results.length === 0) { el.innerHTML = ''; return; }
+
+  el.innerHTML = results.map((r, i) => {
+    const parsed  = parseDutyRate(r.general);
+    const tagText = parsed.type === 'free'    ? 'Free'
+      : parsed.type === 'percent'             ? parsed.rate + '%'
+      : parsed.type === 'specific'            ? 'Specific'
+      : parsed.type === 'compound'            ? 'Compound'
+      : r.general || '—';
+    const confHtml = r.confidence != null ? buildConfidenceBar(r.confidence) : '';
+
+    return `
+    <div class="p-4 bg-surface-container-low rounded-lg border border-outline-variant/20 hover:border-primary/20 transition-all">
+      ${confHtml}
+      <div class="flex items-baseline justify-between gap-2 mb-1">
+        <span class="text-sm font-bold text-primary">${esc(r.hts_code || '—')}</span>
+        <span class="text-xs font-semibold text-secondary whitespace-nowrap">${esc(tagText)}</span>
+      </div>
+      <p class="text-xs text-on-surface-variant leading-snug mb-3">${esc(r.description)}</p>
+      <div class="flex gap-2">
+        <button class="add-result-calc px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full hover:bg-primary/20 transition-all" data-idx="${i + 1}">Use in Calc</button>
+        <button class="add-result-save px-3 py-1 bg-surface-container text-secondary text-xs font-bold rounded-full hover:bg-surface-container-high transition-all" data-idx="${i + 1}">+ Save</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.querySelectorAll('.add-result-calc').forEach(btn => {
+    btn.addEventListener('click', () => useInCalculator(_lastResults[parseInt(btn.dataset.idx)]));
+  });
+  el.querySelectorAll('.add-result-save').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const r = _lastResults[parseInt(btn.dataset.idx)];
+      openSaveModal({ hts_code: r.hts_code, description: r.description, duty_rate: r.general || '', special: r.special || '' });
+    });
+  });
 }
 
 function buildConfidenceBar(score) {
   const pct       = Math.min(Math.max(score, 0), 100);
   const tierClass = pct >= 70 ? 'high' : pct >= 45 ? 'mid' : 'low';
-  const tierLabel = pct >= 70 ? 'Strong match' : pct >= 45 ? 'Possible match' : 'Weak match';
+  const tierLabel = pct >= 70 ? 'Strong' : pct >= 45 ? 'Possible' : 'Weak';
   return `
     <div class="confidence-wrap">
-      <div class="confidence-bar-bg">
-        <div class="confidence-bar-fill" style="width:${pct}%"></div>
-      </div>
+      <div class="confidence-bar-bg"><div class="confidence-bar-fill" style="width:${pct}%"></div></div>
       <span class="confidence-label ${tierClass}">${pct.toFixed(0)}% — ${tierLabel}</span>
     </div>`;
 }
@@ -1074,7 +726,7 @@ function useInCalculator(r) {
   calcProduct = {
     hts_code:  r.hts_code,
     name:      r.description,
-    duty_rate: r.general || '',
+    duty_rate: r.general  || '',
     special:   r.special  || '',
     other:     r.other    || '',
     unit:      r.unit     || '',
@@ -1082,26 +734,32 @@ function useInCalculator(r) {
   };
   renderProducts();
   renderCalculator();
-  // Scroll calculator into view on mobile
-  document.getElementById('calc-body').closest('.card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('calc-body').closest('section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ── Save modal ─────────────────────────────────────────────────────────────
 
+function openAddModal() {
+  openSaveModal({ hts_code: '', description: '', duty_rate: '', special: '' });
+}
+
 function openSaveModal(data) {
   _pendingSave = data;
-  const nameDefault = (data.description || '').substring(0, 60);
-  document.getElementById('modal-name').value   = nameDefault;
+  document.getElementById('modal-name').value   = (data.description || '').substring(0, 60);
   document.getElementById('modal-origin').value = data.origin || '';
   document.getElementById('modal-meta').textContent =
     (data.hts_code || '—') + '  ·  General: ' + (data.duty_rate || 'N/A') +
     (data.special ? '  ·  Special: ' + data.special : '');
-  document.getElementById('save-modal').classList.remove('hidden');
+  const modal = document.getElementById('save-modal');
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
   setTimeout(() => document.getElementById('modal-name').focus(), 50);
 }
 
 function closeSaveModal() {
-  document.getElementById('save-modal').classList.add('hidden');
+  const modal = document.getElementById('save-modal');
+  modal.classList.add('hidden');
+  modal.style.display = '';
   _pendingSave = null;
 }
 
@@ -1116,17 +774,16 @@ async function confirmSave() {
   if (!name) { document.getElementById('modal-name').focus(); return; }
 
   const { hts_code, description, duty_rate } = _pendingSave;
-
   try {
     await api('POST', '/api/products', { name, hts_code, description: description || '', duty_rate: duty_rate || '', origin });
     closeSaveModal();
     await loadProducts();
+    showToast('Classification Saved');
   } catch (e) {
     alert('Could not save: ' + e.message);
   }
 }
 
-// Opens the save modal pre-filled with the current unsaved calc product
 function saveCalcProduct() {
   if (!calcProduct || !calcProduct.unsaved) return;
   openSaveModal({
@@ -1137,12 +794,15 @@ function saveCalcProduct() {
   });
 }
 
+function showToast(msg) {
+  const el = document.getElementById('toast-success');
+  document.getElementById('toast-message').textContent = msg;
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 3000);
+}
+
 // ── Duty Calculator ────────────────────────────────────────────────────────
 
-/**
- * Parse an HTS duty rate string into a structured object.
- * Handles: Free, percent (5.6%), specific (1.7¢/kg, $1.12/t), compound (2¢/kg + 2.8%)
- */
 function parseDutyRate(rateStr) {
   if (!rateStr) return { type: 'unknown', display: '' };
   const s = rateStr.trim();
@@ -1150,29 +810,23 @@ function parseDutyRate(rateStr) {
 
   if (lower === 'free' || lower === '') return { type: 'free', display: 'Free' };
 
-  // Compound: "X% + Y¢/unit" or "Y¢/unit + X%"
   const comp1 = s.match(/([\d.]+)\s*%\s*\+\s*([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
   if (comp1) return { type: 'compound', pct: parseFloat(comp1[1]), cents: parseFloat(comp1[2]), unit: comp1[3], display: s };
 
   const comp2 = s.match(/([\d.]+)\s*[¢c]\s*\/\s*(\w+)\s*\+\s*([\d.]+)\s*%/i);
   if (comp2) return { type: 'compound', cents: parseFloat(comp2[1]), unit: comp2[2], pct: parseFloat(comp2[3]), display: s };
 
-  // Simple percent (handles "5.6%" and "5.6% on the value of...")
-  // Make sure it doesn't also have a ¢/unit portion
   if (s.match(/([\d.]+)\s*%/) && !s.match(/[¢c$]\/\w+/i)) {
     const m = s.match(/([\d.]+)\s*%/);
     return { type: 'percent', rate: parseFloat(m[1]), display: s };
   }
 
-  // Specific cents: "1.7¢/kg"
   const centsM = s.match(/^([\d.]+)\s*[¢c]\s*\/\s*(\w+)/i);
   if (centsM) return { type: 'specific', amountPerUnit: parseFloat(centsM[1]) / 100, unit: centsM[2], display: s };
 
-  // Dollar specific: "$1.12/t"
   const dollarM = s.match(/^\$([\d.]+)\s*\/\s*(\w+)/);
   if (dollarM) return { type: 'specific', amountPerUnit: parseFloat(dollarM[1]), unit: dollarM[2], display: s };
 
-  // Fallback: has a % somewhere (e.g., "5% on certain articles")
   const anyPct = s.match(/([\d.]+)\s*%/);
   if (anyPct) return { type: 'percent', rate: parseFloat(anyPct[1]), display: s };
 
@@ -1181,9 +835,14 @@ function parseDutyRate(rateStr) {
 
 function renderCalculator() {
   const el = document.getElementById('calc-body');
+  if (!el) return;
 
   if (!calcProduct) {
-    el.innerHTML = '<div class="empty-state" style="padding:3rem 1rem;">Select a saved product or click "Use in Calculator" on a search result</div>';
+    el.innerHTML = `
+      <div class="text-center py-8 text-slate-400 text-sm">
+        <span class="material-symbols-outlined text-4xl block mb-3 opacity-40">calculate</span>
+        Select a saved product or click "Use in Calculator" on a result
+      </div>`;
     return;
   }
 
@@ -1192,70 +851,69 @@ function renderCalculator() {
   const needsQty = parsed.type === 'specific' || parsed.type === 'compound';
 
   const unsavedBadge = p.unsaved
-    ? '<div><span class="cs-unsaved">Unsaved — not in your dashboard yet</span></div>'
+    ? `<span class="text-[10px] px-2 py-0.5 bg-amber-900/40 text-amber-300 rounded-full ml-1">Unsaved</span>`
     : '';
 
   const saveRowHtml = p.unsaved
-    ? `<div class="calc-save-row"><button class="save-btn" onclick="saveCalcProduct()">+ Save to Dashboard</button></div>`
+    ? `<button onclick="saveCalcProduct()" class="w-full mt-4 py-2.5 rounded-full bg-white text-[#071c36] text-xs font-extrabold uppercase tracking-wider hover:bg-slate-200 transition-colors">+ Save to Dashboard</button>`
     : '';
 
   let bodyHtml = '';
 
   if (parsed.type === 'free') {
     bodyHtml = `
-      <div class="rate-free-notice">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>This product enters duty-free under the general rate. No import duty applies.</span>
+      <div class="p-3 bg-green-900/30 rounded-lg text-green-300 text-xs flex items-start gap-2 mb-3">
+        <span class="material-symbols-outlined text-base flex-shrink-0">check_circle</span>
+        <span>This product enters duty-free. No import duty applies.</span>
       </div>
-      ${p.special ? '<div class="hts-rate-item" style="font-size:0.8rem;margin-bottom:0.5rem;">Special (FTA): <span style="color:var(--text-secondary);font-weight:500">' + esc(p.special) + '</span></div>' : ''}
+      ${p.special ? `<div class="text-xs text-slate-400 mb-3">Special (FTA): <span class="text-slate-200">${esc(p.special)}</span></div>` : ''}
       ${saveRowHtml}`;
   } else {
-    const unknownNote = parsed.type === 'unknown' && parsed.display ? `
-      <div class="rate-unknown-notice">
-        <strong>Complex rate:</strong> ${esc(parsed.display)}<br>
-        Enter an estimated percentage below for an approximate calculation.
-      </div>` : '';
-
+    const unknownNote = parsed.type === 'unknown' && parsed.display
+      ? `<div class="p-3 bg-amber-900/30 rounded-lg text-amber-300 text-xs mb-3">Complex rate: ${esc(parsed.display)} — enter an estimated % below.</div>`
+      : '';
     const qtyLabel = needsQty ? (parsed.unit ? `Quantity / Weight (${parsed.unit})` : 'Quantity / Weight') : '';
 
     bodyHtml = `
       ${unknownNote}
-      <div class="calc-fields">
-        <div class="calc-field">
-          <label>Product Value (USD)</label>
-          <input type="number" id="cv-value" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+      <div class="space-y-4">
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 block mb-1">Shipment Value (USD)</label>
+          <input type="number" id="cv-value" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()" class="w-full bg-white/10 border-none rounded-lg focus:ring-1 focus:ring-primary py-2 px-3 text-white font-bold text-sm outline-none"/>
         </div>
-        <div class="calc-field">
-          <label>Shipping &amp; Freight (USD)</label>
-          <input type="number" id="cv-shipping" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 block mb-1">Freight Cost (USD)</label>
+          <input type="number" id="cv-shipping" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()" class="w-full bg-white/10 border-none rounded-lg focus:ring-1 focus:ring-primary py-2 px-3 text-white font-bold text-sm outline-none"/>
         </div>
-        <div class="calc-field">
-          <label>Insurance (USD)</label>
-          <input type="number" id="cv-insurance" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()">
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 block mb-1">Insurance (USD)</label>
+          <input type="number" id="cv-insurance" min="0" step="0.01" placeholder="0.00" oninput="updateCalc()" class="w-full bg-white/10 border-none rounded-lg focus:ring-1 focus:ring-primary py-2 px-3 text-white font-bold text-sm outline-none"/>
         </div>
         ${needsQty ? `
-        <div class="calc-field">
-          <label>${esc(qtyLabel)}</label>
-          <input type="number" id="cv-quantity" min="0" step="0.001" placeholder="0" oninput="updateCalc()">
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 block mb-1">${esc(qtyLabel)}</label>
+          <input type="number" id="cv-quantity" min="0" step="0.001" placeholder="0" oninput="updateCalc()" class="w-full bg-white/10 border-none rounded-lg focus:ring-1 focus:ring-primary py-2 px-3 text-white font-bold text-sm outline-none"/>
         </div>` : ''}
         ${parsed.type === 'unknown' ? `
-        <div class="calc-field">
-          <label>Override Rate (%)</label>
-          <input type="number" id="cv-override" min="0" step="0.01" placeholder="e.g. 5" oninput="updateCalc()">
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 block mb-1">Override Rate (%)</label>
+          <input type="number" id="cv-override" min="0" step="0.01" placeholder="e.g. 5" oninput="updateCalc()" class="w-full bg-white/10 border-none rounded-lg focus:ring-1 focus:ring-primary py-2 px-3 text-white font-bold text-sm outline-none"/>
         </div>` : ''}
       </div>
-      <div id="calc-output" class="calc-results hidden"></div>
+      <div id="calc-output" class="hidden pt-5 mt-5 border-t border-white/10 space-y-2"></div>
       ${saveRowHtml}`;
   }
 
   el.innerHTML = `
-    <div class="calc-selected">
-      <div class="cs-name">${esc(p.name || p.description || p.hts_code)}</div>
-      <div class="cs-detail" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--indigo-600)">${esc(p.hts_code)}</div>
-      <div class="cs-detail">General rate: ${esc(p.duty_rate || 'N/A')}</div>
-      ${p.special ? '<div class="cs-detail">Special (FTA): ' + esc(p.special) + '</div>' : ''}
-      ${p.origin  ? '<div class="cs-detail">Origin: ' + esc(p.origin) + '</div>' : ''}
-      ${unsavedBadge}
+    <div class="mb-5 p-3 bg-white/5 rounded-lg">
+      <div class="flex items-center gap-1 mb-1 flex-wrap">
+        <span class="text-xs font-bold text-slate-300">${esc(p.hts_code)}</span>
+        ${unsavedBadge}
+      </div>
+      <p class="text-sm text-white font-medium leading-snug">${esc(p.name || p.description || p.hts_code)}</p>
+      <p class="text-xs text-slate-400 mt-1">General: ${esc(p.duty_rate || 'N/A')}</p>
+      ${p.special ? `<p class="text-xs text-slate-400">Special (FTA): ${esc(p.special)}</p>` : ''}
+      ${p.origin  ? `<p class="text-xs text-slate-400">Origin: ${esc(p.origin)}</p>`  : ''}
     </div>
     ${bodyHtml}`;
 }
@@ -1296,7 +954,6 @@ function updateCalc() {
     dutyRows.push({ label: 'Total Duty', value: dutyAmount });
 
   } else {
-    // unknown — use override rate if provided
     if (ovr > 0) {
       dutyAmount = (customs * ovr) / 100;
       dutyRows.push({ label: `Estimated duty (${ovr}%)`, value: dutyAmount });
@@ -1310,11 +967,19 @@ function updateCalc() {
 
   el.classList.remove('hidden');
   el.innerHTML = `
-    <div class="calc-row"><span class="label">Customs Value (CIF):</span><span class="value">$${fmt(customs)}</span></div>
-    ${dutyRows.map(r =>
-      `<div class="calc-row${r.sub ? ' sub' : ''}"><span class="label">${esc(r.label)}:</span><span class="value">$${fmt(r.value)}</span></div>`
-    ).join('')}
-    <div class="calc-total"><span class="label">Estimated Total Cost:</span><span class="value">$${fmt(total)}</span></div>`;
+    <div class="flex justify-between text-xs mb-1">
+      <span class="text-slate-400">Customs Value (CIF)</span>
+      <span class="text-white font-bold">$${fmt(customs)}</span>
+    </div>
+    ${dutyRows.map(r => `
+    <div class="flex justify-between text-xs ${r.sub ? 'pl-3' : ''}">
+      <span class="text-slate-400">${esc(r.label)}</span>
+      <span class="text-white font-bold">$${fmt(r.value)}</span>
+    </div>`).join('')}
+    <div class="flex justify-between items-center pt-3 mt-2 border-t border-white/10">
+      <span class="text-xs text-slate-400">Total Landed Cost</span>
+      <span class="text-lg font-black text-[#fabd32]">$${fmt(total)}</span>
+    </div>`;
 }
 
 // ── Utility ────────────────────────────────────────────────────────────────
@@ -1330,20 +995,34 @@ function esc(s) {
   return d.innerHTML;
 }
 
-// Enter key on auth forms
+// ── Keyboard shortcuts ─────────────────────────────────────────────────────
+
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  if (!document.getElementById('view-signin').classList.contains('hidden')) doSignIn();
-  else if (!document.getElementById('view-signup').classList.contains('hidden')) doSignUp();
-  else if (!document.getElementById('save-modal').classList.contains('hidden')) confirmSave();
+  const si = document.getElementById('view-signin');
+  const su = document.getElementById('view-signup');
+  const sm = document.getElementById('save-modal');
+  if (si && !si.classList.contains('hidden')) doSignIn();
+  else if (su && !su.classList.contains('hidden')) doSignUp();
+  else if (sm && !sm.classList.contains('hidden')) confirmSave();
 });
 
-// Escape key closes modal
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSaveModal();
 });
 
-// ── Init: check session ────────────────────────────────────────────────────
+// Top search bar → populate and trigger search
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('top-search')?.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const q = e.target.value.trim();
+    if (!q) return;
+    document.getElementById('hts-query').value = q;
+    doHTSSearch();
+  });
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
 
 (async () => {
   try {
