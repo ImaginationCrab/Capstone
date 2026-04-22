@@ -79,11 +79,3 @@ Example `Procfile` (for Render/Railway):
 ```
 web: uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
 ```
-
-## Next Steps
-
-- [ ] Add semantic search (embed descriptions, use vector similarity)
-- [ ] Auto-detect HTS code vs. text query
-- [ ] Show the tariff hierarchy (chapter → heading → subheading)
-- [ ] Add rate limiting for public deployment
-- [ ] Containerize with Docker
