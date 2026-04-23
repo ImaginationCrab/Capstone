@@ -1,6 +1,7 @@
 import json
-import anthropic
-from .config import ANTHROPIC_API_KEY
+from openai import OpenAI
+from .config import OPENAI_API_KEY
+from . import cache
 
 _STOP_WORDS = {
     "the", "and", "for", "with", "that", "this", "from", "have", "will",
@@ -55,11 +56,19 @@ def get_candidates(description: str, conn) -> list[dict]:
 
 
 def ai_classify_hts(product_description: str, candidates: list[dict]) -> list[dict]:
-    """Use Claude to rank HTS code candidates by relevance and return confidence scores."""
-    if not ANTHROPIC_API_KEY or not candidates:
+    """Use OpenAI to rank HTS code candidates by relevance and return confidence scores."""
+    if not OPENAI_API_KEY or not candidates:
         return [{**c, "confidence": None} for c in candidates[:10]]
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    # Check cache first
+    ck = cache.cache_key("classify", product_description.lower().strip())
+    cached = cache.get("ai_classify", ck, ttl=3600)
+    if cached is not None:
+        print(f"[AI search] Cache hit for: {product_description[:50]}")
+        return cached
+
+
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
     candidates_text = "\n".join(
         f"{i + 1}. [{c['hts_code']}] {c['description']} | Rate: {c.get('general') or 'N/A'}"
@@ -80,12 +89,12 @@ def ai_classify_hts(product_description: str, candidates: list[dict]) -> list[di
     )
 
     try:
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
             max_tokens=600,
             messages=[{"role": "user", "content": prompt}],
         )
-        raw = message.content[0].text.strip()
+        raw = response.choices[0].message.content.strip()
         if "```" in raw:
             raw = raw.split("```")[1].lstrip("json").strip()
         rankings = json.loads(raw)
@@ -97,19 +106,29 @@ def ai_classify_hts(product_description: str, candidates: list[dict]) -> list[di
                 entry = candidates[idx].copy()
                 entry["confidence"] = float(item.get("confidence", 0))
                 results.append(entry)
+
+        # Store in cache
+        cache.put("ai_classify", ck, results)
         return results
 
     except Exception as e:
-        print(f"[AI search] Claude error: {e}")
+        print(f"[AI search] OpenAI error: {e}")
         return [{**c, "confidence": None} for c in candidates[:10]]
 
 
 def explain_hts_code(code: str, description: str, general: str, similar: list[dict]) -> dict | None:
     """Generate a plain-language explanation and comparison for an HTS code."""
-    if not ANTHROPIC_API_KEY:
+    if not OPENAI_API_KEY:
         return None
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    # Check cache first
+    ck = cache.cache_key("explain", code)
+    cached = cache.get("ai_explain", ck, ttl=7200)
+    if cached is not None:
+        print(f"[explain] Cache hit for: {code}")
+        return cached
+
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
     similar_text = "\n".join(
         f"- [{s['hts_code']}] {s['description']} | Rate: {s.get('general') or 'N/A'}"
@@ -135,15 +154,17 @@ def explain_hts_code(code: str, description: str, general: str, similar: list[di
     )
 
     try:
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}],
         )
-        raw = message.content[0].text.strip()
+        raw = response.choices[0].message.content.strip()
         if "```" in raw:
             raw = raw.split("```")[1].lstrip("json").strip()
-        return json.loads(raw)
+        result = json.loads(raw)
+        cache.put("ai_explain", ck, result)
+        return result
     except Exception as e:
-        print(f"[explain] Claude error: {e}")
+        print(f"[explain] OpenAI error: {e}")
         return None

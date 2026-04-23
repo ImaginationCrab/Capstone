@@ -1,5 +1,5 @@
 """
-Atlas Global — HTS Classification & Duty Estimation Platform
+HTSync — HTS Classification & Duty Estimation Platform
 =============================================================
 Run with:  uvicorn main:app --reload
 
@@ -19,8 +19,9 @@ from app.routes.auth_routes import router as auth_router
 from app.routes.product_routes import router as product_router
 from app.routes.search_routes import router as search_router
 from app.routes.health_routes import router as health_router
+from app.routes.shipping_routes import router as shipping_router
 
-app = FastAPI(title="Atlas Global", version="1.0.0")
+app = FastAPI(title="HTSync", version="1.0.0")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 init_tables()
@@ -29,6 +30,7 @@ app.include_router(auth_router)
 app.include_router(product_router)
 app.include_router(search_router)
 app.include_router(health_router)
+app.include_router(shipping_router)
 
 
 @app.get("/", response_class=HTMLResponse)
