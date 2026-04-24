@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from ..database import get_db
-from ..config import ANTHROPIC_API_KEY
+from ..config import OPENAI_API_KEY
 
 router = APIRouter(prefix="/api", tags=["health"])
 
@@ -16,5 +16,5 @@ async def health():
         "total_codes": total["n"] if total else 0,
         "total_users": users["n"] if users else 0,
         "imported_at": meta["imported_at"] if meta else None,
-        "ai_search": bool(ANTHROPIC_API_KEY),
+        "ai_search": bool(OPENAI_API_KEY),
     }

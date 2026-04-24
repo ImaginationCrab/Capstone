@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Atlas Global — HTS Classification Platform</title>
+<title>HTSync — HTS Classification Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ── Reset & Design Tokens ───────────────────────────────── */
@@ -95,59 +95,113 @@ a{color:inherit;text-decoration:none;}
 .auth-switch a:hover{color:var(--blue);}
 .error-box{background:var(--red-bg);border:1px solid #fecaca;padding:0.6rem 0.85rem;border-radius:var(--radius);font-size:0.82rem;color:var(--red);margin-bottom:0.25rem;}
 
-/* ── App Shell ───────────────────────────────────────────── */
-#view-app{display:flex;flex-direction:column;min-height:100vh;}
+/* ── App Shell & Sidebar ─────────────────────────────────── */
+#view-app{min-height:100vh;}
+.app-shell{display:flex;min-height:100vh;}
+.sidebar{
+  width:220px;flex-shrink:0;background:var(--navy);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;z-index:100;
+  border-right:1px solid rgba(255,255,255,0.07);
+}
+.sidebar-logo{
+  display:flex;align-items:center;gap:0.6rem;
+  padding:1.2rem 1.1rem 1rem;cursor:pointer;
+  border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;
+}
+.sidebar-mark{
+  width:30px;height:30px;border-radius:7px;background:var(--blue-mid);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:800;color:#fff;flex-shrink:0;
+}
+.sidebar-brand-name{font-size:1rem;font-weight:700;color:#fff;}
+.sidebar-brand-name span{color:var(--accent);}
+.sidebar-nav{flex:1;padding:0.6rem 0.55rem;display:flex;flex-direction:column;gap:0.1rem;overflow-y:auto;}
+.sidebar-link{
+  display:flex;align-items:center;gap:0.6rem;padding:0.52rem 0.7rem;border-radius:8px;
+  font-family:inherit;font-size:0.84rem;font-weight:500;
+  color:rgba(255,255,255,0.55);background:none;border:none;cursor:pointer;
+  text-align:left;width:100%;transition:color 0.15s,background 0.15s;
+}
+.sidebar-link:hover{color:#fff;background:rgba(255,255,255,0.07);}
+.sidebar-link.active{color:#fff;background:rgba(255,255,255,0.13);font-weight:700;}
+.sl-icon{font-size:1rem;flex-shrink:0;}
+.sidebar-footer{padding:0.75rem 1rem;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.sidebar-user-row{display:flex;align-items:center;gap:0.55rem;margin-bottom:0.6rem;}
+.sidebar-avatar{
+  width:30px;height:30px;border-radius:50%;background:var(--blue-mid);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.72rem;font-weight:800;color:#fff;flex-shrink:0;
+}
+.sidebar-user-name{font-size:0.82rem;font-weight:700;color:#fff;line-height:1.2;}
+.sidebar-user-email{font-size:0.68rem;color:rgba(255,255,255,0.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;}
+.sidebar-signout{
+  width:100%;padding:0.42rem 0.7rem;border-radius:6px;
+  font-family:inherit;font-size:0.78rem;font-weight:600;
+  color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.06);border:none;
+  cursor:pointer;transition:background 0.15s,color 0.15s;text-align:left;
+}
+.sidebar-signout:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.main-content{margin-left:220px;flex:1;min-height:100vh;}
+.mobile-topbar{display:none;}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.25s;}
+  .sidebar.open{transform:translateX(0);}
+  .main-content{margin-left:0;}
+  .mobile-topbar{
+    display:flex;align-items:center;gap:0.75rem;
+    position:sticky;top:0;z-index:90;background:var(--navy);
+    padding:0.75rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .mobile-menu-btn{background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;padding:0.2rem;}
+}
 
-/* NAV */
-.app-nav{
-  position:sticky;top:0;z-index:100;
-  background:var(--navy);height:60px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 1.75rem;
-  box-shadow:0 2px 12px rgba(0,0,0,0.25);
+/* ── Shipping ────────────────────────────────────────────── */
+.ship-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem;}
+.ship-tab{
+  padding:0.55rem 1.1rem;font-family:inherit;font-size:0.87rem;font-weight:500;
+  background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;
+  cursor:pointer;color:var(--gray);transition:all 0.15s;
 }
-.nav-brand{display:flex;align-items:center;gap:0.5rem;cursor:pointer;}
-.nav-brand-mark{width:26px;height:26px;border-radius:6px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:#fff;}
-.nav-brand-name{font-size:0.9rem;font-weight:700;color:#fff;}
-.nav-brand-name span{color:var(--accent);}
-.nav-links{display:flex;align-items:center;gap:0.15rem;}
-.nav-link{
-  padding:0.38rem 0.85rem;border-radius:20px;
-  font-size:0.82rem;font-weight:500;color:rgba(255,255,255,0.6);
-  background:none;border:none;cursor:pointer;font-family:inherit;
-  transition:color 0.15s,background 0.15s;
+.ship-tab.active{color:var(--blue-mid);border-bottom-color:var(--blue-mid);font-weight:700;}
+.ship-panel{display:none;}
+.ship-panel.active{display:block;}
+.port-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;}
+.port-card{
+  background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:1.25rem;box-shadow:var(--shadow);transition:border-color 0.15s,box-shadow 0.15s;
 }
-.nav-link:hover{color:#fff;}
-.nav-link.active{background:rgba(255,255,255,0.12);color:#fff;font-weight:600;}
-.nav-right{display:flex;align-items:center;gap:0.75rem;position:relative;}
-.nav-user-btn{
-  display:flex;align-items:center;gap:0.45rem;
-  padding:0.3rem 0.75rem;border-radius:20px;
-  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
-  color:#fff;font-family:inherit;font-size:0.82rem;font-weight:500;cursor:pointer;
-  transition:background 0.15s;
-}
-.nav-user-btn:hover{background:rgba(255,255,255,0.15);}
-.nav-avatar{width:22px;height:22px;border-radius:50%;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#fff;flex-shrink:0;}
-.nav-chevron{font-size:0.65rem;opacity:0.6;transition:transform 0.15s;}
-.nav-dropdown{
-  position:absolute;top:calc(100% + 8px);right:0;
-  background:#fff;border:1px solid var(--border);border-radius:10px;
-  box-shadow:var(--shadow-md);min-width:190px;display:none;z-index:200;overflow:hidden;
-}
-.nav-dropdown.open{display:block;}
-.nav-dd-header{padding:0.75rem 1rem;border-bottom:1px solid var(--border);background:var(--off);}
-.nav-dd-name{font-size:0.88rem;font-weight:700;color:var(--text);}
-.nav-dd-email{font-size:0.75rem;color:var(--gray2);}
-.nav-dd-item{
-  display:flex;align-items:center;gap:0.55rem;
-  padding:0.6rem 1rem;font-size:0.85rem;color:var(--text);
-  cursor:pointer;background:none;border:none;font-family:inherit;width:100%;text-align:left;
-  transition:background 0.1s;
-}
-.nav-dd-item:hover{background:var(--off);}
-.nav-dd-item.danger{color:var(--red);}
-.nav-dd-divider{height:1px;background:var(--border);margin:0.25rem 0;}
+.port-card:hover{border-color:#93c5fd;box-shadow:var(--shadow-md);}
+.port-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.6rem;}
+.port-code{font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:700;color:var(--blue-mid);background:var(--blue-light);padding:0.18rem 0.55rem;border-radius:4px;}
+.port-congestion{font-size:0.72rem;font-weight:700;padding:0.18rem 0.5rem;border-radius:3px;}
+.cong-low{background:var(--green-bg);color:var(--green);}
+.cong-medium{background:var(--amber-bg);color:var(--amber);}
+.cong-high{background:var(--red-bg);color:var(--red);}
+.port-name{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:0.1rem;}
+.port-region{font-size:0.75rem;color:var(--gray2);margin-bottom:0.7rem;}
+.port-stats{display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;margin-bottom:0.65rem;}
+.pstat-item{background:var(--off);border-radius:6px;padding:0.45rem 0.6rem;}
+.pstat-item-label{font-size:0.65rem;color:var(--gray2);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.pstat-item-val{font-size:0.9rem;font-weight:700;color:var(--navy);}
+.port-routes{font-size:0.75rem;color:var(--gray);}
+.rate-option-card{border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem;}
+.rate-option-card.recommended{border-color:var(--blue-mid);background:var(--blue-light);}
+.rate-option-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;}
+.rate-mode{font-size:0.9rem;font-weight:700;color:var(--text);}
+.rate-recommended-badge{font-size:0.68rem;font-weight:700;background:var(--blue-mid);color:#fff;padding:0.18rem 0.5rem;border-radius:3px;}
+.rate-cost{font-size:1.1rem;font-weight:800;color:var(--navy);}
+.rate-range{font-size:0.75rem;color:var(--gray2);}
+.rate-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.35rem;}
+.rate-meta-item{font-size:0.75rem;color:var(--gray2);}
+.rate-meta-item strong{color:var(--gray);}
+.rate-notes{font-size:0.79rem;color:var(--gray);margin-top:0.35rem;line-height:1.5;}
+.port-rec-summary{background:var(--navy);color:rgba(255,255,255,0.8);border-radius:var(--radius);padding:0.85rem 1rem;margin-bottom:0.75rem;font-size:0.85rem;line-height:1.6;}
+.port-rec-card{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.5rem;}
+.port-rec-rank{font-size:0.68rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;}
+.port-rec-name{font-size:0.9rem;font-weight:700;color:var(--navy);margin-bottom:0.2rem;}
+.port-rec-reason{font-size:0.82rem;color:var(--gray);line-height:1.5;}
+.port-rec-advantage{font-size:0.76rem;color:var(--green);font-weight:600;margin-top:0.2rem;}
 
 /* ── Content ─────────────────────────────────────────────── */
 .content-area{flex:1;padding:1.75rem 2rem;}
@@ -438,6 +492,41 @@ a{color:inherit;text-decoration:none;}
 .tag-green{background:var(--green-bg);color:var(--green);}
 .tag-accent{background:#fef9e7;color:var(--amber);}
 
+/* ── Shipping Section Extras ─────────────────────────────── */
+.ship-form-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem;align-items:start;}
+@media(max-width:900px){.ship-form-layout{grid-template-columns:1fr;}}
+.us-map-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1.25rem;}
+.us-map-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;}
+.us-map-title{font-size:0.95rem;font-weight:700;color:var(--text);}
+.us-map-legend{display:flex;gap:1rem;align-items:center;}
+.legend-item{display:flex;align-items:center;gap:0.3rem;font-size:0.74rem;color:var(--gray);}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.cong-dot-low{background:#22c55e;}
+.cong-dot-medium{background:#f59e0b;}
+.cong-dot-high{background:#ef4444;}
+.us-map-container{width:100%;overflow:hidden;border-radius:6px;background:#f0f4f8;}
+#us-map-svg{width:100%;height:auto;display:block;}
+.us-land{fill:#dbeafe;stroke:#93c5fd;stroke-width:1.5;}
+.us-water{fill:#e8f4fd;}
+.port-dot{cursor:pointer;transition:r 0.15s,opacity 0.15s;}
+.port-dot:hover{opacity:0.8;}
+.port-label{font-size:9px;fill:var(--navy);font-weight:700;pointer-events:none;}
+.port-tooltip{
+  position:absolute;background:var(--navy);color:#fff;
+  padding:0.6rem 0.85rem;border-radius:var(--radius);
+  font-size:0.78rem;line-height:1.5;pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25);max-width:220px;
+  z-index:200;display:none;
+}
+.us-map-hint{font-size:0.74rem;color:var(--gray2);text-align:center;margin-top:0.5rem;}
+.demurrage-bar-wrap{margin-top:0.35rem;}
+.demurrage-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.demurrage-bar-fill{height:100%;border-radius:2px;background:linear-gradient(to right,#22c55e,#f59e0b,#ef4444);}
+.ship-score-badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;font-size:0.82rem;font-weight:800;color:#fff;flex-shrink:0;}
+.score-a{background:#22c55e;}
+.score-b{background:#f59e0b;}
+.score-c{background:#ef4444;}
+
 /* ── Detail Drawer ───────────────────────────────────────── */
 .detail-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,0.5);
@@ -527,8 +616,8 @@ a{color:inherit;text-decoration:none;}
 <div id="view-signin" class="auth-view hidden">
   <div class="auth-left">
     <div class="auth-brand-row">
-      <div class="auth-mark">AG</div>
-      <span class="auth-brand-name">Atlas <span>Global</span></span>
+      <div class="auth-mark">HS</div>
+      <span class="auth-brand-name">HT<span>Sync</span></span>
     </div>
     <div class="auth-tagline">Import compliance, <span>powered by AI.</span></div>
     <p class="auth-sub">Identify HTS codes, estimate duties, and ship with confidence — all from one intelligent platform.</p>
@@ -542,8 +631,8 @@ a{color:inherit;text-decoration:none;}
   <div class="auth-right">
     <div class="auth-card">
       <div class="auth-card-logo">
-        <div class="auth-card-mark">AG</div>
-        <span class="auth-card-brand">Atlas <span>Global</span></span>
+        <div class="auth-card-mark">HS</div>
+        <span class="auth-card-brand">HT<span>Sync</span></span>
       </div>
       <h2>Welcome back</h2>
       <p class="auth-card-sub">Sign in to your account to continue</p>
@@ -559,7 +648,7 @@ a{color:inherit;text-decoration:none;}
         </div>
         <button id="si-submit" class="btn-primary" onclick="doSignIn()">Sign In</button>
         <div class="auth-switch">Don't have an account? <a onclick="showView('signup')">Create one free</a></div>
-        <div class="auth-switch" style="margin-top:0.25rem;"><a onclick="window.location.href='/'">← Back to Atlas Global</a></div>
+        <div class="auth-switch" style="margin-top:0.25rem;"><a onclick="window.location.href='/'">← Back to HTSync</a></div>
       </div>
     </div>
   </div>
@@ -569,14 +658,14 @@ a{color:inherit;text-decoration:none;}
 <div id="view-signup" class="auth-view hidden">
   <div class="auth-left">
     <div class="auth-brand-row">
-      <div class="auth-mark">AG</div>
-      <span class="auth-brand-name">Atlas <span>Global</span></span>
+      <div class="auth-mark">HS</div>
+      <span class="auth-brand-name">HT<span>Sync</span></span>
     </div>
     <div class="auth-tagline">Start classifying with <span>confidence.</span></div>
-    <p class="auth-sub">Join thousands of importers who trust Atlas Global for fast, accurate HTS code identification and duty estimation.</p>
+    <p class="auth-sub">Join thousands of importers who trust HTSync for fast, accurate HTS code identification and duty estimation.</p>
     <div class="auth-feat-list">
       <div class="auth-feat"><div class="auth-feat-dot"></div>Free to get started</div>
-      <div class="auth-feat"><div class="auth-feat-dot"></div>Claude AI-powered smart search</div>
+      <div class="auth-feat"><div class="auth-feat-dot"></div>GPT AI-powered smart search</div>
       <div class="auth-feat"><div class="auth-feat-dot"></div>Save unlimited products</div>
       <div class="auth-feat"><div class="auth-feat-dot"></div>Full search history</div>
     </div>
@@ -584,8 +673,8 @@ a{color:inherit;text-decoration:none;}
   <div class="auth-right">
     <div class="auth-card">
       <div class="auth-card-logo">
-        <div class="auth-card-mark">AG</div>
-        <span class="auth-card-brand">Atlas <span>Global</span></span>
+        <div class="auth-card-mark">HS</div>
+        <span class="auth-card-brand">HT<span>Sync</span></span>
       </div>
       <h2>Create your account</h2>
       <p class="auth-card-sub">Get started in seconds — no credit card required</p>
@@ -616,44 +705,42 @@ a{color:inherit;text-decoration:none;}
 
 <!-- ═══════════════ APP SHELL ════════════════════════ -->
 <div id="view-app" class="hidden">
+<div class="app-shell">
 
-  <!-- NAV -->
-  <nav class="app-nav">
-    <div class="nav-brand" onclick="showSection('home')">
-      <div class="nav-brand-mark">AG</div>
-      <span class="nav-brand-name">Atlas <span>Global</span></span>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo" onclick="showSection('home')">
+      <div class="sidebar-mark">HS</div>
+      <span class="sidebar-brand-name">HT<span>Sync</span></span>
     </div>
-    <div class="nav-links">
-      <button class="nav-link" id="nav-home" onclick="showSection('home')">Home</button>
-      <button class="nav-link" id="nav-search" onclick="showSection('search')">Search</button>
-      <button class="nav-link" id="nav-calculator" onclick="showSection('calculator')">Calculator</button>
-      <button class="nav-link" id="nav-history" onclick="showSection('history')">History</button>
-    </div>
-    <div class="nav-right">
-      <div class="nav-user">
-        <button class="nav-user-btn" onclick="toggleDropdown()">
-          <div class="nav-avatar" id="nav-avatar">U</div>
-          <span id="nav-username">User</span>
-          <span class="nav-chevron">▾</span>
-        </button>
-        <div class="nav-dropdown" id="nav-dropdown">
-          <div class="nav-dd-header">
-            <div class="nav-dd-name" id="dd-name">User</div>
-            <div class="nav-dd-email" id="dd-email">user@example.com</div>
-          </div>
-          <button class="nav-dd-item" onclick="showSection('profile');closeDropdown()">
-            👤 &nbsp;Profile &amp; Settings
-          </button>
-          <div class="nav-dd-divider"></div>
-          <button class="nav-dd-item danger" onclick="doSignOut()">
-            ↩ &nbsp;Sign Out
-          </button>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link" id="nav-home" onclick="showSection('home')"><span class="sl-icon">🏠</span>Home</button>
+      <button class="sidebar-link" id="nav-search" onclick="showSection('search')"><span class="sl-icon">🔍</span>Search</button>
+      <button class="sidebar-link" id="nav-calculator" onclick="showSection('calculator')"><span class="sl-icon">🧮</span>Calculator</button>
+      <button class="sidebar-link" id="nav-shipping" onclick="showSection('shipping')"><span class="sl-icon">🚢</span>Shipping</button>
+      <button class="sidebar-link" id="nav-history" onclick="showSection('history')"><span class="sl-icon">📋</span>History</button>
+      <button class="sidebar-link" id="nav-profile" onclick="showSection('profile')"><span class="sl-icon">👤</span>Profile</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user-row">
+        <div class="sidebar-avatar" id="sidebar-avatar">U</div>
+        <div style="min-width:0;flex:1;">
+          <div class="sidebar-user-name" id="sidebar-username">User</div>
+          <div class="sidebar-user-email" id="sidebar-email">—</div>
         </div>
       </div>
+      <button class="sidebar-signout" onclick="doSignOut()">↩ Sign Out</button>
     </div>
-  </nav>
+  </aside>
 
-  <!-- CONTENT -->
+  <!-- MOBILE TOPBAR -->
+  <div class="mobile-topbar">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <span style="color:#fff;font-size:1rem;font-weight:700;">HT<span style="color:var(--accent);">Sync</span></span>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
   <div class="content-area">
 
     <!-- ── HOME ── -->
@@ -685,7 +772,7 @@ a{color:inherit;text-decoration:none;}
           <div class="stat-icon">🤖</div>
           <div class="stat-label">AI Search</div>
           <div class="stat-value" id="stat-ai">—</div>
-          <div class="stat-sub">powered by Claude</div>
+          <div class="stat-sub">powered by GPT</div>
         </div>
       </div>
       <div class="home-grid">
@@ -726,7 +813,7 @@ a{color:inherit;text-decoration:none;}
             Search HTS Codes
           </button>
           <p class="search-note" id="search-note">
-            AI mode uses <strong>Claude</strong> to intelligently classify your product.
+            AI mode uses <strong>GPT</strong> to intelligently classify your product.
             <a onclick="setMode('keyword')">Switch to keyword →</a>
           </p>
         </div>
@@ -820,6 +907,121 @@ a{color:inherit;text-decoration:none;}
       </div>
     </section>
 
+    <!-- ── SHIPPING ── -->
+    <section id="section-shipping" class="content-section">
+      <div class="page-header">
+        <div class="page-title">Shipping &amp; Route Optimizer</div>
+        <div class="page-sub">Compare US ports by demurrage, congestion, and fit — then estimate landed costs.</div>
+      </div>
+
+      <div class="ship-tabs">
+        <button class="ship-tab active" id="stab-overview" onclick="switchShipTab('overview')">🗺️ Port Overview</button>
+        <button class="ship-tab" id="stab-estimate" onclick="switchShipTab('estimate')">💰 Cost Estimator</button>
+        <button class="ship-tab" id="stab-recommend" onclick="switchShipTab('recommend')">🎯 Port Recommender</button>
+      </div>
+
+      <!-- Panel 1: Port Overview + Heatmap -->
+      <div id="ship-overview" class="ship-panel active">
+        <div class="us-map-wrap">
+          <div class="us-map-header">
+            <div class="us-map-title">US Port Heatmap — Congestion &amp; Demurrage</div>
+            <div class="us-map-legend">
+              <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Low</span>
+              <span class="legend-item"><span class="legend-dot cong-dot-medium"></span>Medium</span>
+              <span class="legend-item"><span class="legend-dot cong-dot-high"></span>High</span>
+            </div>
+          </div>
+          <div class="us-map-container" style="position:relative;">
+            <svg id="us-map-svg" viewBox="0 0 700 440" xmlns="http://www.w3.org/2000/svg">
+              <rect width="700" height="440" fill="#e8f4fd"/>
+              <!-- Simplified continental US outline -->
+              <path class="us-land" d="M45,55 L62,42 L110,28 L200,20 L350,16 L432,30 L500,40 L548,26 L576,54 L596,94 L616,142 L623,182 L602,200 L580,230 L564,260 L550,288 L540,308 L534,348 L530,408 L520,435 L506,440 L491,418 L494,395 L507,375 L434,368 L364,378 L312,378 L290,362 L278,336 L248,310 L212,272 L170,330 L132,360 L92,310 L58,280 L44,250 L38,196 L32,140 L30,90 L36,54 Z"/>
+              <g id="port-markers"></g>
+            </svg>
+            <div id="port-tooltip" class="port-tooltip"></div>
+          </div>
+          <p class="us-map-hint">Hover a port marker for details. Circle size = annual volume. Color = congestion level.</p>
+        </div>
+
+        <div class="port-grid" id="port-cards-grid">
+          <div class="empty-state" style="grid-column:1/-1;"><div class="ei">⚓</div>Loading ports…</div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Cost Estimator -->
+      <div id="ship-estimate" class="ship-panel">
+        <div class="ship-form-layout">
+          <div class="panel">
+            <div class="panel-title">Shipment Details</div>
+            <div class="field-group">
+              <label class="field-label">Origin Country</label>
+              <input type="text" id="se-origin" class="field-input" placeholder="e.g. China, Vietnam, Germany">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Destination Port <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
+              <input type="text" id="se-port" class="field-input" placeholder="e.g. Los Angeles, Best option">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Product Description <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
+              <input type="text" id="se-product" class="field-input" placeholder="e.g. stainless steel cookware">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Weight (kg)</label>
+              <input type="number" id="se-weight" class="field-input" min="0" step="0.1" placeholder="0">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Volume (CBM) <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
+              <input type="number" id="se-volume" class="field-input" min="0" step="0.1" placeholder="0">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Cargo Value (USD) <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
+              <input type="number" id="se-value" class="field-input" min="0" step="1" placeholder="0">
+            </div>
+            <button class="btn-search" id="btn-estimate" onclick="doShippingEstimate()">Get Shipping Estimates</button>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Shipping Options</div>
+            <div id="estimate-results">
+              <div class="empty-state"><div class="ei">🚢</div>Fill in the form to get AI-powered shipping cost estimates.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Port Recommender -->
+      <div id="ship-recommend" class="ship-panel">
+        <div class="ship-form-layout">
+          <div class="panel">
+            <div class="panel-title">Find Your Best Port</div>
+            <div class="field-group">
+              <label class="field-label">Origin Country</label>
+              <input type="text" id="pr-origin" class="field-input" placeholder="e.g. China, Vietnam, Germany">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Product / HTS Code</label>
+              <input type="text" id="pr-product" class="field-input" placeholder="e.g. auto parts, electronics, 8471.30">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Priority</label>
+              <select id="pr-priority" class="field-input">
+                <option value="balanced">Balanced (cost + speed + risk)</option>
+                <option value="cost">Lowest Cost</option>
+                <option value="speed">Fastest Transit</option>
+                <option value="low_demurrage">Lowest Demurrage Risk</option>
+              </select>
+            </div>
+            <button class="btn-search" id="btn-recommend" onclick="doPortRecommend()">Recommend Best Ports</button>
+          </div>
+          <div class="panel">
+            <div class="panel-title">AI Port Recommendations</div>
+            <div id="recommend-results">
+              <div class="empty-state"><div class="ei">🎯</div>Enter your shipment details to get AI-powered port recommendations.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── PROFILE ── -->
     <section id="section-profile" class="content-section">
       <div class="page-header">
@@ -867,6 +1069,8 @@ a{color:inherit;text-decoration:none;}
     </section>
 
   </div><!-- /content-area -->
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
 </div><!-- /view-app -->
 
 <!-- ═══════════════ DETAIL DRAWER ═══════════════════ -->
@@ -921,11 +1125,13 @@ a{color:inherit;text-decoration:none;}
 let currentUser   = null;
 let savedProducts = [];
 let searchHistory = [];
-let calcProduct   = null;   // product loaded in calculator
-let _pendingSave  = null;   // data waiting for modal
-let _lastResults  = [];     // last search results
-let searchMode    = 'ai';   // 'ai' | 'keyword'
+let calcProduct   = null;
+let _pendingSave  = null;
+let _lastResults  = [];
+let searchMode    = 'ai';
 let calcSelectedId = null;
+let allPorts      = [];
+let shippingLoaded = false;
 
 // ════════════════════════════════════════════════════════
 //  ROUTING
@@ -941,16 +1147,19 @@ function showView(name) {
 
 function showSection(name) {
   document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
   const sec = document.getElementById('section-' + name);
   if (sec) sec.classList.add('active');
   const nav = document.getElementById('nav-' + name);
   if (nav) nav.classList.add('active');
+  // Close mobile sidebar on nav
+  document.getElementById('sidebar')?.classList.remove('open');
 
-  if (name === 'history') { loadProducts(); loadHistory(); }
-  if (name === 'home')    { loadHomeStats(); }
+  if (name === 'history')  { loadProducts(); loadHistory(); }
+  if (name === 'home')     { loadHomeStats(); }
   if (name === 'calculator') { renderCalcProductList(); }
-  if (name === 'profile') { renderProfile(); }
+  if (name === 'profile')  { renderProfile(); }
+  if (name === 'shipping') { loadShippingSection(); }
 }
 
 // ════════════════════════════════════════════════════════
@@ -1011,9 +1220,9 @@ async function doSignUp() {
 }
 
 async function doSignOut() {
-  closeDropdown();
   await api('POST', '/api/logout');
   currentUser = null; savedProducts = []; searchHistory = []; calcProduct = null;
+  allPorts = [];
   showView('signin');
 }
 
@@ -1022,12 +1231,11 @@ async function doSignOut() {
 // ════════════════════════════════════════════════════════
 
 async function enterApp() {
-  // Set nav user info
   const name = currentUser?.name || '';
-  document.getElementById('nav-username').textContent = name.split(' ')[0];
-  document.getElementById('nav-avatar').textContent = (name[0] || 'U').toUpperCase();
-  document.getElementById('dd-name').textContent = name;
-  document.getElementById('dd-email').textContent = currentUser?.email || '';
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+  document.getElementById('sidebar-avatar').textContent = initials;
+  document.getElementById('sidebar-username').textContent = name;
+  document.getElementById('sidebar-email').textContent = currentUser?.email || '';
   document.getElementById('home-title').textContent = 'Welcome back, ' + name.split(' ')[0] + ' 👋';
 
   showView('app');
@@ -1037,17 +1245,17 @@ async function enterApp() {
 }
 
 // ════════════════════════════════════════════════════════
-//  NAV DROPDOWN
+//  SIDEBAR (MOBILE)
 // ════════════════════════════════════════════════════════
 
-function toggleDropdown() {
-  document.getElementById('nav-dropdown').classList.toggle('open');
-}
-function closeDropdown() {
-  document.getElementById('nav-dropdown').classList.remove('open');
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
 }
 document.addEventListener('click', e => {
-  if (!e.target.closest('.nav-user')) closeDropdown();
+  const sb = document.getElementById('sidebar');
+  if (sb && !sb.contains(e.target) && !e.target.closest('.mobile-menu-btn')) {
+    sb.classList.remove('open');
+  }
 });
 
 // ════════════════════════════════════════════════════════
@@ -1129,7 +1337,7 @@ function setMode(mode) {
   const note = document.getElementById('search-note');
   if (mode === 'ai') {
     ta.placeholder = 'Describe your product in plain English e.g. "stainless steel cookware set"…';
-    note.innerHTML = 'AI mode uses <strong>Claude</strong> to intelligently classify your product. <a onclick="setMode(\'keyword\')">Switch to keyword →</a>';
+    note.innerHTML = 'AI mode uses <strong>GPT</strong> to intelligently classify your product. <a onclick="setMode(\'keyword\')">Switch to keyword →</a>';
   } else {
     ta.placeholder = 'Enter keywords or an HTS code prefix e.g. "cotton shirt" or "6109"…';
     note.innerHTML = 'Keyword mode searches the full HTS database using text matching. <a onclick="setMode(\'ai\')">Switch to AI →</a>';
@@ -1153,7 +1361,7 @@ async function doSearch() {
     let data;
     if (searchMode === 'ai') {
       data = await api('GET', '/api/ai-search?q=' + encodeURIComponent(q) + '&limit=10');
-      statusEl.innerHTML = `<span>🤖 AI match &nbsp;·&nbsp; ${data.count} results</span><span class="tag-pill tag-blue">Claude</span>`;
+      statusEl.innerHTML = `<span>🤖 AI match &nbsp;·&nbsp; ${data.count} results</span><span class="tag-pill tag-blue">GPT</span>`;
     } else {
       const isCode = /^[\d.]+$/.test(q);
       const url = isCode ? '/api/lookup/' + encodeURIComponent(q) : '/api/search?q=' + encodeURIComponent(q);
@@ -1183,7 +1391,7 @@ async function doSearch() {
 
   } catch (e) {
     if (e.message.includes('not available') || e.message.includes('not configured')) {
-      resultsEl.innerHTML = `<div class="empty-state"><div class="ei">⚙️</div>AI search requires <strong>ANTHROPIC_API_KEY</strong>.<br>Switch to Keyword mode or set the key in your environment.</div>`;
+      resultsEl.innerHTML = `<div class="empty-state"><div class="ei">⚙️</div>AI search requires <strong>OPENAI_API_KEY</strong>.<br>Switch to Keyword mode or set the key in your environment.</div>`;
     } else {
       resultsEl.innerHTML = '<div class="empty-state"><div class="ei">⚠️</div>' + esc(e.message) + '</div>';
     }
@@ -1570,9 +1778,9 @@ async function updateName() {
   try {
     await api('PATCH', '/api/me', { name });
     currentUser.name = name;
-    document.getElementById('nav-username').textContent = name.split(' ')[0];
-    document.getElementById('nav-avatar').textContent = name[0].toUpperCase();
-    document.getElementById('dd-name').textContent = name;
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+    document.getElementById('sidebar-username').textContent = name;
+    document.getElementById('sidebar-avatar').textContent = initials;
     msg.className = 'success-msg'; msg.textContent = 'Name updated successfully.'; msg.style.display = 'block';
     await renderProfile();
     setTimeout(() => { msg.style.display = 'none'; }, 3000);
@@ -1728,7 +1936,7 @@ function renderDetailDrawer(data) {
       <div class="detail-section-title">ℹ️ Code Information</div>
       <div class="detail-summary">${esc(code.description)}</div>
       <p style="font-size:0.8rem;color:var(--gray2);margin-top:0.75rem;">
-        Set <strong>ANTHROPIC_API_KEY</strong> to enable AI-powered explanations, examples, and comparisons.
+        Set <strong>OPENAI_API_KEY</strong> to enable AI-powered explanations, examples, and comparisons.
       </p>
     </div>`;
   }
@@ -1757,6 +1965,229 @@ function closeDetail() {
 
 function handleDetailBackdrop(e) {
   if (e.target === document.getElementById('detail-overlay')) closeDetail();
+}
+
+// ════════════════════════════════════════════════════════
+//  SHIPPING
+// ════════════════════════════════════════════════════════
+
+// Port positions on the SVG map (viewBox 0 0 700 440)
+const PORT_COORDS = {
+  'USLAX': { x: 65, y: 270 },
+  'USSEA': { x: 46, y: 62 },
+  'USHOU': { x: 315, y: 368 },
+  'USMIA': { x: 508, y: 435 },
+  'USSAV': { x: 540, y: 300 },
+  'USCHS': { x: 548, y: 282 },
+  'USBAL': { x: 595, y: 194 },
+  'USNYC': { x: 614, y: 170 },
+};
+
+function congestionColor(level) {
+  if (level === 'Low')    return '#22c55e';
+  if (level === 'Medium') return '#f59e0b';
+  return '#ef4444';
+}
+
+async function loadShippingSection() {
+  if (shippingLoaded && allPorts.length) return;
+  try {
+    const data = await api('GET', '/api/ports');
+    allPorts = data.ports || [];
+    shippingLoaded = true;
+    renderPortMap();
+    renderPortCards();
+  } catch (e) {
+    document.getElementById('port-cards-grid').innerHTML =
+      `<div class="empty-state" style="grid-column:1/-1;"><div class="ei">⚠️</div>${esc(e.message)}</div>`;
+  }
+}
+
+function renderPortMap() {
+  const g = document.getElementById('port-markers');
+  if (!g) return;
+  const tooltip = document.getElementById('port-tooltip');
+  const svgEl   = document.getElementById('us-map-svg');
+
+  g.innerHTML = allPorts.map(port => {
+    const pos = PORT_COORDS[port.code];
+    if (!pos) return '';
+    const color = congestionColor(port.congestion_level);
+    // Scale circle radius by volume (1.1–17.5 M TEU) → radius 7–22
+    const r = Math.round(7 + ((port.annual_teus_millions - 1) / 17) * 15);
+    return `<circle class="port-dot" cx="${pos.x}" cy="${pos.y}" r="${r}"
+      fill="${color}" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"
+      data-code="${port.code}"/>
+      <text class="port-label" x="${pos.x}" y="${pos.y - r - 3}" text-anchor="middle">${port.code.replace('US','')}</text>`;
+  }).join('');
+
+  // Tooltip on hover
+  g.querySelectorAll('.port-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', e => {
+      const port = allPorts.find(p => p.code === dot.dataset.code);
+      if (!port) return;
+      tooltip.innerHTML = `<strong>${port.name}</strong><br>
+        Congestion: ${port.congestion_level}<br>
+        Avg demurrage: ${port.avg_demurrage_days} days ($${port.demurrage_rate_usd_per_day}/day)<br>
+        Avg processing: ${port.avg_processing_days} days<br>
+        Volume: ${port.annual_teus_millions}M TEU/yr`;
+      tooltip.style.display = 'block';
+    });
+    dot.addEventListener('mousemove', e => {
+      const rect = svgEl.parentElement.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+      tooltip.style.top  = (e.clientY - rect.top  - 10) + 'px';
+    });
+    dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+  });
+}
+
+function renderPortCards() {
+  const el = document.getElementById('port-cards-grid');
+  if (!allPorts.length) {
+    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="ei">⚓</div>No port data.</div>';
+    return;
+  }
+  // Max demurrage for bar scaling
+  const maxDem = Math.max(...allPorts.map(p => p.avg_demurrage_days));
+  el.innerHTML = allPorts.map(port => {
+    const color = congestionColor(port.congestion_level);
+    const congClass = port.congestion_level === 'Low' ? 'cong-low' : port.congestion_level === 'Medium' ? 'cong-medium' : 'cong-high';
+    const demPct = (port.avg_demurrage_days / maxDem * 100).toFixed(0);
+    return `<div class="port-card">
+      <div class="port-card-header">
+        <span class="port-code">${esc(port.code)}</span>
+        <span class="port-congestion ${congClass}">${esc(port.congestion_level)}</span>
+      </div>
+      <div class="port-name">${esc(port.name)}</div>
+      <div class="port-region">${esc(port.region)} · ${esc(port.city)}</div>
+      <div class="port-stats">
+        <div class="pstat-item">
+          <div class="pstat-item-label">Avg Demurrage</div>
+          <div class="pstat-item-val">${port.avg_demurrage_days} days</div>
+        </div>
+        <div class="pstat-item">
+          <div class="pstat-item-label">Rate/Day</div>
+          <div class="pstat-item-val">$${port.demurrage_rate_usd_per_day}</div>
+        </div>
+        <div class="pstat-item">
+          <div class="pstat-item-label">Processing</div>
+          <div class="pstat-item-val">${port.avg_processing_days} days</div>
+        </div>
+        <div class="pstat-item">
+          <div class="pstat-item-label">Volume</div>
+          <div class="pstat-item-val">${port.annual_teus_millions}M TEU</div>
+        </div>
+      </div>
+      <div class="demurrage-bar-wrap">
+        <div style="font-size:0.68rem;color:var(--gray2);margin-bottom:3px;">Demurrage risk</div>
+        <div class="demurrage-bar-bg"><div class="demurrage-bar-fill" style="width:${demPct}%"></div></div>
+      </div>
+      <div class="port-routes" style="margin-top:0.5rem;">Routes: ${esc(port.primary_routes.slice(0,3).join(' · '))}</div>
+    </div>`;
+  }).join('');
+}
+
+function switchShipTab(tab) {
+  document.querySelectorAll('.ship-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ship-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('stab-' + tab).classList.add('active');
+  document.getElementById('ship-' + tab).classList.add('active');
+}
+
+async function doShippingEstimate() {
+  const origin  = document.getElementById('se-origin').value.trim();
+  const port    = document.getElementById('se-port').value.trim();
+  const product = document.getElementById('se-product').value.trim();
+  const weight  = parseFloat(document.getElementById('se-weight').value) || 0;
+  const volume  = parseFloat(document.getElementById('se-volume').value) || 0;
+  const value   = parseFloat(document.getElementById('se-value').value)  || 0;
+
+  if (!origin) { document.getElementById('se-origin').focus(); return; }
+  if (!weight) { document.getElementById('se-weight').focus(); return; }
+
+  const btn = document.getElementById('btn-estimate');
+  const out = document.getElementById('estimate-results');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Estimating…';
+  out.innerHTML = '<div class="empty-state"><div class="detail-spinner"></div><div>Getting market rates…</div></div>';
+
+  try {
+    const data = await api('POST', '/api/shipping/estimate', {
+      origin_country: origin,
+      destination_port: port || 'Best option',
+      weight_kg: weight,
+      volume_cbm: volume,
+      product_description: product,
+      cargo_value_usd: value,
+    });
+    out.innerHTML = (data.options || []).map(opt => `
+      <div class="rate-option-card ${opt.recommended ? 'recommended' : ''}">
+        <div class="rate-option-header">
+          <span class="rate-mode">${esc(opt.mode)}</span>
+          ${opt.recommended ? '<span class="rate-recommended-badge">★ Recommended</span>' : ''}
+        </div>
+        <div class="rate-cost">$${(opt.estimated_cost_usd || 0).toLocaleString()}</div>
+        <div class="rate-range">Range: $${esc(opt.cost_range || '—')}</div>
+        <div class="rate-meta">
+          <span class="rate-meta-item"><strong>Transit:</strong> ${esc(String(opt.transit_days || '—'))} days</span>
+          ${opt.carrier_examples?.length ? `<span class="rate-meta-item"><strong>Carriers:</strong> ${esc(opt.carrier_examples.slice(0,2).join(', '))}</span>` : ''}
+        </div>
+        ${opt.notes ? `<div class="rate-notes">${esc(opt.notes)}</div>` : ''}
+      </div>`).join('') || '<div class="empty-state"><div class="ei">⚠️</div>No options returned.</div>';
+  } catch (e) {
+    out.innerHTML = `<div class="empty-state"><div class="ei">⚠️</div>${esc(e.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Get Shipping Estimates';
+  }
+}
+
+async function doPortRecommend() {
+  const origin   = document.getElementById('pr-origin').value.trim();
+  const product  = document.getElementById('pr-product').value.trim();
+  const priority = document.getElementById('pr-priority').value;
+
+  if (!origin) { document.getElementById('pr-origin').focus(); return; }
+
+  const btn = document.getElementById('btn-recommend');
+  const out = document.getElementById('recommend-results');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analyzing…';
+  out.innerHTML = '<div class="empty-state"><div class="detail-spinner"></div><div>Analyzing ports…</div></div>';
+
+  try {
+    const data = await api('POST', '/api/ports/recommend', {
+      origin_country: origin,
+      product_description: product,
+      priority,
+    });
+
+    let html = '';
+    if (data.summary) {
+      html += `<div class="port-rec-summary">${esc(data.summary)}</div>`;
+    }
+    (data.top_picks || []).forEach(pick => {
+      const port = allPorts.find(p => p.code === pick.code);
+      const score = pick.score || 0;
+      const scoreClass = score >= 80 ? 'score-a' : score >= 60 ? 'score-b' : 'score-c';
+      html += `<div class="port-rec-card" style="display:flex;gap:0.85rem;align-items:flex-start;">
+        <div class="ship-score-badge ${scoreClass}">${score}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="port-rec-rank">#${pick.rank} pick</div>
+          <div class="port-rec-name">${esc(port?.name || pick.code)}</div>
+          <div class="port-rec-reason">${esc(pick.reason || '')}</div>
+          ${pick.demurrage_advantage ? `<div class="port-rec-advantage">⬇ ${esc(pick.demurrage_advantage)}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    out.innerHTML = html || '<div class="empty-state"><div class="ei">⚠️</div>No recommendations returned.</div>';
+  } catch (e) {
+    out.innerHTML = `<div class="empty-state"><div class="ei">⚠️</div>${esc(e.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Recommend Best Ports';
+  }
 }
 
 // ════════════════════════════════════════════════════════

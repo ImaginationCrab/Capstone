@@ -2,7 +2,7 @@ import sqlite3
 from fastapi import APIRouter, Query, HTTPException, Request
 from ..database import get_db, rows_to_dicts
 from ..auth import try_get_current_user, get_current_user
-from ..config import ANTHROPIC_API_KEY
+from ..config import OPENAI_API_KEY
 from ..ai_search import get_candidates, ai_classify_hts, explain_hts_code
 
 router = APIRouter(prefix="/api", tags=["search"])
@@ -55,8 +55,8 @@ async def ai_search(
     request: Request = None,
 ):
     """AI-powered search using Claude to classify and rank HTS codes."""
-    if not ANTHROPIC_API_KEY:
-        raise HTTPException(503, "AI search not available — ANTHROPIC_API_KEY not configured")
+    if not OPENAI_API_KEY:
+        raise HTTPException(503, "AI search not available — OPENAI_API_KEY not configured")
 
     user = try_get_current_user(request) if request else None
 
