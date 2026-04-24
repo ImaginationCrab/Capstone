@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HTSync — HTS Classification Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 /* ── Reset & Design Tokens ───────────────────────────────── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -170,6 +171,7 @@ a{color:inherit;text-decoration:none;}
 .port-card{
   background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);
   padding:1.25rem;box-shadow:var(--shadow);transition:border-color 0.15s,box-shadow 0.15s;
+  cursor:pointer;
 }
 .port-card:hover{border-color:#93c5fd;box-shadow:var(--shadow-md);}
 .port-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.6rem;}
@@ -197,11 +199,14 @@ a{color:inherit;text-decoration:none;}
 .rate-meta-item strong{color:var(--gray);}
 .rate-notes{font-size:0.79rem;color:var(--gray);margin-top:0.35rem;line-height:1.5;}
 .port-rec-summary{background:var(--navy);color:rgba(255,255,255,0.8);border-radius:var(--radius);padding:0.85rem 1rem;margin-bottom:0.75rem;font-size:0.85rem;line-height:1.6;}
-.port-rec-card{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.5rem;}
+.port-rec-card{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.5rem;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.port-rec-card:hover{border-color:#93c5fd;background:#fff;}
 .port-rec-rank{font-size:0.68rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;}
 .port-rec-name{font-size:0.9rem;font-weight:700;color:var(--navy);margin-bottom:0.2rem;}
 .port-rec-reason{font-size:0.82rem;color:var(--gray);line-height:1.5;}
 .port-rec-advantage{font-size:0.76rem;color:var(--green);font-weight:600;margin-top:0.2rem;}
+.port-rec-meta{display:flex;gap:0.35rem;flex-wrap:wrap;margin-top:0.45rem;}
+.port-rec-chip{font-size:0.68rem;font-weight:700;color:var(--gray);background:#fff;border:1px solid var(--border);border-radius:999px;padding:0.15rem 0.45rem;}
 
 /* ── Content ─────────────────────────────────────────────── */
 .content-area{flex:1;padding:1.75rem 2rem;}
@@ -496,27 +501,41 @@ a{color:inherit;text-decoration:none;}
 .ship-form-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem;align-items:start;}
 @media(max-width:900px){.ship-form-layout{grid-template-columns:1fr;}}
 .us-map-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1.25rem;}
-.us-map-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;}
+.us-map-header{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;}
 .us-map-title{font-size:0.95rem;font-weight:700;color:var(--text);}
+.port-map-actions{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.port-map-toggle{
+  border:1px solid var(--border);background:#fff;color:var(--gray);
+  border-radius:5px;padding:0.36rem 0.7rem;font-family:inherit;
+  font-size:0.76rem;font-weight:700;cursor:pointer;
+}
+.port-map-toggle.active{background:var(--navy);border-color:var(--navy);color:#fff;}
 .us-map-legend{display:flex;gap:1rem;align-items:center;}
 .legend-item{display:flex;align-items:center;gap:0.3rem;font-size:0.74rem;color:var(--gray);}
 .legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
 .cong-dot-low{background:#22c55e;}
 .cong-dot-medium{background:#f59e0b;}
 .cong-dot-high{background:#ef4444;}
-.us-map-container{width:100%;overflow:hidden;border-radius:6px;background:#f0f4f8;}
-#us-map-svg{width:100%;height:auto;display:block;}
-.us-land{fill:#dbeafe;stroke:#93c5fd;stroke-width:1.5;}
-.us-water{fill:#e8f4fd;}
-.port-dot{cursor:pointer;transition:r 0.15s,opacity 0.15s;}
-.port-dot:hover{opacity:0.8;}
-.port-label{font-size:9px;fill:var(--navy);font-weight:700;pointer-events:none;}
-.port-tooltip{
-  position:absolute;background:var(--navy);color:#fff;
-  padding:0.6rem 0.85rem;border-radius:var(--radius);
-  font-size:0.78rem;line-height:1.5;pointer-events:none;
-  box-shadow:0 4px 20px rgba(0,0,0,0.25);max-width:220px;
-  z-index:200;display:none;
+.us-map-container{width:100%;overflow:hidden;border-radius:6px;background:#dbeafe;border:1px solid #cbd5e1;}
+#port-map{width:100%;height:520px;min-height:420px;}
+.leaflet-container{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#dbeafe;}
+.leaflet-control-attribution{font-size:10px;}
+.port-map-marker{
+  display:block;position:relative;
+  width:var(--marker-size);height:var(--marker-size);border-radius:50%;
+  background:var(--marker-color);border:2px solid #fff;
+  box-shadow:0 2px 10px rgba(15,23,42,0.35);
+}
+.port-map-marker::after{
+  content:"";position:absolute;inset:-5px;border-radius:50%;
+  border:1px solid var(--marker-color);opacity:0.28;
+}
+.leaflet-popup-content-wrapper{border-radius:8px;box-shadow:0 12px 28px rgba(15,23,42,0.22);}
+.leaflet-popup-content{font-size:0.8rem;line-height:1.55;margin:0.75rem 0.9rem;}
+.leaflet-popup-content strong{color:var(--navy);font-size:0.88rem;}
+.port-map-fallback{
+  height:420px;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:2rem;color:var(--gray);font-size:0.86rem;line-height:1.65;background:#eff6ff;
 }
 .us-map-hint{font-size:0.74rem;color:var(--gray2);text-align:center;margin-top:0.5rem;}
 .demurrage-bar-wrap{margin-top:0.35rem;}
@@ -526,6 +545,39 @@ a{color:inherit;text-decoration:none;}
 .score-a{background:#22c55e;}
 .score-b{background:#f59e0b;}
 .score-c{background:#ef4444;}
+.port-profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;margin-bottom:1rem;}
+.port-profile-stat{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.7rem;}
+.port-profile-stat-label{font-size:0.66rem;color:var(--gray2);font-weight:800;text-transform:uppercase;letter-spacing:0.05em;}
+.port-profile-stat-val{font-size:0.95rem;color:var(--navy);font-weight:800;margin-top:0.15rem;}
+.port-profile-actions{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem;}
+.port-action-btn{border:1px solid var(--border);background:#fff;color:var(--gray);border-radius:6px;padding:0.42rem 0.7rem;font-family:inherit;font-size:0.74rem;font-weight:700;cursor:pointer;}
+.port-action-btn:hover{border-color:var(--blue-mid);color:var(--blue-mid);}
+.fit-callout{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--radius);padding:0.8rem;font-size:0.84rem;color:var(--navy);line-height:1.6;margin-bottom:1rem;}
+
+/* ── Trade Heatmap ──────────────────────────────────────── */
+.heatmap-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem;align-items:start;}
+@media(max-width:940px){.heatmap-layout{grid-template-columns:1fr;}}
+#trade-map{height:520px;min-height:420px;width:100%;}
+.heat-marker{
+  display:flex;align-items:center;justify-content:center;position:relative;
+  width:var(--heat-size);height:var(--heat-size);border-radius:50%;
+  background:rgba(239,68,68,var(--heat-alpha));border:2px solid #fff;
+  color:#fff;font-size:0.68rem;font-weight:900;box-shadow:0 4px 16px rgba(127,29,29,0.35);
+}
+.heat-marker::after{content:"";position:absolute;inset:-8px;border-radius:50%;background:rgba(239,68,68,0.16);z-index:-1;}
+.heat-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;}
+@media(max-width:760px){.heat-summary-grid{grid-template-columns:1fr;}}
+.heat-summary-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:0.85rem;box-shadow:var(--shadow);}
+.heat-summary-label{font-size:0.68rem;font-weight:800;color:var(--gray2);text-transform:uppercase;letter-spacing:0.06em;}
+.heat-summary-value{font-size:1.05rem;font-weight:800;color:var(--navy);margin-top:0.2rem;}
+.heat-section-title{font-size:0.88rem;font-weight:800;color:var(--text);margin:1rem 0 0.55rem;}
+.heat-route-row,.heat-port-row{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;margin-bottom:0.5rem;cursor:pointer;transition:border-color 0.15s;}
+.heat-route-row:hover,.heat-port-row:hover{border-color:#93c5fd;}
+.heat-row-top{display:flex;justify-content:space-between;gap:0.75rem;font-size:0.84rem;font-weight:800;color:var(--navy);}
+.heat-row-sub{font-size:0.73rem;color:var(--gray);margin-top:0.2rem;line-height:1.45;}
+.heat-bar-bg{height:5px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:0.5rem;}
+.heat-bar-fill{height:100%;background:linear-gradient(to right,#60a5fa,#f59e0b,#ef4444);border-radius:999px;}
+.heat-method{font-size:0.73rem;color:var(--gray2);line-height:1.55;margin-top:0.85rem;}
 
 /* ── Detail Drawer ───────────────────────────────────────── */
 .detail-overlay{
@@ -718,6 +770,7 @@ a{color:inherit;text-decoration:none;}
       <button class="sidebar-link" id="nav-search" onclick="showSection('search')"><span class="sl-icon">🔍</span>Search</button>
       <button class="sidebar-link" id="nav-calculator" onclick="showSection('calculator')"><span class="sl-icon">🧮</span>Calculator</button>
       <button class="sidebar-link" id="nav-shipping" onclick="showSection('shipping')"><span class="sl-icon">🚢</span>Shipping</button>
+      <button class="sidebar-link" id="nav-trade" onclick="showSection('trade')"><span class="sl-icon">🗺️</span>Trade Heatmap</button>
       <button class="sidebar-link" id="nav-history" onclick="showSection('history')"><span class="sl-icon">📋</span>History</button>
       <button class="sidebar-link" id="nav-profile" onclick="showSection('profile')"><span class="sl-icon">👤</span>Profile</button>
     </nav>
@@ -911,36 +964,34 @@ a{color:inherit;text-decoration:none;}
     <section id="section-shipping" class="content-section">
       <div class="page-header">
         <div class="page-title">Shipping &amp; Route Optimizer</div>
-        <div class="page-sub">Compare US ports by demurrage, congestion, and fit — then estimate landed costs.</div>
+        <div class="page-sub">Compare US and global ports by demurrage, congestion, and fit — then estimate landed costs.</div>
       </div>
 
       <div class="ship-tabs">
-        <button class="ship-tab active" id="stab-overview" onclick="switchShipTab('overview')">🗺️ Port Overview</button>
-        <button class="ship-tab" id="stab-estimate" onclick="switchShipTab('estimate')">💰 Cost Estimator</button>
-        <button class="ship-tab" id="stab-recommend" onclick="switchShipTab('recommend')">🎯 Port Recommender</button>
+        <button class="ship-tab active" id="stab-overview" onclick="switchShipTab('overview')">Port Overview</button>
+        <button class="ship-tab" id="stab-estimate" onclick="switchShipTab('estimate')">Cost Estimator</button>
+        <button class="ship-tab" id="stab-recommend" onclick="switchShipTab('recommend')">Port Recommender</button>
       </div>
 
       <!-- Panel 1: Port Overview + Heatmap -->
       <div id="ship-overview" class="ship-panel active">
         <div class="us-map-wrap">
           <div class="us-map-header">
-            <div class="us-map-title">US Port Heatmap — Congestion &amp; Demurrage</div>
-            <div class="us-map-legend">
-              <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Low</span>
-              <span class="legend-item"><span class="legend-dot cong-dot-medium"></span>Medium</span>
-              <span class="legend-item"><span class="legend-dot cong-dot-high"></span>High</span>
+            <div class="us-map-title" id="port-map-title">US Port Heatmap - Congestion &amp; Demurrage</div>
+            <div class="port-map-actions">
+              <button class="port-map-toggle active" id="map-us" onclick="setPortMapMode('us')">US gateways</button>
+              <button class="port-map-toggle" id="map-global" onclick="setPortMapMode('global')">Global network</button>
+              <div class="us-map-legend">
+                <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Low</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-medium"></span>Medium</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-high"></span>High</span>
+              </div>
             </div>
           </div>
           <div class="us-map-container" style="position:relative;">
-            <svg id="us-map-svg" viewBox="0 0 700 440" xmlns="http://www.w3.org/2000/svg">
-              <rect width="700" height="440" fill="#e8f4fd"/>
-              <!-- Simplified continental US outline -->
-              <path class="us-land" d="M45,55 L62,42 L110,28 L200,20 L350,16 L432,30 L500,40 L548,26 L576,54 L596,94 L616,142 L623,182 L602,200 L580,230 L564,260 L550,288 L540,308 L534,348 L530,408 L520,435 L506,440 L491,418 L494,395 L507,375 L434,368 L364,378 L312,378 L290,362 L278,336 L248,310 L212,272 L170,330 L132,360 L92,310 L58,280 L44,250 L38,196 L32,140 L30,90 L36,54 Z"/>
-              <g id="port-markers"></g>
-            </svg>
-            <div id="port-tooltip" class="port-tooltip"></div>
+            <div id="port-map"></div>
           </div>
-          <p class="us-map-hint">Hover a port marker for details. Circle size = annual volume. Color = congestion level.</p>
+          <p class="us-map-hint" id="port-map-hint">Hover a port marker for details. Circle size = annual volume. Color = congestion level.</p>
         </div>
 
         <div class="port-grid" id="port-cards-grid">
@@ -959,7 +1010,11 @@ a{color:inherit;text-decoration:none;}
             </div>
             <div class="field-group">
               <label class="field-label">Destination Port <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
-              <input type="text" id="se-port" class="field-input" placeholder="e.g. Los Angeles, Best option">
+              <input type="text" id="se-port" class="field-input" placeholder="e.g. Los Angeles, Rotterdam, Best option">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Destination Country</label>
+              <input type="text" id="se-destination-country" class="field-input" value="United States" placeholder="e.g. United States, Germany, Brazil">
             </div>
             <div class="field-group">
               <label class="field-label">Product Description <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
@@ -998,6 +1053,10 @@ a{color:inherit;text-decoration:none;}
               <input type="text" id="pr-origin" class="field-input" placeholder="e.g. China, Vietnam, Germany">
             </div>
             <div class="field-group">
+              <label class="field-label">Destination Country</label>
+              <input type="text" id="pr-destination-country" class="field-input" value="United States" placeholder="e.g. United States, Netherlands, Singapore">
+            </div>
+            <div class="field-group">
               <label class="field-label">Product / HTS Code</label>
               <input type="text" id="pr-product" class="field-input" placeholder="e.g. auto parts, electronics, 8471.30">
             </div>
@@ -1017,6 +1076,49 @@ a{color:inherit;text-decoration:none;}
             <div id="recommend-results">
               <div class="empty-state"><div class="ei">🎯</div>Enter your shipment details to get AI-powered port recommendations.</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TRADE HEATMAP ── -->
+    <section id="section-trade" class="content-section">
+      <div class="page-header">
+        <div class="page-title">Trade Heatmap</div>
+        <div class="page-sub">Model likely port concentration, origin lanes, and route popularity for a specific HTS code.</div>
+      </div>
+
+      <div class="heatmap-layout">
+        <div class="panel">
+          <div class="panel-title">HTS Route Intelligence</div>
+          <div class="field-group">
+            <label class="field-label">HTS Code</label>
+            <input type="text" id="hm-code" class="field-input" placeholder="e.g. 8471.30, 9503, 6204">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Destination Country</label>
+            <input type="text" id="hm-destination-country" class="field-input" value="United States" placeholder="e.g. United States, Germany, Brazil">
+          </div>
+          <button class="btn-search" id="btn-heatmap" onclick="doTradeHeatmap()">Generate Heatmap</button>
+          <div class="heat-method">This view is modeled from HTS chapter, product category, port specialization, routes, throughput, congestion, and demurrage. It is not live customs manifest volume.</div>
+        </div>
+
+        <div>
+          <div class="us-map-wrap">
+            <div class="us-map-header">
+              <div class="us-map-title" id="trade-map-title">Modeled Port Popularity</div>
+              <div class="us-map-legend">
+                <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Lower</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-medium"></span>Medium</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-high"></span>Higher</span>
+              </div>
+            </div>
+            <div class="us-map-container"><div id="trade-map"></div></div>
+            <p class="us-map-hint">Click a heat marker or ranked port row to open the port profile with HTS-specific context.</p>
+          </div>
+
+          <div id="heatmap-results">
+            <div class="empty-state"><div class="ei">🗺️</div>Enter an HTS code to model popular ports and routes.</div>
           </div>
         </div>
       </div>
@@ -1093,6 +1195,21 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+<!-- ═══════════════ PORT PROFILE DRAWER ═══════════════ -->
+<div id="port-detail-overlay" class="detail-overlay hidden" onclick="handlePortDetailBackdrop(event)">
+  <div class="detail-drawer">
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <div class="detail-hts-code" id="port-detail-code">—</div>
+        <div class="detail-hts-desc" id="port-detail-title">Port profile</div>
+      </div>
+      <button class="detail-close" onclick="closePortDetail()">✕</button>
+    </div>
+    <div class="detail-rates" id="port-detail-rates"></div>
+    <div class="detail-body" id="port-detail-body"></div>
+  </div>
+</div>
+
 <!-- ═══════════════ MODAL: SAVE PRODUCT ══════════════ -->
 <div id="save-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
   <div class="modal-card">
@@ -1118,6 +1235,7 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ════════════════════════════════════════════════════════
 //  STATE
@@ -1132,6 +1250,9 @@ let searchMode    = 'ai';
 let calcSelectedId = null;
 let allPorts      = [];
 let shippingLoaded = false;
+let lastPortRecommendations = [];
+let tradeLoaded = false;
+let lastHeatmapData = null;
 
 // ════════════════════════════════════════════════════════
 //  ROUTING
@@ -1160,6 +1281,7 @@ function showSection(name) {
   if (name === 'calculator') { renderCalcProductList(); }
   if (name === 'profile')  { renderProfile(); }
   if (name === 'shipping') { loadShippingSection(); }
+  if (name === 'trade')    { loadTradeSection(); }
 }
 
 // ════════════════════════════════════════════════════════
@@ -1223,6 +1345,9 @@ async function doSignOut() {
   await api('POST', '/api/logout');
   currentUser = null; savedProducts = []; searchHistory = []; calcProduct = null;
   allPorts = [];
+  shippingLoaded = false;
+  tradeLoaded = false;
+  lastPortRecommendations = [];
   showView('signin');
 }
 
@@ -1432,6 +1557,7 @@ function buildResultCard(r, i) {
       <button class="btn-save-r" data-idx="${i}">+ Save</button>
       <button class="btn-calc-r" data-idx="${i}">→ Calculator</button>
       <button class="btn-detail" onclick="viewDetails('${r.hts_code.replace(/'/g,'')}')">Details ↗</button>
+      <button class="btn-detail" onclick="openHeatmapForCode('${r.hts_code.replace(/'/g,'')}')">Heatmap</button>
     </div>
   </div>`;
 }
@@ -1509,6 +1635,7 @@ function renderProducts() {
       </div>
       <div class="si-actions">
         <button class="btn-detail" onclick="event.stopPropagation();viewDetails('${p.hts_code.replace(/'/g,'')}')">Details</button>
+        <button class="btn-detail" onclick="event.stopPropagation();openHeatmapForCode('${p.hts_code.replace(/'/g,'')}')">Heatmap</button>
         <button class="btn-del" onclick="event.stopPropagation();deleteProduct(${p.id})" title="Delete">✕</button>
       </div>
     </div>`;
@@ -1941,6 +2068,12 @@ function renderDetailDrawer(data) {
     </div>`;
   }
 
+  html += `<div class="detail-section">
+    <div class="detail-section-title">Trade Route Heatmap</div>
+    <div class="detail-summary">Model likely entry ports, origin lanes, and route concentration for this code.</div>
+    <div class="port-profile-actions"><button class="port-action-btn" onclick="openHeatmapForCode('${esc(code.hts_code)}')">Open heatmap</button></div>
+  </div>`;
+
   // All sibling codes table (always shown)
   if (similar?.length) {
     html += `<div class="detail-section">
@@ -1971,17 +2104,13 @@ function handleDetailBackdrop(e) {
 //  SHIPPING
 // ════════════════════════════════════════════════════════
 
-// Port positions on the SVG map (viewBox 0 0 700 440)
-const PORT_COORDS = {
-  'USLAX': { x: 65, y: 270 },
-  'USSEA': { x: 46, y: 62 },
-  'USHOU': { x: 315, y: 368 },
-  'USMIA': { x: 508, y: 435 },
-  'USSAV': { x: 540, y: 300 },
-  'USCHS': { x: 548, y: 282 },
-  'USBAL': { x: 595, y: 194 },
-  'USNYC': { x: 614, y: 170 },
-};
+let portMapMode = 'us';
+let portMap = null;
+let portMarkerLayer = null;
+let portMarkersByCode = {};
+let tradeMap = null;
+let tradeMarkerLayer = null;
+const US_PORT_BOUNDS = [[24.2, -125.2], [49.7, -66.5]];
 
 function congestionColor(level) {
   if (level === 'Low')    return '#22c55e';
@@ -1989,8 +2118,65 @@ function congestionColor(level) {
   return '#ef4444';
 }
 
+function visiblePorts() {
+  if (portMapMode === 'us') {
+    return allPorts.filter(p => p.country === 'United States');
+  }
+  return allPorts;
+}
+
+function portLatLng(port) {
+  const lat = Number(port.latitude);
+  const lng = Number(port.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return [lat, lng];
+}
+
+function portMarkerSize(port, maxVolume) {
+  const volume = Number(port.annual_teus_millions) || 0.5;
+  return Math.round(14 + Math.sqrt(volume / Math.max(maxVolume, 1)) * 20);
+}
+
+function portPopup(port) {
+  return `<strong>${esc(port.name)}</strong><br>
+    ${esc(port.city)}, ${esc(port.country || '')}<br>
+    Congestion: ${esc(port.congestion_level)}<br>
+    Avg demurrage: ${esc(String(port.avg_demurrage_days))} days ($${esc(String(port.demurrage_rate_usd_per_day))}/day)<br>
+    Avg processing: ${esc(String(port.avg_processing_days))} days<br>
+    Volume: ${esc(String(port.annual_teus_millions))}M TEU/yr<br>
+    Routes: ${esc((port.primary_routes || []).slice(0, 3).join(' · '))}<br>
+    <button class="port-action-btn" style="margin-top:0.45rem;" onclick="openPortDetail('${esc(port.code)}')">View profile</button>`;
+}
+
+function ensurePortMap() {
+  const mapEl = document.getElementById('port-map');
+  if (!mapEl) return false;
+  if (!window.L) {
+    mapEl.innerHTML = '<div class="port-map-fallback">The interactive map library could not load. Check your internet connection and refresh to see live OpenStreetMap geography.</div>';
+    return false;
+  }
+  if (portMap) return true;
+
+  portMap = L.map(mapEl, {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    worldCopyJump: true,
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(portMap);
+  portMarkerLayer = L.layerGroup().addTo(portMap);
+  portMap.fitBounds(US_PORT_BOUNDS, { padding: [18, 18] });
+  return true;
+}
+
 async function loadShippingSection() {
-  if (shippingLoaded && allPorts.length) return;
+  if (shippingLoaded && allPorts.length) {
+    renderPortMap();
+    renderPortCards();
+    return;
+  }
   try {
     const data = await api('GET', '/api/ports');
     allPorts = data.ports || [];
@@ -2004,63 +2190,73 @@ async function loadShippingSection() {
 }
 
 function renderPortMap() {
-  const g = document.getElementById('port-markers');
-  if (!g) return;
-  const tooltip = document.getElementById('port-tooltip');
-  const svgEl   = document.getElementById('us-map-svg');
+  const ports = visiblePorts();
+  const mapReady = ensurePortMap();
+  const maxVolume = Math.max(...ports.map(p => Number(p.annual_teus_millions) || 0), 1);
 
-  g.innerHTML = allPorts.map(port => {
-    const pos = PORT_COORDS[port.code];
-    if (!pos) return '';
+  const title = document.getElementById('port-map-title');
+  const hint = document.getElementById('port-map-hint');
+  if (title) title.textContent = portMapMode === 'us'
+    ? `US Port Heatmap - ${ports.length} Gateways`
+    : `Global Port Network - ${ports.length} Gateways`;
+  if (hint) hint.textContent = portMapMode === 'us'
+    ? 'Zoom and pan the real map to compare ports against nearby cities, highways, coasts, and inland markets.'
+    : 'Zoom and pan the real map to see origin, destination, and transshipment hubs in geographic context.';
+
+  if (!mapReady) return;
+  portMarkerLayer.clearLayers();
+  portMarkersByCode = {};
+
+  const markerLatLngs = [];
+  ports.forEach(port => {
+    const latLng = portLatLng(port);
+    if (!latLng) return;
+    markerLatLngs.push(latLng);
     const color = congestionColor(port.congestion_level);
-    // Scale circle radius by volume (1.1–17.5 M TEU) → radius 7–22
-    const r = Math.round(7 + ((port.annual_teus_millions - 1) / 17) * 15);
-    return `<circle class="port-dot" cx="${pos.x}" cy="${pos.y}" r="${r}"
-      fill="${color}" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"
-      data-code="${port.code}"/>
-      <text class="port-label" x="${pos.x}" y="${pos.y - r - 3}" text-anchor="middle">${port.code.replace('US','')}</text>`;
-  }).join('');
-
-  // Tooltip on hover
-  g.querySelectorAll('.port-dot').forEach(dot => {
-    dot.addEventListener('mouseenter', e => {
-      const port = allPorts.find(p => p.code === dot.dataset.code);
-      if (!port) return;
-      tooltip.innerHTML = `<strong>${port.name}</strong><br>
-        Congestion: ${port.congestion_level}<br>
-        Avg demurrage: ${port.avg_demurrage_days} days ($${port.demurrage_rate_usd_per_day}/day)<br>
-        Avg processing: ${port.avg_processing_days} days<br>
-        Volume: ${port.annual_teus_millions}M TEU/yr`;
-      tooltip.style.display = 'block';
+    const size = portMarkerSize(port, maxVolume);
+    const marker = L.marker(latLng, {
+      title: port.name,
+      icon: L.divIcon({
+        className: '',
+        html: `<span class="port-map-marker" style="--marker-size:${size}px;--marker-color:${color};"></span>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+        popupAnchor: [0, -size / 2],
+      }),
     });
-    dot.addEventListener('mousemove', e => {
-      const rect = svgEl.parentElement.getBoundingClientRect();
-      tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
-      tooltip.style.top  = (e.clientY - rect.top  - 10) + 'px';
-    });
-    dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    marker.bindPopup(portPopup(port));
+    marker.addTo(portMarkerLayer);
+    portMarkersByCode[port.code] = marker;
   });
+
+  if (portMapMode === 'us') {
+    portMap.fitBounds(US_PORT_BOUNDS, { padding: [18, 18] });
+  } else if (markerLatLngs.length) {
+    portMap.fitBounds(markerLatLngs, { padding: [30, 30], maxZoom: 3 });
+  }
+  setTimeout(() => portMap.invalidateSize(), 0);
 }
 
 function renderPortCards() {
   const el = document.getElementById('port-cards-grid');
-  if (!allPorts.length) {
+  const ports = visiblePorts();
+  if (!ports.length) {
     el.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="ei">⚓</div>No port data.</div>';
     return;
   }
   // Max demurrage for bar scaling
-  const maxDem = Math.max(...allPorts.map(p => p.avg_demurrage_days));
-  el.innerHTML = allPorts.map(port => {
+  const maxDem = Math.max(...ports.map(p => p.avg_demurrage_days));
+  el.innerHTML = ports.map(port => {
     const color = congestionColor(port.congestion_level);
     const congClass = port.congestion_level === 'Low' ? 'cong-low' : port.congestion_level === 'Medium' ? 'cong-medium' : 'cong-high';
     const demPct = (port.avg_demurrage_days / maxDem * 100).toFixed(0);
-    return `<div class="port-card">
+    return `<div class="port-card" onclick="openPortDetail('${esc(port.code)}')">
       <div class="port-card-header">
         <span class="port-code">${esc(port.code)}</span>
         <span class="port-congestion ${congClass}">${esc(port.congestion_level)}</span>
       </div>
       <div class="port-name">${esc(port.name)}</div>
-      <div class="port-region">${esc(port.region)} · ${esc(port.city)}</div>
+      <div class="port-region">${esc(port.region)} · ${esc(port.city)} · ${esc(port.country || '')}</div>
       <div class="port-stats">
         <div class="pstat-item">
           <div class="pstat-item-label">Avg Demurrage</div>
@@ -2084,8 +2280,305 @@ function renderPortCards() {
         <div class="demurrage-bar-bg"><div class="demurrage-bar-fill" style="width:${demPct}%"></div></div>
       </div>
       <div class="port-routes" style="margin-top:0.5rem;">Routes: ${esc(port.primary_routes.slice(0,3).join(' · '))}</div>
+      ${port.best_for?.length ? `<div class="port-routes" style="margin-top:0.25rem;">Best for: ${esc(port.best_for.slice(0,3).join(' · '))}</div>` : ''}
+      <div class="port-routes" style="margin-top:0.45rem;color:var(--blue-mid);font-weight:700;">Click for profile and route fit</div>
     </div>`;
   }).join('');
+}
+
+function getCurrentRouteContext() {
+  return {
+    origin: document.getElementById('pr-origin')?.value.trim() || document.getElementById('se-origin')?.value.trim() || '',
+    destination: document.getElementById('pr-destination-country')?.value.trim() || document.getElementById('se-destination-country')?.value.trim() || 'United States',
+    product: document.getElementById('pr-product')?.value.trim() || document.getElementById('se-product')?.value.trim() || '',
+    priority: document.getElementById('pr-priority')?.value || 'balanced',
+  };
+}
+
+function routeFitForPort(port, context = {}) {
+  const origin = (context.origin || '').toLowerCase();
+  const product = (context.product || '').toLowerCase();
+  const priority = context.priority || 'balanced';
+  const routes = (port.primary_routes || []).map(r => r.toLowerCase());
+  const bestFor = (port.best_for || []).map(r => r.toLowerCase());
+  let score = 50;
+  const notes = [];
+
+  if (origin && routes.some(r => origin.includes(r) || r.includes(origin))) {
+    score += 18;
+    notes.push('Direct route alignment with the selected origin.');
+  }
+  if (origin && routes.some(r => origin.includes('china') && r.includes('china') || origin.includes('vietnam') && r.includes('asia') || origin.includes('germany') && r.includes('europe'))) {
+    score += 10;
+    notes.push('Regional lane alignment based on the origin country.');
+  }
+  if (product && bestFor.some(term => product.includes(term) || term.includes(product))) {
+    score += 15;
+    notes.push('The port has a cargo specialization that matches the product.');
+  }
+  if (priority === 'low_demurrage' && port.congestion_level === 'Low') {
+    score += 12;
+    notes.push('Low congestion supports the demurrage priority.');
+  }
+  if (priority === 'speed' && Number(port.avg_processing_days) <= 2) {
+    score += 10;
+    notes.push('Short processing time supports the speed priority.');
+  }
+  if (priority === 'cost' && Number(port.demurrage_rate_usd_per_day) <= 150) {
+    score += 8;
+    notes.push('Lower daily demurrage rate supports the cost priority.');
+  }
+  if (port.congestion_level === 'High') {
+    score -= 10;
+    notes.push('High congestion may increase dwell time and storage risk.');
+  }
+  if (!notes.length) {
+    notes.push('Good general gateway fit; confirm carrier service and final inland destination.');
+  }
+  return { score: Math.max(1, Math.min(99, Math.round(score))), notes };
+}
+
+function portListHtml(title, items) {
+  if (!items?.length) return '';
+  return `<div class="detail-section">
+    <div class="detail-section-title">${esc(title)}</div>
+    <ul class="detail-list">${items.map(item => `<li><span>•</span><span>${esc(item)}</span></li>`).join('')}</ul>
+  </div>`;
+}
+
+function openPortDetail(code, context = {}) {
+  const port = allPorts.find(p => p.code === code) || lastHeatmapData?.ports?.map(p => p.port).find(p => p.code === code);
+  if (!port) return;
+
+  const routeContext = { ...getCurrentRouteContext(), ...(context.routeContext || {}) };
+  const pick = context.pick || lastPortRecommendations.find(p => p.code === code);
+  const heatItem = context.heatItem || lastHeatmapData?.ports?.find(item => item.port?.code === code);
+  const fit = routeFitForPort(port, routeContext);
+  const fitScore = pick?.score || heatItem?.score || fit.score;
+  const scoreClass = fitScore >= 80 ? 'score-a' : fitScore >= 60 ? 'score-b' : 'score-c';
+
+  document.getElementById('port-detail-code').textContent = port.code;
+  document.getElementById('port-detail-title').textContent = `${port.name} · ${port.city}, ${port.country || ''}`;
+  document.getElementById('port-detail-rates').innerHTML = [
+    `<div class="detail-rate">Congestion: <strong>${esc(port.congestion_level)}</strong></div>`,
+    `<div class="detail-rate">Processing: <strong>${esc(String(port.avg_processing_days))} days</strong></div>`,
+    `<div class="detail-rate">Volume: <strong>${esc(String(port.annual_teus_millions))}M TEU/yr</strong></div>`,
+    `<div class="detail-rate">Demurrage: <strong>${esc(String(port.avg_demurrage_days))} days / $${esc(String(port.demurrage_rate_usd_per_day))}</strong></div>`,
+  ].join('');
+
+  let html = `<div class="fit-callout">
+    <strong>Route fit score: ${fitScore}/100</strong><br>
+    ${pick?.reason ? esc(pick.reason) : esc(fit.notes[0])}
+    ${heatItem ? `<br>Modeled share for ${esc(lastHeatmapData?.hts_code || 'this HTS code')}: <strong>${esc(String(heatItem.estimated_share_pct))}%</strong> via ${esc(heatItem.preferred_route)}` : ''}
+  </div>
+  <div class="port-profile-grid">
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Region</div><div class="port-profile-stat-val">${esc(port.region)}</div></div>
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Country</div><div class="port-profile-stat-val">${esc(port.country || '')}</div></div>
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Best Route</div><div class="port-profile-stat-val">${esc((port.primary_routes || [])[0] || 'General')}</div></div>
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Risk</div><div class="port-profile-stat-val">${esc(port.congestion_level)} congestion</div></div>
+  </div>`;
+
+  html += portListHtml('Strengths', port.strengths || []);
+  html += portListHtml('Considerations', port.considerations || []);
+  html += portListHtml('Best Cargo Fit', port.best_for || []);
+  html += portListHtml('Primary Routes', port.primary_routes || []);
+  html += portListHtml('Fit Notes', fit.notes || []);
+
+  if (pick) {
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Recommendation Context</div>
+      <div class="detail-summary">Priority: ${esc(routeContext.priority || 'balanced')} · Origin: ${esc(routeContext.origin || 'Any')} · Destination: ${esc(routeContext.destination || 'United States')}</div>
+      ${pick.demurrage_advantage ? `<div class="detail-tip">${esc(pick.demurrage_advantage)}</div>` : ''}
+    </div>`;
+  }
+
+  html += `<div class="port-profile-actions">
+    <button class="port-action-btn" onclick="focusPortOnOverview('${esc(port.code)}')">Show on port map</button>
+    <button class="port-action-btn" onclick="usePortInEstimator('${esc(port.name)}')">Use in estimator</button>
+    <button class="port-action-btn" onclick="closePortDetail(); showSection('trade'); document.getElementById('hm-code').focus();">Analyze HTS heatmap</button>
+  </div>`;
+
+  document.getElementById('port-detail-body').innerHTML = html;
+  document.getElementById('port-detail-overlay').classList.remove('hidden');
+}
+
+function closePortDetail() {
+  document.getElementById('port-detail-overlay').classList.add('hidden');
+}
+
+function handlePortDetailBackdrop(e) {
+  if (e.target === document.getElementById('port-detail-overlay')) closePortDetail();
+}
+
+function usePortInEstimator(portName) {
+  closePortDetail();
+  showSection('shipping');
+  switchShipTab('estimate');
+  document.getElementById('se-port').value = portName;
+}
+
+function focusPortOnOverview(code) {
+  closePortDetail();
+  showSection('shipping');
+  setPortMapMode(allPorts.find(p => p.code === code)?.country === 'United States' ? 'us' : 'global');
+  switchShipTab('overview');
+  const port = allPorts.find(p => p.code === code);
+  const marker = portMarkersByCode[code];
+  if (portMap && port && marker) {
+    portMap.setView(portLatLng(port), port.country === 'United States' ? 7 : 5);
+    marker.openPopup();
+  }
+}
+
+async function loadTradeSection() {
+  if (!shippingLoaded || !allPorts.length) {
+    await loadShippingSection();
+  }
+  ensureTradeMap();
+  if (tradeMap) setTimeout(() => tradeMap.invalidateSize(), 0);
+  tradeLoaded = true;
+}
+
+function openHeatmapForCode(code) {
+  closeDetail();
+  showSection('trade');
+  document.getElementById('hm-code').value = code;
+  doTradeHeatmap();
+}
+
+function ensureTradeMap() {
+  const mapEl = document.getElementById('trade-map');
+  if (!mapEl) return false;
+  if (!window.L) {
+    mapEl.innerHTML = '<div class="port-map-fallback">The interactive map library could not load. Check your internet connection and refresh to see the heatmap.</div>';
+    return false;
+  }
+  if (tradeMap) return true;
+
+  tradeMap = L.map(mapEl, {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    worldCopyJump: true,
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(tradeMap);
+  tradeMarkerLayer = L.layerGroup().addTo(tradeMap);
+  tradeMap.fitBounds(US_PORT_BOUNDS, { padding: [18, 18] });
+  return true;
+}
+
+async function doTradeHeatmap() {
+  const code = document.getElementById('hm-code').value.trim();
+  const destination = document.getElementById('hm-destination-country').value.trim() || 'United States';
+  const out = document.getElementById('heatmap-results');
+  const btn = document.getElementById('btn-heatmap');
+  if (!code) { document.getElementById('hm-code').focus(); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Modeling…';
+  out.innerHTML = '<div class="empty-state"><div class="detail-spinner"></div><div>Building route heatmap…</div></div>';
+  try {
+    await loadTradeSection();
+    const data = await api('GET', `/api/trade/heatmap?hts_code=${encodeURIComponent(code)}&destination_country=${encodeURIComponent(destination)}`);
+    renderTradeHeatmap(data);
+  } catch (e) {
+    out.innerHTML = `<div class="empty-state"><div class="ei">⚠️</div>${esc(e.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Heatmap';
+  }
+}
+
+function renderTradeHeatmap(data) {
+  lastHeatmapData = data;
+  const ports = data.ports || [];
+  const out = document.getElementById('heatmap-results');
+  const title = document.getElementById('trade-map-title');
+  if (title) title.textContent = `${data.hts_code} · ${data.category}`;
+
+  if (tradeMarkerLayer) {
+    tradeMarkerLayer.clearLayers();
+    const latLngs = [];
+    const maxShare = Math.max(...ports.map(item => Number(item.estimated_share_pct) || 0), 1);
+    ports.forEach(item => {
+      const port = item.port;
+      const latLng = portLatLng(port);
+      if (!latLng) return;
+      latLngs.push(latLng);
+      const share = Number(item.estimated_share_pct) || 0;
+      const size = Math.round(22 + Math.sqrt(share / maxShare) * 28);
+      const alpha = Math.min(0.92, 0.35 + share / maxShare * 0.55).toFixed(2);
+      const marker = L.marker(latLng, {
+        title: port.name,
+        icon: L.divIcon({
+          className: '',
+          html: `<span class="heat-marker" style="--heat-size:${size}px;--heat-alpha:${alpha};">${Math.round(share)}</span>`,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
+          popupAnchor: [0, -size / 2],
+        }),
+      });
+      marker.bindPopup(`<strong>${esc(port.name)}</strong><br>
+        ${esc(port.city)}, ${esc(port.country || '')}<br>
+        Modeled share: ${esc(String(item.estimated_share_pct))}%<br>
+        Route: ${esc(item.preferred_route)}<br>
+        <button class="port-action-btn" style="margin-top:0.45rem;" onclick="openPortDetail('${esc(port.code)}', { heatItem: lastHeatmapData.ports.find(item => item.port.code === '${esc(port.code)}') })">View profile</button>`);
+      marker.addTo(tradeMarkerLayer);
+    });
+    if (latLngs.length) {
+      tradeMap.fitBounds(latLngs, { padding: [30, 30], maxZoom: data.destination_country === 'United States' ? 5 : 3 });
+    }
+    setTimeout(() => tradeMap.invalidateSize(), 0);
+  }
+
+  const topPort = ports[0];
+  const topRoute = (data.routes || [])[0];
+  const topOrigin = (data.origin_mix || [])[0];
+  out.innerHTML = `
+    <div class="heat-summary-grid">
+      <div class="heat-summary-card"><div class="heat-summary-label">Category</div><div class="heat-summary-value">${esc(data.category)}</div></div>
+      <div class="heat-summary-card"><div class="heat-summary-label">Top Port</div><div class="heat-summary-value">${esc(topPort?.port?.name || '—')}</div></div>
+      <div class="heat-summary-card"><div class="heat-summary-label">Top Route</div><div class="heat-summary-value">${esc(topRoute?.route || topOrigin?.origin || '—')}</div></div>
+    </div>
+
+    <div class="heat-section-title">Most Likely Entry Ports</div>
+    ${ports.map(item => `
+      <div class="heat-port-row" onclick="openPortDetail('${esc(item.port.code)}', { heatItem: lastHeatmapData.ports.find(row => row.port.code === '${esc(item.port.code)}') })">
+        <div class="heat-row-top"><span>#${item.rank} ${esc(item.port.name)}</span><span>${esc(String(item.estimated_share_pct))}%</span></div>
+        <div class="heat-row-sub">${esc(item.port.city)}, ${esc(item.port.country || '')} · ${esc(item.preferred_route)} · ${(item.reason_tags || []).map(esc).join(' · ')}</div>
+        <div class="heat-bar-bg"><div class="heat-bar-fill" style="width:${Math.min(100, item.estimated_share_pct * 4)}%"></div></div>
+      </div>
+    `).join('')}
+
+    <div class="heat-section-title">Popular Route Lanes</div>
+    ${(data.routes || []).map(route => `
+      <div class="heat-route-row">
+        <div class="heat-row-top"><span>${esc(route.route)}</span><span>${esc(String(route.estimated_share_pct))}%</span></div>
+        <div class="heat-bar-bg"><div class="heat-bar-fill" style="width:${Math.min(100, route.estimated_share_pct * 3)}%"></div></div>
+      </div>
+    `).join('')}
+
+    <div class="heat-section-title">Likely Origin Mix</div>
+    ${(data.origin_mix || []).map(origin => `
+      <div class="heat-route-row">
+        <div class="heat-row-top"><span>${esc(origin.origin)}</span><span>${esc(String(origin.estimated_share_pct))}%</span></div>
+        <div class="heat-bar-bg"><div class="heat-bar-fill" style="width:${Math.min(100, origin.estimated_share_pct * 2)}%"></div></div>
+      </div>
+    `).join('')}
+
+    <div class="heat-method">${esc(data.methodology || '')}</div>
+  `;
+}
+
+function setPortMapMode(mode) {
+  portMapMode = mode === 'global' ? 'global' : 'us';
+  document.querySelectorAll('.port-map-toggle').forEach(btn => btn.classList.remove('active'));
+  const active = document.getElementById(portMapMode === 'us' ? 'map-us' : 'map-global');
+  if (active) active.classList.add('active');
+  renderPortMap();
+  renderPortCards();
 }
 
 function switchShipTab(tab) {
@@ -2093,11 +2586,15 @@ function switchShipTab(tab) {
   document.querySelectorAll('.ship-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('stab-' + tab).classList.add('active');
   document.getElementById('ship-' + tab).classList.add('active');
+  if (tab === 'overview' && portMap) {
+    setTimeout(() => portMap.invalidateSize(), 0);
+  }
 }
 
 async function doShippingEstimate() {
   const origin  = document.getElementById('se-origin').value.trim();
   const port    = document.getElementById('se-port').value.trim();
+  const destinationCountry = document.getElementById('se-destination-country').value.trim() || 'United States';
   const product = document.getElementById('se-product').value.trim();
   const weight  = parseFloat(document.getElementById('se-weight').value) || 0;
   const volume  = parseFloat(document.getElementById('se-volume').value) || 0;
@@ -2116,6 +2613,7 @@ async function doShippingEstimate() {
     const data = await api('POST', '/api/shipping/estimate', {
       origin_country: origin,
       destination_port: port || 'Best option',
+      destination_country: destinationCountry,
       weight_kg: weight,
       volume_cbm: volume,
       product_description: product,
@@ -2145,6 +2643,7 @@ async function doShippingEstimate() {
 
 async function doPortRecommend() {
   const origin   = document.getElementById('pr-origin').value.trim();
+  const destinationCountry = document.getElementById('pr-destination-country').value.trim() || 'United States';
   const product  = document.getElementById('pr-product').value.trim();
   const priority = document.getElementById('pr-priority').value;
 
@@ -2159,6 +2658,7 @@ async function doPortRecommend() {
   try {
     const data = await api('POST', '/api/ports/recommend', {
       origin_country: origin,
+      destination_country: destinationCountry,
       product_description: product,
       priority,
     });
@@ -2167,17 +2667,26 @@ async function doPortRecommend() {
     if (data.summary) {
       html += `<div class="port-rec-summary">${esc(data.summary)}</div>`;
     }
-    (data.top_picks || []).forEach(pick => {
+    lastPortRecommendations = data.top_picks || [];
+    const routeContext = { origin, destination: destinationCountry, product, priority };
+    lastPortRecommendations.forEach(pick => {
       const port = allPorts.find(p => p.code === pick.code);
       const score = pick.score || 0;
       const scoreClass = score >= 80 ? 'score-a' : score >= 60 ? 'score-b' : 'score-c';
-      html += `<div class="port-rec-card" style="display:flex;gap:0.85rem;align-items:flex-start;">
+      const chips = port ? [
+        port.congestion_level + ' congestion',
+        port.avg_demurrage_days + ' day demurrage',
+        (port.primary_routes || []).slice(0, 2).join(' / '),
+      ] : [];
+      html += `<div class="port-rec-card" onclick="openPortDetail('${esc(pick.code)}', { pick: lastPortRecommendations.find(p => p.code === '${esc(pick.code)}') })" style="display:flex;gap:0.85rem;align-items:flex-start;">
         <div class="ship-score-badge ${scoreClass}">${score}</div>
         <div style="flex:1;min-width:0;">
           <div class="port-rec-rank">#${pick.rank} pick</div>
           <div class="port-rec-name">${esc(port?.name || pick.code)}</div>
           <div class="port-rec-reason">${esc(pick.reason || '')}</div>
           ${pick.demurrage_advantage ? `<div class="port-rec-advantage">⬇ ${esc(pick.demurrage_advantage)}</div>` : ''}
+          ${chips.length ? `<div class="port-rec-meta">${chips.map(chip => `<span class="port-rec-chip">${esc(chip)}</span>`).join('')}</div>` : ''}
+          <div class="port-routes" style="margin-top:0.45rem;color:var(--blue-mid);font-weight:700;">Click for detailed fit profile</div>
         </div>
       </div>`;
     });
@@ -2200,7 +2709,7 @@ document.addEventListener('keydown', e => {
     else if (!document.getElementById('view-signup').classList.contains('hidden')) doSignUp();
     else if (!document.getElementById('save-modal').classList.contains('hidden')) confirmSave();
   }
-  if (e.key === 'Escape') { closeSaveModal(); closeDetail(); }
+  if (e.key === 'Escape') { closeSaveModal(); closeDetail(); closePortDetail(); }
 });
 
 // ════════════════════════════════════════════════════════
