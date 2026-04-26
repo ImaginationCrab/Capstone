@@ -698,6 +698,156 @@ def _modeled_trade_heatmap(hts_code: str, destination_country: str) -> dict:
     }
 
 
+def _origin_route_fit(port: dict, origin_country: str) -> tuple[float, str]:
+    origin = (origin_country or "").lower()
+    routes = port.get("primary_routes", [])
+    route_text = " ".join(routes).lower()
+    if not origin:
+        return 0, "No origin country was provided; confirm carrier service before booking."
+
+    for route in routes:
+        route_l = route.lower()
+        if origin in route_l or route_l in origin:
+            return 24, f"Primary services include {route}, matching the selected origin."
+
+    regional_lanes = [
+        ("Asia", ["china", "japan", "korea", "taiwan", "vietnam", "thailand", "malaysia", "singapore", "india", "hong kong"]),
+        ("Europe", ["germany", "netherlands", "belgium", "spain", "france", "italy", "united kingdom", "uk"]),
+        ("South America", ["brazil", "argentina", "chile", "peru", "colombia"]),
+        ("Central America", ["mexico", "guatemala", "honduras", "costa rica", "panama"]),
+        ("Middle East", ["united arab emirates", "uae", "saudi", "qatar", "oman", "turkey"]),
+    ]
+    for lane, countries in regional_lanes:
+        if any(country in origin for country in countries) and lane.lower() in route_text:
+            return 16, f"Primary services include {lane}, a practical regional lane for {origin_country}."
+
+    if "asia" in route_text and any(country in origin for country in ["china", "vietnam", "japan", "korea", "taiwan", "india"]):
+        return 14, f"Asia service coverage is a reasonable fit for {origin_country}."
+
+    return 4, f"Carrier service from {origin_country} should be verified for this gateway."
+
+
+def _product_fit(port: dict, product_description: str) -> tuple[float, str]:
+    product = (product_description or "").lower()
+    if not product:
+        return 0, "General cargo fit; add a product or HTS code for a tighter recommendation."
+
+    best_for = port.get("best_for", [])
+    best_for_text = " ".join(best_for).lower()
+    product_terms = [term for term in product.replace("/", " ").replace("-", " ").split() if len(term) > 3]
+    if any(term in best_for_text for term in product_terms):
+        return 18, f"Cargo specialties include {', '.join(best_for[:3])}."
+
+    category_aliases = {
+        "electronics": ["electronics", "computer", "semiconductor", "device", "battery"],
+        "apparel": ["apparel", "shirt", "textile", "garment", "fashion", "footwear"],
+        "automotive": ["auto", "vehicle", "car", "truck", "parts"],
+        "food": ["food", "fruit", "meat", "seafood", "beverage", "perishable"],
+        "machinery": ["machine", "machinery", "equipment", "industrial"],
+        "chemicals": ["chemical", "plastic", "rubber", "pharma"],
+    }
+    for category, aliases in category_aliases.items():
+        if any(alias in product for alias in aliases) and category in best_for_text:
+            return 14, f"Cargo specialization aligns with {category} traffic."
+
+    return 2, "No exact cargo specialty match, but the port handles broad containerized cargo."
+
+
+def _modeled_port_recommendations(body: PortRecommendRequest) -> dict:
+    destination_country = body.destination_country or "United States"
+    product_note = body.product_description or (f"HTS {body.hts_code}" if body.hts_code else "general cargo")
+    chapter = _chapter_from_code(body.hts_code or body.product_description or "")
+    profile = _trade_profile(chapter) if chapter else None
+    scored = []
+
+    for port in PORTS:
+        score = 36.0
+        notes = []
+        port_country = (port.get("country") or "").lower()
+        dest_country = destination_country.lower()
+
+        if port_country == dest_country:
+            score += 28
+            notes.append(f"Direct gateway in {destination_country}.")
+        elif dest_country != "united states" and port_country != "united states":
+            score += 10
+            notes.append("Practical global gateway or transshipment option.")
+        else:
+            score -= 10
+            notes.append(f"Not located in the destination market of {destination_country}.")
+
+        route_score, route_note = _origin_route_fit(port, body.origin_country)
+        product_score, product_fit = _product_fit(port, product_note)
+        score += route_score + product_score
+        notes.extend([route_note, product_fit])
+
+        if profile:
+            if port["code"] in profile["preferred_ports"]:
+                score += 16
+                notes.append(f"HTS chapter {chapter} aligns with this port's commodity pattern.")
+            best_for_text = " ".join(port.get("best_for", [])).lower()
+            if any(term.lower() in best_for_text for term in profile["cargo_terms"]):
+                score += 10
+                notes.append(f"Cargo profile: {profile['category']}.")
+            route_text = " ".join(port.get("primary_routes", [])).lower()
+            if any(route.lower() in route_text for route in profile["route_bias"]):
+                score += 6
+
+        volume = float(port.get("annual_teus_millions") or 0)
+        score += min((volume ** 0.5) * 5, 18)
+
+        demurrage_days = float(port.get("avg_demurrage_days") or 0)
+        processing_days = float(port.get("avg_processing_days") or 0)
+        demurrage_rate = float(port.get("demurrage_rate_usd_per_day") or 0)
+        congestion = port.get("congestion_level", "Medium")
+
+        if body.priority == "low_demurrage":
+            score += max(0, 18 - demurrage_days * 4)
+            notes.append("Scored heavily for low demurrage exposure.")
+        elif body.priority == "speed":
+            score += max(0, 16 - processing_days * 4)
+            notes.append("Scored heavily for processing speed.")
+        elif body.priority == "cost":
+            score += max(0, 18 - demurrage_rate / 18)
+            notes.append("Scored heavily for lower daily demurrage cost.")
+        else:
+            score += max(0, 12 - demurrage_days * 2)
+
+        score -= {"Low": 0, "Medium": 5, "High": 12}.get(congestion, 5)
+        score = max(1, min(99, round(score)))
+
+        considerations = port.get("considerations") or []
+        if congestion == "High":
+            risk_note = "High congestion can increase dwell time, storage charges, and appointment pressure."
+        elif considerations:
+            risk_note = considerations[0]
+        else:
+            risk_note = "Risk profile is comparatively stable; still confirm sailing schedule and free time."
+
+        scored.append({
+            "code": port["code"],
+            "score": score,
+            "reason": " ".join(notes[:3]),
+            "demurrage_advantage": f"{demurrage_days:g} day average demurrage at ${int(demurrage_rate)}/day.",
+            "route_fit": route_note,
+            "inland_fit": (port.get("strengths") or [f"{port['region']} gateway for {destination_country}."])[0],
+            "risk_note": risk_note,
+        })
+
+    top_picks = sorted(scored, key=lambda row: row["score"], reverse=True)[:3]
+    for rank, pick in enumerate(top_picks, start=1):
+        pick["rank"] = rank
+
+    best = next((p for p in PORTS if p["code"] == top_picks[0]["code"]), None) if top_picks else None
+    summary = (
+        f"{best['name']} is the strongest modeled fit for {body.origin_country} to {destination_country} "
+        f"based on route alignment, cargo fit, congestion, demurrage, and throughput. "
+        f"Use the port profile to validate inland access and risk before booking."
+        if best else "No matching ports were available for this recommendation."
+    )
+    return {"top_picks": top_picks, "summary": summary}
+
+
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @router.get("/ports")
@@ -795,17 +945,19 @@ async def shipping_estimate(body: ShippingEstimateRequest):
 
 @router.post("/ports/recommend")
 async def recommend_ports(body: PortRecommendRequest):
-    if not OPENAI_API_KEY:
-        raise HTTPException(503, "Port recommendations require OPENAI_API_KEY")
-
     # Check cache first
     ck = cache.cache_key("recommend", body.origin_country, body.destination_country or "",
-                         body.product_description or "",
+                         body.product_description or "", body.hts_code or "",
                          body.priority or "balanced")
     cached = cache.get("port_recommend", ck, ttl=1800)
     if cached is not None:
         print(f"[ports] Cache hit for recommendation")
         return cached
+
+    fallback = _modeled_port_recommendations(body)
+    if not OPENAI_API_KEY:
+        cache.put("port_recommend", ck, fallback)
+        return fallback
 
     client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -829,7 +981,10 @@ async def recommend_ports(body: PortRecommendRequest):
         f'{{\n'
         f'  "top_picks": [\n'
         f'    {{"code": "USSAV", "rank": 1, "score": 92, "reason": "why this port fits best", '
-        f'"demurrage_advantage": "1.9 days vs 3.5 avg"}}\n'
+        f'"demurrage_advantage": "1.9 days vs 3.5 avg", '
+        f'"route_fit": "how the selected origin country maps to this port lane", '
+        f'"inland_fit": "why this gateway fits the destination market", '
+        f'"risk_note": "main operational risk to validate before booking"}}\n'
         f'  ],\n'
         f'  "summary": "2-sentence overall recommendation"\n'
         f'}}\n\n'
@@ -847,7 +1002,19 @@ async def recommend_ports(body: PortRecommendRequest):
         if "```" in raw:
             raw = raw.split("```")[1].lstrip("json").strip()
         result = json.loads(raw)
+        fallback_by_code = {pick["code"]: pick for pick in fallback.get("top_picks", [])}
+        for idx, pick in enumerate(result.get("top_picks", [])):
+            modeled = fallback_by_code.get(pick.get("code")) or (
+                fallback["top_picks"][idx] if idx < len(fallback.get("top_picks", [])) else {}
+            )
+            for key in ("score", "reason", "demurrage_advantage", "route_fit", "inland_fit", "risk_note"):
+                if not pick.get(key) and modeled.get(key):
+                    pick[key] = modeled[key]
+            pick.setdefault("rank", idx + 1)
+        if not result.get("summary"):
+            result["summary"] = fallback["summary"]
         cache.put("port_recommend", ck, result)
         return result
-    except Exception as e:
-        raise HTTPException(500, f"Failed to generate recommendations: {e}")
+    except Exception:
+        cache.put("port_recommend", ck, fallback)
+        return fallback
