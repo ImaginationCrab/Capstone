@@ -3,21 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HTSync — HTS Classification Platform</title>
+<title>HTSYNC — Trade Compliance, Decoded</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 /* ── Reset & Design Tokens ───────────────────────────────── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
   --navy:#0b1f3a;
   --navy2:#142848;
+  --ink:#071629;
   --blue:#1a5cad;
   --blue-mid:#1e6fd9;
   --blue-light:#eff6ff;
+  --teal:#0f766e;
+  --teal-bg:#ecfdf5;
   --accent:#f0b429;
   --accent2:#e8a800;
   --white:#fff;
-  --off:#f5f7fb;
+  --off:#f6f8fb;
+  --surface:#ffffff;
   --gray:#6b7280;
   --gray2:#9ca3af;
   --text:#111827;
@@ -29,13 +34,18 @@
   --amber:#b45309;
   --amber-bg:#fffbeb;
   --radius:8px;
-  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:0 4px 12px rgba(0,0,0,0.1);
+  --shadow:0 1px 2px rgba(15,23,42,0.05),0 1px 3px rgba(15,23,42,0.08);
+  --shadow-md:0 10px 26px rgba(15,23,42,0.10);
+  --shadow-lg:0 18px 52px rgba(15,23,42,0.12);
 }
 html{scroll-behavior:smooth;}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text);background:var(--off);min-height:100vh;font-size:15px;line-height:1.5;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,#f8fafc 0%,#eef4fb 340px,var(--off) 100%);min-height:100vh;font-size:15px;line-height:1.5;}
 .hidden{display:none!important;}
 a{color:inherit;text-decoration:none;}
+button,input,textarea,select{font:inherit;}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(30,111,217,0.22);outline-offset:2px;}
+.ui-icon,.sl-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ui-icon svg,.sl-icon svg{width:1em;height:1em;stroke-width:2.1;}
 
 /* ── Auth ────────────────────────────────────────────────── */
 .auth-view{
@@ -48,12 +58,20 @@ a{color:inherit;text-decoration:none;}
   display:none;flex-direction:column;justify-content:center;padding:3.5rem;
 }
 @media(min-width:900px){.auth-left{display:flex;}}
-.auth-brand-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:2.5rem;}
-.auth-mark{width:40px;height:40px;border-radius:9px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;}
-.auth-brand-name{font-size:1.15rem;font-weight:700;color:#fff;}
-.auth-brand-name span{color:var(--accent);}
+.brand-lockup{display:flex;align-items:center;gap:0.75rem;min-width:0;}
+.brand-mark{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#e9f7ff,#ffffff);
+  color:var(--blue);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.55),0 12px 28px rgba(15,23,42,0.18);
+  flex-shrink:0;
+}
+.brand-mark svg{width:31px;height:31px;display:block;}
+.brand-word{display:block;font-size:1.08rem;font-weight:800;color:#fff;letter-spacing:0.08em;line-height:1;}
+.brand-tagline{display:block;font-size:0.68rem;font-weight:500;color:rgba(255,255,255,0.58);letter-spacing:0;line-height:1.35;margin-top:0.22rem;}
+.auth-brand-row{margin-bottom:2.5rem;}
 .auth-tagline{font-size:1.55rem;font-weight:800;color:#fff;line-height:1.25;margin-bottom:0.8rem;letter-spacing:-0.02em;}
-.auth-tagline span{color:var(--accent);}
+.auth-tagline span{color:#bde8ff;}
 .auth-sub{font-size:0.88rem;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:2.5rem;}
 .auth-feat-list{display:flex;flex-direction:column;gap:0.9rem;}
 .auth-feat{display:flex;align-items:center;gap:0.75rem;font-size:0.85rem;color:rgba(255,255,255,0.6);}
@@ -64,10 +82,11 @@ a{color:inherit;text-decoration:none;}
   background:#fff;border-radius:14px;padding:2.5rem;width:100%;max-width:400px;
   box-shadow:0 24px 64px rgba(0,0,0,0.3);
 }
-.auth-card-logo{display:flex;align-items:center;gap:0.5rem;justify-content:center;margin-bottom:1.75rem;}
-.auth-card-mark{width:32px;height:32px;border-radius:7px;background:var(--blue-mid);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:#fff;}
-.auth-card-brand{font-size:1rem;font-weight:700;color:var(--navy);}
-.auth-card-brand span{color:var(--blue-mid);}
+.auth-card-logo{justify-content:center;margin-bottom:1.75rem;}
+.auth-card-logo .brand-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--blue-light),#fff);color:var(--blue-mid);box-shadow:0 10px 24px rgba(30,111,217,0.14);}
+.auth-card-logo .brand-mark svg{width:28px;height:28px;}
+.auth-card-logo .brand-word{color:var(--navy);font-size:1rem;}
+.auth-card-logo .brand-tagline{color:var(--gray);font-size:0.65rem;}
 .auth-card h2{font-size:1.35rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:0.3rem;letter-spacing:-0.01em;}
 .auth-card-sub{font-size:0.83rem;color:var(--gray);text-align:center;margin-bottom:1.5rem;}
 .auth-form{display:flex;flex-direction:column;gap:0.85rem;}
@@ -80,6 +99,7 @@ a{color:inherit;text-decoration:none;}
 }
 .form-input::placeholder{color:var(--gray2);}
 .form-input:focus{border-color:var(--blue-mid);box-shadow:0 0 0 3px rgba(30,111,217,0.12);}
+.form-input[readonly]{background:var(--off);color:var(--gray);cursor:not-allowed;}
 .btn-primary{
   width:100%;padding:0.7rem 1rem;
   background:var(--blue-mid);color:#fff;
@@ -99,33 +119,30 @@ a{color:inherit;text-decoration:none;}
 #view-app{min-height:100vh;}
 .app-shell{display:flex;min-height:100vh;}
 .sidebar{
-  width:220px;flex-shrink:0;background:var(--navy);
+  width:236px;flex-shrink:0;background:linear-gradient(180deg,#07172c 0%,var(--navy) 100%);
   display:flex;flex-direction:column;
   position:fixed;top:0;left:0;height:100vh;z-index:100;
   border-right:1px solid rgba(255,255,255,0.07);
 }
 .sidebar-logo{
-  display:flex;align-items:center;gap:0.6rem;
+  display:flex;align-items:center;gap:0.75rem;
   padding:1.2rem 1.1rem 1rem;cursor:pointer;
   border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;
 }
-.sidebar-mark{
-  width:30px;height:30px;border-radius:7px;background:var(--blue-mid);
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.75rem;font-weight:800;color:#fff;flex-shrink:0;
-}
-.sidebar-brand-name{font-size:1rem;font-weight:700;color:#fff;}
-.sidebar-brand-name span{color:var(--accent);}
+.sidebar-logo .brand-mark{width:34px;height:34px;border-radius:8px;box-shadow:0 10px 24px rgba(0,0,0,0.2);}
+.sidebar-logo .brand-mark svg{width:25px;height:25px;}
+.sidebar-logo .brand-word{font-size:0.94rem;}
+.sidebar-logo .brand-tagline{font-size:0.61rem;}
 .sidebar-nav{flex:1;padding:0.6rem 0.55rem;display:flex;flex-direction:column;gap:0.1rem;overflow-y:auto;}
 .sidebar-link{
-  display:flex;align-items:center;gap:0.6rem;padding:0.52rem 0.7rem;border-radius:8px;
+  display:flex;align-items:center;gap:0.65rem;padding:0.58rem 0.72rem;border-radius:8px;
   font-family:inherit;font-size:0.84rem;font-weight:500;
   color:rgba(255,255,255,0.55);background:none;border:none;cursor:pointer;
   text-align:left;width:100%;transition:color 0.15s,background 0.15s;
 }
 .sidebar-link:hover{color:#fff;background:rgba(255,255,255,0.07);}
 .sidebar-link.active{color:#fff;background:rgba(255,255,255,0.13);font-weight:700;}
-.sl-icon{font-size:1rem;flex-shrink:0;}
+.sl-icon{width:18px;height:18px;color:currentColor;}
 .sidebar-footer{padding:0.75rem 1rem;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
 .sidebar-user-row{display:flex;align-items:center;gap:0.55rem;margin-bottom:0.6rem;}
 .sidebar-avatar{
@@ -140,9 +157,10 @@ a{color:inherit;text-decoration:none;}
   font-family:inherit;font-size:0.78rem;font-weight:600;
   color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.06);border:none;
   cursor:pointer;transition:background 0.15s,color 0.15s;text-align:left;
+  display:flex;align-items:center;gap:0.45rem;
 }
 .sidebar-signout:hover{background:rgba(255,255,255,0.12);color:#fff;}
-.main-content{margin-left:220px;flex:1;min-height:100vh;}
+.main-content{margin-left:236px;flex:1;min-height:100vh;}
 .mobile-topbar{display:none;}
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);transition:transform 0.25s;}
@@ -153,25 +171,30 @@ a{color:inherit;text-decoration:none;}
     position:sticky;top:0;z-index:90;background:var(--navy);
     padding:0.75rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.07);
   }
-  .mobile-menu-btn{background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;padding:0.2rem;}
+  .mobile-menu-btn{background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;padding:0.2rem;display:inline-flex;align-items:center;justify-content:center;}
 }
 
 /* ── Shipping ────────────────────────────────────────────── */
-.ship-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem;}
+.ship-tabs{
+  display:inline-flex;flex-wrap:wrap;background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:0.25rem;margin-bottom:1.25rem;box-shadow:var(--shadow);gap:0.2rem;
+}
 .ship-tab{
-  padding:0.55rem 1.1rem;font-family:inherit;font-size:0.87rem;font-weight:500;
-  background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;
+  padding:0.48rem 0.95rem;font-family:inherit;font-size:0.84rem;font-weight:700;
+  background:none;border:none;border-radius:6px;
   cursor:pointer;color:var(--gray);transition:all 0.15s;
 }
-.ship-tab.active{color:var(--blue-mid);border-bottom-color:var(--blue-mid);font-weight:700;}
+.ship-tab:hover{background:var(--off);color:var(--navy);}
+.ship-tab.active{background:var(--navy);color:#fff;}
 .ship-panel{display:none;}
 .ship-panel.active{display:block;}
 .port-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;}
 .port-card{
   background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);
-  padding:1.25rem;box-shadow:var(--shadow);transition:border-color 0.15s,box-shadow 0.15s;
+  padding:1.25rem;box-shadow:var(--shadow);transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s;
+  cursor:pointer;
 }
-.port-card:hover{border-color:#93c5fd;box-shadow:var(--shadow-md);}
+.port-card:hover{border-color:#93c5fd;box-shadow:var(--shadow-md);transform:translateY(-1px);}
 .port-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.6rem;}
 .port-code{font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:700;color:var(--blue-mid);background:var(--blue-light);padding:0.18rem 0.55rem;border-radius:4px;}
 .port-congestion{font-size:0.72rem;font-weight:700;padding:0.18rem 0.5rem;border-radius:3px;}
@@ -197,20 +220,35 @@ a{color:inherit;text-decoration:none;}
 .rate-meta-item strong{color:var(--gray);}
 .rate-notes{font-size:0.79rem;color:var(--gray);margin-top:0.35rem;line-height:1.5;}
 .port-rec-summary{background:var(--navy);color:rgba(255,255,255,0.8);border-radius:var(--radius);padding:0.85rem 1rem;margin-bottom:0.75rem;font-size:0.85rem;line-height:1.6;}
-.port-rec-card{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.5rem;}
+.port-rec-card{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.5rem;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.port-rec-card:hover{border-color:#93c5fd;background:#fff;}
 .port-rec-rank{font-size:0.68rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;}
 .port-rec-name{font-size:0.9rem;font-weight:700;color:var(--navy);margin-bottom:0.2rem;}
 .port-rec-reason{font-size:0.82rem;color:var(--gray);line-height:1.5;}
 .port-rec-advantage{font-size:0.76rem;color:var(--green);font-weight:600;margin-top:0.2rem;}
+.port-rec-meta{display:flex;gap:0.35rem;flex-wrap:wrap;margin-top:0.45rem;}
+.port-rec-chip{font-size:0.68rem;font-weight:700;color:var(--gray);background:#fff;border:1px solid var(--border);border-radius:999px;padding:0.15rem 0.45rem;}
 
 /* ── Content ─────────────────────────────────────────────── */
-.content-area{flex:1;padding:1.75rem 2rem;}
+.content-area{flex:1;padding:1.75rem 2rem;width:min(100%,1500px);margin:0 auto;}
 @media(max-width:768px){.content-area{padding:1rem;}}
 .content-section{display:none;}
 .content-section.active{display:block;}
-.page-header{margin-bottom:1.5rem;}
-.page-title{font-size:1.35rem;font-weight:800;color:var(--navy);letter-spacing:-0.01em;}
-.page-sub{font-size:0.86rem;color:var(--gray);margin-top:0.2rem;}
+.page-header{margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid rgba(203,213,225,0.72);}
+.page-title{font-size:1.42rem;font-weight:800;color:var(--navy);letter-spacing:-0.01em;}
+.page-sub{font-size:0.88rem;color:var(--gray);margin-top:0.25rem;max-width:780px;}
+.workflow-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0.75rem;margin-bottom:1.35rem;}
+@media(max-width:980px){.workflow-strip{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.workflow-strip{grid-template-columns:1fr;}}
+.workflow-step{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:0.95rem;text-align:left;cursor:pointer;display:grid;grid-template-columns:auto 1fr;gap:0.7rem;align-items:start;
+  transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s;
+}
+.workflow-step:hover{border-color:#93c5fd;box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.workflow-index{font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:800;color:var(--blue-mid);background:var(--blue-light);border-radius:999px;padding:0.15rem 0.4rem;}
+.workflow-copy strong{display:block;font-size:0.88rem;color:var(--navy);margin-bottom:0.12rem;}
+.workflow-copy small{display:block;font-size:0.74rem;color:var(--gray);line-height:1.45;}
 
 /* ── Home ────────────────────────────────────────────────── */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;}
@@ -219,7 +257,12 @@ a{color:inherit;text-decoration:none;}
   padding:1.2rem 1.4rem;box-shadow:var(--shadow);
   display:flex;flex-direction:column;gap:0.3rem;
 }
-.stat-icon{font-size:1.3rem;margin-bottom:0.2rem;}
+.stat-icon{
+  width:38px;height:38px;border-radius:10px;margin-bottom:0.25rem;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--blue-light);color:var(--blue-mid);
+}
+.stat-icon svg{width:19px;height:19px;}
 .stat-label{font-size:0.75rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:0.06em;}
 .stat-value{font-size:1.9rem;font-weight:800;color:var(--navy);line-height:1;}
 .stat-sub{font-size:0.75rem;color:var(--gray2);}
@@ -227,6 +270,7 @@ a{color:inherit;text-decoration:none;}
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
 @media(max-width:800px){.home-grid{grid-template-columns:1fr;}}
 .home-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);}
+.home-card:hover,.stat-card:hover{box-shadow:var(--shadow-md);}
 .home-card-title{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;}
 .quick-form{display:flex;gap:0.5rem;}
 .quick-input{
@@ -266,6 +310,7 @@ a{color:inherit;text-decoration:none;}
   flex:1;padding:0.38rem 0.5rem;border-radius:6px;
   font-family:inherit;font-size:0.79rem;font-weight:500;
   border:none;background:none;color:var(--gray);cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:0.35rem;
 }
 .mode-tab.active{background:#fff;color:var(--navy);font-weight:700;box-shadow:var(--shadow);}
 .search-textarea{
@@ -306,7 +351,7 @@ a{color:inherit;text-decoration:none;}
 .result-rates{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.4rem;}
 .result-rate-item{font-size:0.74rem;color:var(--gray2);}
 .result-rate-item span{color:var(--gray);font-weight:500;}
-.result-actions{display:flex;gap:0.4rem;margin-top:0.45rem;}
+.result-actions{display:flex;gap:0.4rem;margin-top:0.45rem;flex-wrap:wrap;}
 .btn-save-r{
   padding:0.28rem 0.7rem;font-family:inherit;font-size:0.74rem;font-weight:600;
   background:var(--blue-light);color:var(--blue-mid);border:1px solid #bfdbfe;border-radius:5px;cursor:pointer;
@@ -385,6 +430,7 @@ a{color:inherit;text-decoration:none;}
   padding:0.55rem 1.1rem;font-family:inherit;font-size:0.87rem;font-weight:500;
   background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;
   cursor:pointer;color:var(--gray);transition:all 0.15s;
+  display:flex;align-items:center;gap:0.4rem;
 }
 .hist-tab.active{color:var(--blue-mid);border-bottom-color:var(--blue-mid);font-weight:700;}
 .hist-panel{display:none;}
@@ -419,12 +465,14 @@ a{color:inherit;text-decoration:none;}
 .si-name{font-size:0.88rem;font-weight:600;color:var(--text);}
 .si-code{font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:var(--blue-mid);}
 .si-meta{font-size:0.74rem;color:var(--gray2);}
-.si-actions{display:flex;gap:0.4rem;align-items:center;}
+.si-actions{display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
 .btn-del{
   padding:0.24rem 0.5rem;font-family:inherit;font-size:0.74rem;font-weight:600;
   background:none;color:var(--gray2);border:none;border-radius:4px;cursor:pointer;
   transition:color 0.1s,background 0.1s;
+  display:inline-flex;align-items:center;justify-content:center;
 }
+.btn-del svg{width:15px;height:15px;}
 .btn-del:hover{color:var(--red);background:var(--red-bg);}
 .filter-box{
   width:100%;padding:0.5rem 0.9rem;margin-bottom:0.85rem;
@@ -434,8 +482,8 @@ a{color:inherit;text-decoration:none;}
 .filter-box:focus{border-color:var(--blue-mid);}
 
 /* ── Profile ─────────────────────────────────────────────── */
-.profile-layout{display:grid;grid-template-columns:280px 1fr;gap:1rem;align-items:start;}
-@media(max-width:800px){.profile-layout{grid-template-columns:1fr;}}
+.profile-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem;align-items:start;}
+@media(max-width:900px){.profile-layout{grid-template-columns:1fr;}}
 .profile-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);text-align:center;}
 .profile-avatar{
   width:72px;height:72px;border-radius:50%;margin:0 auto 1rem;
@@ -449,16 +497,45 @@ a{color:inherit;text-decoration:none;}
 .pstat{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem 1rem;flex:1;text-align:center;}
 .pstat-val{font-size:1.3rem;font-weight:800;color:var(--navy);}
 .pstat-label{font-size:0.72rem;color:var(--gray2);font-weight:600;}
+.profile-org-card{margin-top:1rem;text-align:left;background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.95rem;}
+.profile-org-label{font-size:0.66rem;font-weight:800;color:var(--gray2);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.25rem;}
+.profile-org-value{font-size:0.88rem;font-weight:800;color:var(--navy);line-height:1.35;}
+.profile-org-sub{font-size:0.75rem;color:var(--gray);line-height:1.5;margin-top:0.25rem;}
+.profile-progress{margin-top:1rem;text-align:left;}
+.profile-progress-top{display:flex;justify-content:space-between;gap:0.75rem;font-size:0.74rem;font-weight:800;color:var(--gray);margin-bottom:0.4rem;}
+.profile-progress-track{height:7px;background:var(--border);border-radius:999px;overflow:hidden;}
+.profile-progress-fill{height:100%;background:linear-gradient(90deg,var(--blue-mid),var(--teal));border-radius:999px;}
 .settings-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);}
 .settings-section{margin-bottom:1.75rem;}
 .settings-section:last-child{margin-bottom:0;}
 .settings-title{font-size:0.9rem;font-weight:700;color:var(--text);padding-bottom:0.6rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.85rem;}
+@media(max-width:720px){.settings-grid{grid-template-columns:1fr;}}
+.settings-actions{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-top:0.75rem;}
+.profile-check-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.6rem;margin-top:0.75rem;}
+@media(max-width:720px){.profile-check-list{grid-template-columns:1fr;}}
+.profile-check{
+  display:flex;gap:0.6rem;align-items:flex-start;background:var(--off);
+  border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;
+}
+.profile-check-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--green-bg);color:var(--green);flex-shrink:0;}
+.profile-check-icon svg{width:14px;height:14px;}
+.profile-check-title{font-size:0.78rem;font-weight:800;color:var(--navy);line-height:1.3;}
+.profile-check-copy{font-size:0.72rem;color:var(--gray);line-height:1.45;margin-top:0.1rem;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.7rem 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-copy strong{display:block;font-size:0.82rem;color:var(--navy);}
+.toggle-copy span{display:block;font-size:0.73rem;color:var(--gray);margin-top:0.12rem;line-height:1.4;}
+.toggle-row input{width:18px;height:18px;accent-color:var(--blue-mid);}
 .btn-sm{
   padding:0.5rem 1.1rem;font-family:inherit;font-size:0.85rem;font-weight:700;
   background:var(--blue-mid);color:#fff;border:none;border-radius:var(--radius);
   cursor:pointer;transition:background 0.15s;
 }
 .btn-sm:hover{background:#1657c4;}
+.btn-sm:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-sm.secondary{background:#fff;color:var(--gray);border:1px solid var(--border);}
+.btn-sm.secondary:hover{background:var(--off);color:var(--navy);}
 .success-msg{font-size:0.82rem;color:var(--green);margin-top:0.4rem;font-weight:500;}
 .error-msg{font-size:0.82rem;color:var(--red);margin-top:0.4rem;font-weight:500;}
 
@@ -481,44 +558,165 @@ a{color:inherit;text-decoration:none;}
 .btn-outline:hover{background:var(--off);}
 .btn-solid{padding:0.48rem 1rem;font-family:inherit;font-size:0.85rem;font-weight:700;color:#fff;background:var(--blue-mid);border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.15s;}
 .btn-solid:hover{background:#1657c4;}
+.btn-solid:disabled,.btn-outline:disabled{opacity:0.6;cursor:not-allowed;}
+.onboarding-card{
+  background:#fff;border-radius:14px;width:100%;max-width:590px;
+  box-shadow:0 28px 80px rgba(7,22,41,0.34);overflow:hidden;
+  border:1px solid rgba(255,255,255,0.35);
+}
+.onboarding-top{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+  padding:1.35rem 1.5rem 1rem;border-bottom:1px solid var(--border);
+}
+.onboarding-kicker{font-size:0.67rem;font-weight:800;color:var(--blue-mid);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:0.25rem;}
+.onboarding-title{font-size:1.2rem;font-weight:800;color:var(--navy);letter-spacing:-0.01em;line-height:1.25;}
+.onboarding-close{width:34px;height:34px;position:static;}
+.onboarding-progress{height:5px;background:var(--off);overflow:hidden;}
+#onboarding-progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue-mid),var(--teal));transition:width 0.2s ease;}
+.onboarding-body{padding:1.5rem;}
+.onboarding-icon{
+  width:48px;height:48px;border-radius:12px;background:var(--blue-light);color:var(--blue-mid);
+  display:flex;align-items:center;justify-content:center;margin-bottom:1rem;
+}
+.onboarding-icon svg{width:24px;height:24px;}
+#onboarding-copy{font-size:0.9rem;color:var(--gray);line-height:1.75;margin-bottom:1rem;}
+.onboarding-action-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.65rem;}
+@media(max-width:640px){.onboarding-action-list{grid-template-columns:1fr;}}
+.onboarding-action{
+  display:flex;gap:0.55rem;align-items:flex-start;background:var(--off);
+  border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;
+  font-size:0.78rem;color:var(--gray);line-height:1.45;
+}
+.onboarding-action i{color:var(--green);margin-top:0.05rem;}
+.onboarding-action svg{width:15px;height:15px;}
+.onboarding-footer{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:1rem 1.5rem;background:#fbfdff;border-top:1px solid var(--border);
+}
+.onboarding-nav-actions{display:flex;gap:0.6rem;align-items:center;}
 
 /* ── Shared ──────────────────────────────────────────────── */
 .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--gray2);font-size:0.87rem;line-height:1.65;}
-.empty-state .ei{font-size:2.2rem;margin-bottom:0.5rem;}
+.empty-state .ei{
+  width:44px;height:44px;border-radius:12px;margin:0 auto 0.7rem;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--off);border:1px solid var(--border);font-size:0;color:var(--gray2);
+}
+.empty-state .ei::before{
+  content:"";width:18px;height:18px;border-radius:6px;
+  border:2px solid currentColor;display:block;opacity:0.8;
+}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .tag-pill{display:inline-flex;align-items:center;font-size:0.7rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:0.18rem 0.5rem;border-radius:3px;}
 .tag-blue{background:var(--blue-light);color:var(--blue-mid);}
 .tag-green{background:var(--green-bg);color:var(--green);}
 .tag-accent{background:#fef9e7;color:var(--amber);}
+.toast-stack{position:fixed;right:1rem;bottom:1rem;z-index:900;display:flex;flex-direction:column;gap:0.5rem;max-width:min(360px,calc(100vw - 2rem));}
+.toast{
+  background:#fff;border:1px solid var(--border);border-left:4px solid var(--blue-mid);
+  border-radius:var(--radius);box-shadow:var(--shadow-md);padding:0.8rem 0.95rem;
+  font-size:0.84rem;color:var(--text);line-height:1.45;animation:toastIn 0.18s ease-out;
+}
+.toast.success{border-left-color:var(--green);}
+.toast.error{border-left-color:var(--red);}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
 /* ── Shipping Section Extras ─────────────────────────────── */
 .ship-form-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem;align-items:start;}
 @media(max-width:900px){.ship-form-layout{grid-template-columns:1fr;}}
+.ops-ribbon{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.1rem;}
+@media(max-width:980px){.ops-ribbon{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.ops-ribbon{grid-template-columns:1fr;}}
+.ops-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:0.95rem;}
+.ops-label{font-size:0.66rem;font-weight:800;color:var(--gray2);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.2rem;}
+.ops-value{font-size:1.1rem;font-weight:800;color:var(--navy);}
+.ops-sub{font-size:0.74rem;color:var(--gray);margin-top:0.15rem;line-height:1.45;}
 .us-map-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1.25rem;}
-.us-map-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;}
+.us-map-header{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;}
 .us-map-title{font-size:0.95rem;font-weight:700;color:var(--text);}
+.port-map-actions{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.port-map-toggle{
+  border:1px solid var(--border);background:#fff;color:var(--gray);
+  border-radius:5px;padding:0.36rem 0.7rem;font-family:inherit;
+  font-size:0.76rem;font-weight:700;cursor:pointer;
+}
+.port-map-toggle.active{background:var(--navy);border-color:var(--navy);color:#fff;}
 .us-map-legend{display:flex;gap:1rem;align-items:center;}
 .legend-item{display:flex;align-items:center;gap:0.3rem;font-size:0.74rem;color:var(--gray);}
 .legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.legend-line{width:22px;height:0;border-top:2px solid #2563eb;border-radius:999px;display:inline-block;box-shadow:0 0 0 3px rgba(37,99,235,0.08);}
 .cong-dot-low{background:#22c55e;}
 .cong-dot-medium{background:#f59e0b;}
 .cong-dot-high{background:#ef4444;}
-.us-map-container{width:100%;overflow:hidden;border-radius:6px;background:#f0f4f8;}
-#us-map-svg{width:100%;height:auto;display:block;}
-.us-land{fill:#dbeafe;stroke:#93c5fd;stroke-width:1.5;}
-.us-water{fill:#e8f4fd;}
-.port-dot{cursor:pointer;transition:r 0.15s,opacity 0.15s;}
-.port-dot:hover{opacity:0.8;}
-.port-label{font-size:9px;fill:var(--navy);font-weight:700;pointer-events:none;}
-.port-tooltip{
-  position:absolute;background:var(--navy);color:#fff;
-  padding:0.6rem 0.85rem;border-radius:var(--radius);
-  font-size:0.78rem;line-height:1.5;pointer-events:none;
-  box-shadow:0 4px 20px rgba(0,0,0,0.25);max-width:220px;
-  z-index:200;display:none;
+.us-map-container{width:100%;overflow:hidden;border-radius:7px;background:#dbeafe;border:1px solid #cbd5e1;}
+#port-map{width:100%;height:520px;min-height:420px;}
+.leaflet-container{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#dbeafe;}
+.leaflet-control-attribution{font-size:10px;}
+.port-map-marker{
+  display:block;position:relative;
+  width:var(--marker-size);height:var(--marker-size);border-radius:50%;
+  background:var(--marker-color);border:2px solid #fff;
+  box-shadow:0 2px 10px rgba(15,23,42,0.35);
+}
+.port-map-marker::after{
+  content:"";position:absolute;inset:-5px;border-radius:50%;
+  border:1px solid var(--marker-color);opacity:0.28;
+}
+.route-origin-dot{
+  display:block;width:10px;height:10px;border-radius:50%;background:#0f766e;border:2px solid #fff;
+  box-shadow:0 2px 8px rgba(15,118,110,0.28);
+}
+.leaflet-popup-content-wrapper{border-radius:8px;box-shadow:0 12px 28px rgba(15,23,42,0.22);}
+.leaflet-popup-content{font-size:0.8rem;line-height:1.55;margin:0.75rem 0.9rem;}
+.leaflet-popup-content strong{color:var(--navy);font-size:0.88rem;}
+.port-map-fallback{
+  height:420px;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:2rem;color:var(--gray);font-size:0.86rem;line-height:1.65;background:#eff6ff;
 }
 .us-map-hint{font-size:0.74rem;color:var(--gray2);text-align:center;margin-top:0.5rem;}
+.route-lane-panel{display:grid;grid-template-columns:repeat(4,1fr);gap:0.55rem;margin-top:0.85rem;}
+.route-lane-panel:empty{display:none;}
+@media(max-width:900px){.route-lane-panel{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.route-lane-panel{grid-template-columns:1fr;}}
+.route-lane-card{background:var(--off);border:1px solid var(--border);border-radius:7px;padding:0.65rem 0.75rem;}
+.route-lane-title{font-size:0.78rem;font-weight:800;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.route-lane-sub{font-size:0.69rem;color:var(--gray);margin-top:0.15rem;}
+.route-atlas-layout{display:grid;grid-template-columns:360px 1fr;gap:1rem;align-items:start;}
+@media(max-width:980px){.route-atlas-layout{grid-template-columns:1fr;}}
+.route-filter-row{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1rem;}
+.route-filter{
+  border:1px solid var(--border);background:#fff;color:var(--gray);
+  border-radius:999px;padding:0.36rem 0.72rem;font-family:inherit;
+  font-size:0.74rem;font-weight:800;cursor:pointer;transition:all 0.15s;
+}
+.route-filter:hover{border-color:#93c5fd;color:var(--navy);}
+.route-filter.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+.route-list{display:flex;flex-direction:column;gap:0.65rem;max-height:670px;overflow:auto;padding-right:0.2rem;}
+.route-card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:0.9rem;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s;
+}
+.route-card:hover,.route-card.active{border-color:#93c5fd;box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.route-card.active{background:var(--blue-light);}
+.route-card-top{display:flex;justify-content:space-between;gap:0.75rem;align-items:start;}
+.route-name{font-size:0.9rem;font-weight:850;color:var(--navy);line-height:1.25;}
+.route-scope{font-size:0.64rem;font-weight:800;color:var(--blue-mid);background:#fff;border:1px solid #bfdbfe;border-radius:999px;padding:0.12rem 0.45rem;white-space:nowrap;}
+.route-meta{display:flex;gap:0.45rem;flex-wrap:wrap;margin-top:0.55rem;}
+.route-chip{font-size:0.68rem;font-weight:750;color:var(--gray);background:var(--off);border:1px solid var(--border);border-radius:999px;padding:0.12rem 0.45rem;}
+.route-note{font-size:0.74rem;color:var(--gray);line-height:1.45;margin-top:0.55rem;}
+#route-map{height:640px;min-height:460px;width:100%;}
+.route-map-wrap{margin-bottom:0;}
+.route-map-hint{font-size:0.74rem;color:var(--gray2);text-align:center;margin-top:0.5rem;}
+.route-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;}
+@media(max-width:760px){.route-kpi-grid{grid-template-columns:1fr;}}
+.route-kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:0.85rem;}
+.route-kpi-label{font-size:0.66rem;font-weight:800;color:var(--gray2);text-transform:uppercase;letter-spacing:0.07em;}
+.route-kpi-value{font-size:1.25rem;font-weight:800;color:var(--navy);margin-top:0.1rem;}
+.route-water-note{
+  background:var(--teal-bg);border:1px solid #99f6e4;border-left:3px solid var(--teal);
+  border-radius:var(--radius);padding:0.8rem 0.95rem;font-size:0.8rem;color:#115e59;line-height:1.6;margin-bottom:1rem;
+}
 .demurrage-bar-wrap{margin-top:0.35rem;}
 .demurrage-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
 .demurrage-bar-fill{height:100%;border-radius:2px;background:linear-gradient(to right,#22c55e,#f59e0b,#ef4444);}
@@ -526,6 +724,39 @@ a{color:inherit;text-decoration:none;}
 .score-a{background:#22c55e;}
 .score-b{background:#f59e0b;}
 .score-c{background:#ef4444;}
+.port-profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;margin-bottom:1rem;}
+.port-profile-stat{background:var(--off);border:1px solid var(--border);border-radius:var(--radius);padding:0.7rem;}
+.port-profile-stat-label{font-size:0.66rem;color:var(--gray2);font-weight:800;text-transform:uppercase;letter-spacing:0.05em;}
+.port-profile-stat-val{font-size:0.95rem;color:var(--navy);font-weight:800;margin-top:0.15rem;}
+.port-profile-actions{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem;}
+.port-action-btn{border:1px solid var(--border);background:#fff;color:var(--gray);border-radius:6px;padding:0.42rem 0.7rem;font-family:inherit;font-size:0.74rem;font-weight:700;cursor:pointer;}
+.port-action-btn:hover{border-color:var(--blue-mid);color:var(--blue-mid);}
+.fit-callout{background:var(--blue-light);border:1px solid #bfdbfe;border-radius:var(--radius);padding:0.8rem;font-size:0.84rem;color:var(--navy);line-height:1.6;margin-bottom:1rem;}
+
+/* ── Trade Heatmap ──────────────────────────────────────── */
+.heatmap-layout{display:grid;grid-template-columns:320px 1fr;gap:1rem;align-items:start;}
+@media(max-width:940px){.heatmap-layout{grid-template-columns:1fr;}}
+#trade-map{height:520px;min-height:420px;width:100%;}
+.heat-marker{
+  display:flex;align-items:center;justify-content:center;position:relative;
+  width:var(--heat-size);height:var(--heat-size);border-radius:50%;
+  background:rgba(239,68,68,var(--heat-alpha));border:2px solid #fff;
+  color:#fff;font-size:0.68rem;font-weight:900;box-shadow:0 4px 16px rgba(127,29,29,0.35);
+}
+.heat-marker::after{content:"";position:absolute;inset:-8px;border-radius:50%;background:rgba(239,68,68,0.16);z-index:-1;}
+.heat-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;}
+@media(max-width:760px){.heat-summary-grid{grid-template-columns:1fr;}}
+.heat-summary-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:0.85rem;box-shadow:var(--shadow);}
+.heat-summary-label{font-size:0.68rem;font-weight:800;color:var(--gray2);text-transform:uppercase;letter-spacing:0.06em;}
+.heat-summary-value{font-size:1.05rem;font-weight:800;color:var(--navy);margin-top:0.2rem;}
+.heat-section-title{font-size:0.88rem;font-weight:800;color:var(--text);margin:1rem 0 0.55rem;}
+.heat-route-row,.heat-port-row{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;margin-bottom:0.5rem;cursor:pointer;transition:border-color 0.15s;}
+.heat-route-row:hover,.heat-port-row:hover{border-color:#93c5fd;}
+.heat-row-top{display:flex;justify-content:space-between;gap:0.75rem;font-size:0.84rem;font-weight:800;color:var(--navy);}
+.heat-row-sub{font-size:0.73rem;color:var(--gray);margin-top:0.2rem;line-height:1.45;}
+.heat-bar-bg{height:5px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:0.5rem;}
+.heat-bar-fill{height:100%;background:linear-gradient(to right,#60a5fa,#f59e0b,#ef4444);border-radius:999px;}
+.heat-method{font-size:0.73rem;color:var(--gray2);line-height:1.55;margin-top:0.85rem;}
 
 /* ── Detail Drawer ───────────────────────────────────────── */
 .detail-overlay{
@@ -616,11 +847,22 @@ a{color:inherit;text-decoration:none;}
 <div id="view-signin" class="auth-view hidden">
   <div class="auth-left">
     <div class="auth-brand-row">
-      <div class="auth-mark">HS</div>
-      <span class="auth-brand-name">HT<span>Sync</span></span>
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" focusable="false">
+            <path fill="currentColor" d="M31.8 5.5 58.5 51H44.7L32.2 29.2 19.4 51H5.5L31.8 5.5Z" opacity=".96"/>
+            <path fill="currentColor" d="M8.8 55h46.4L48 43H15.8L8.8 55Z" opacity=".78"/>
+            <path fill="#fff" d="M32.2 19.6 39 31.2 32.1 43 25.2 31.3 32.2 19.6Z" opacity=".5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-word">HTSYNC</span>
+          <span class="brand-tagline">trade compliance, decoded.</span>
+        </div>
+      </div>
     </div>
-    <div class="auth-tagline">Import compliance, <span>powered by AI.</span></div>
-    <p class="auth-sub">Identify HTS codes, estimate duties, and ship with confidence — all from one intelligent platform.</p>
+    <div class="auth-tagline">Trade compliance, <span>decoded.</span></div>
+    <p class="auth-sub">Classify HTS codes, estimate landed costs, and evaluate shipping routes from a focused compliance workspace.</p>
     <div class="auth-feat-list">
       <div class="auth-feat"><div class="auth-feat-dot"></div>AI-powered HTS code classification</div>
       <div class="auth-feat"><div class="auth-feat-dot"></div>Real-time duty & tariff calculations</div>
@@ -629,10 +871,19 @@ a{color:inherit;text-decoration:none;}
     </div>
   </div>
   <div class="auth-right">
-    <div class="auth-card">
-      <div class="auth-card-logo">
-        <div class="auth-card-mark">HS</div>
-        <span class="auth-card-brand">HT<span>Sync</span></span>
+      <div class="auth-card">
+      <div class="auth-card-logo brand-lockup">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" focusable="false">
+            <path fill="currentColor" d="M31.8 5.5 58.5 51H44.7L32.2 29.2 19.4 51H5.5L31.8 5.5Z" opacity=".96"/>
+            <path fill="currentColor" d="M8.8 55h46.4L48 43H15.8L8.8 55Z" opacity=".78"/>
+            <path fill="#fff" d="M32.2 19.6 39 31.2 32.1 43 25.2 31.3 32.2 19.6Z" opacity=".5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-word">HTSYNC</span>
+          <span class="brand-tagline">trade compliance, decoded.</span>
+        </div>
       </div>
       <h2>Welcome back</h2>
       <p class="auth-card-sub">Sign in to your account to continue</p>
@@ -648,7 +899,7 @@ a{color:inherit;text-decoration:none;}
         </div>
         <button id="si-submit" class="btn-primary" onclick="doSignIn()">Sign In</button>
         <div class="auth-switch">Don't have an account? <a onclick="showView('signup')">Create one free</a></div>
-        <div class="auth-switch" style="margin-top:0.25rem;"><a onclick="window.location.href='/'">← Back to HTSync</a></div>
+        <div class="auth-switch" style="margin-top:0.25rem;"><a onclick="window.location.href='/'">← Back to HTSYNC</a></div>
       </div>
     </div>
   </div>
@@ -658,11 +909,22 @@ a{color:inherit;text-decoration:none;}
 <div id="view-signup" class="auth-view hidden">
   <div class="auth-left">
     <div class="auth-brand-row">
-      <div class="auth-mark">HS</div>
-      <span class="auth-brand-name">HT<span>Sync</span></span>
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" focusable="false">
+            <path fill="currentColor" d="M31.8 5.5 58.5 51H44.7L32.2 29.2 19.4 51H5.5L31.8 5.5Z" opacity=".96"/>
+            <path fill="currentColor" d="M8.8 55h46.4L48 43H15.8L8.8 55Z" opacity=".78"/>
+            <path fill="#fff" d="M32.2 19.6 39 31.2 32.1 43 25.2 31.3 32.2 19.6Z" opacity=".5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-word">HTSYNC</span>
+          <span class="brand-tagline">trade compliance, decoded.</span>
+        </div>
+      </div>
     </div>
     <div class="auth-tagline">Start classifying with <span>confidence.</span></div>
-    <p class="auth-sub">Join thousands of importers who trust HTSync for fast, accurate HTS code identification and duty estimation.</p>
+    <p class="auth-sub">Build a repeatable workflow for tariff classification, route review, and import cost planning.</p>
     <div class="auth-feat-list">
       <div class="auth-feat"><div class="auth-feat-dot"></div>Free to get started</div>
       <div class="auth-feat"><div class="auth-feat-dot"></div>GPT AI-powered smart search</div>
@@ -672,9 +934,18 @@ a{color:inherit;text-decoration:none;}
   </div>
   <div class="auth-right">
     <div class="auth-card">
-      <div class="auth-card-logo">
-        <div class="auth-card-mark">HS</div>
-        <span class="auth-card-brand">HT<span>Sync</span></span>
+      <div class="auth-card-logo brand-lockup">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" focusable="false">
+            <path fill="currentColor" d="M31.8 5.5 58.5 51H44.7L32.2 29.2 19.4 51H5.5L31.8 5.5Z" opacity=".96"/>
+            <path fill="currentColor" d="M8.8 55h46.4L48 43H15.8L8.8 55Z" opacity=".78"/>
+            <path fill="#fff" d="M32.2 19.6 39 31.2 32.1 43 25.2 31.3 32.2 19.6Z" opacity=".5"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-word">HTSYNC</span>
+          <span class="brand-tagline">trade compliance, decoded.</span>
+        </div>
       </div>
       <h2>Create your account</h2>
       <p class="auth-card-sub">Get started in seconds — no credit card required</p>
@@ -696,7 +967,7 @@ a{color:inherit;text-decoration:none;}
           <label>Confirm password</label>
           <input type="password" id="su-confirm" class="form-input" placeholder="••••••••">
         </div>
-        <button class="btn-primary" onclick="doSignUp()">Create Account</button>
+        <button id="su-submit" class="btn-primary" onclick="doSignUp()">Create Account</button>
         <div class="auth-switch">Already have an account? <a onclick="showView('signin')">Sign in</a></div>
       </div>
     </div>
@@ -710,16 +981,27 @@ a{color:inherit;text-decoration:none;}
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo" onclick="showSection('home')">
-      <div class="sidebar-mark">HS</div>
-      <span class="sidebar-brand-name">HT<span>Sync</span></span>
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" focusable="false">
+          <path fill="currentColor" d="M31.8 5.5 58.5 51H44.7L32.2 29.2 19.4 51H5.5L31.8 5.5Z" opacity=".96"/>
+          <path fill="currentColor" d="M8.8 55h46.4L48 43H15.8L8.8 55Z" opacity=".78"/>
+          <path fill="#fff" d="M32.2 19.6 39 31.2 32.1 43 25.2 31.3 32.2 19.6Z" opacity=".5"/>
+        </svg>
+      </div>
+      <div>
+        <span class="brand-word">HTSYNC</span>
+        <span class="brand-tagline">trade compliance, decoded.</span>
+      </div>
     </div>
     <nav class="sidebar-nav">
-      <button class="sidebar-link" id="nav-home" onclick="showSection('home')"><span class="sl-icon">🏠</span>Home</button>
-      <button class="sidebar-link" id="nav-search" onclick="showSection('search')"><span class="sl-icon">🔍</span>Search</button>
-      <button class="sidebar-link" id="nav-calculator" onclick="showSection('calculator')"><span class="sl-icon">🧮</span>Calculator</button>
-      <button class="sidebar-link" id="nav-shipping" onclick="showSection('shipping')"><span class="sl-icon">🚢</span>Shipping</button>
-      <button class="sidebar-link" id="nav-history" onclick="showSection('history')"><span class="sl-icon">📋</span>History</button>
-      <button class="sidebar-link" id="nav-profile" onclick="showSection('profile')"><span class="sl-icon">👤</span>Profile</button>
+      <button class="sidebar-link" id="nav-home" onclick="showSection('home')"><i class="sl-icon" data-lucide="home"></i>Home</button>
+      <button class="sidebar-link" id="nav-search" onclick="showSection('search')"><i class="sl-icon" data-lucide="search"></i>Search</button>
+      <button class="sidebar-link" id="nav-calculator" onclick="showSection('calculator')"><i class="sl-icon" data-lucide="calculator"></i>Calculator</button>
+      <button class="sidebar-link" id="nav-shipping" onclick="showSection('shipping')"><i class="sl-icon" data-lucide="ship"></i>Shipping</button>
+      <button class="sidebar-link" id="nav-routes" onclick="showSection('routes')"><i class="sl-icon" data-lucide="route"></i>Routes</button>
+      <button class="sidebar-link" id="nav-trade" onclick="showSection('trade')"><i class="sl-icon" data-lucide="map"></i>Trade Heatmap</button>
+      <button class="sidebar-link" id="nav-history" onclick="showSection('history')"><i class="sl-icon" data-lucide="clipboard-list"></i>History</button>
+      <button class="sidebar-link" id="nav-profile" onclick="showSection('profile')"><i class="sl-icon" data-lucide="user"></i>Profile</button>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user-row">
@@ -729,14 +1011,14 @@ a{color:inherit;text-decoration:none;}
           <div class="sidebar-user-email" id="sidebar-email">—</div>
         </div>
       </div>
-      <button class="sidebar-signout" onclick="doSignOut()">↩ Sign Out</button>
+      <button class="sidebar-signout" onclick="doSignOut()"><i class="ui-icon" data-lucide="log-out"></i>Sign Out</button>
     </div>
   </aside>
 
   <!-- MOBILE TOPBAR -->
   <div class="mobile-topbar">
-    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-    <span style="color:#fff;font-size:1rem;font-weight:700;">HT<span style="color:var(--accent);">Sync</span></span>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Open navigation"><i class="ui-icon" data-lucide="menu"></i></button>
+    <span style="color:#fff;font-size:1rem;font-weight:800;letter-spacing:0.08em;">HTSYNC</span>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -749,27 +1031,49 @@ a{color:inherit;text-decoration:none;}
         <div class="page-title" id="home-title">Welcome back</div>
         <div class="page-sub">Here's an overview of your import compliance activity.</div>
       </div>
+      <div class="workflow-strip">
+        <button class="workflow-step" onclick="showSection('search')">
+          <span class="workflow-index">01</span>
+          <span class="workflow-copy"><strong>Classify</strong><small>Find the right HTS code with AI or database search.</small></span>
+        </button>
+        <button class="workflow-step" onclick="showSection('calculator')">
+          <span class="workflow-index">02</span>
+          <span class="workflow-copy"><strong>Estimate Duties</strong><small>Turn saved codes into landed-cost calculations.</small></span>
+        </button>
+        <button class="workflow-step" onclick="showSection('shipping')">
+          <span class="workflow-index">03</span>
+          <span class="workflow-copy"><strong>Plan Ports</strong><small>Compare gateways by congestion, demurrage, and fit.</small></span>
+        </button>
+        <button class="workflow-step" onclick="showSection('routes')">
+          <span class="workflow-index">04</span>
+          <span class="workflow-copy"><strong>Validate Routes</strong><small>Review water corridors, chokepoints, and transit ranges.</small></span>
+        </button>
+        <button class="workflow-step" onclick="showSection('trade')">
+          <span class="workflow-index">05</span>
+          <span class="workflow-copy"><strong>Map Demand</strong><small>Model entry ports and origin lanes for any code.</small></span>
+        </button>
+      </div>
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">📦</div>
+          <div class="stat-icon"><i data-lucide="package"></i></div>
           <div class="stat-label">Saved Products</div>
           <div class="stat-value" id="stat-products">—</div>
           <div class="stat-sub">in your dashboard</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">🔍</div>
+          <div class="stat-icon"><i data-lucide="search"></i></div>
           <div class="stat-label">Total Searches</div>
           <div class="stat-value" id="stat-searches">—</div>
           <div class="stat-sub">HTS classifications run</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">📋</div>
+          <div class="stat-icon"><i data-lucide="database"></i></div>
           <div class="stat-label">HTS Codes in DB</div>
           <div class="stat-value" id="stat-hts">—</div>
           <div class="stat-sub">live tariff entries</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">🤖</div>
+          <div class="stat-icon"><i data-lucide="sparkles"></i></div>
           <div class="stat-label">AI Search</div>
           <div class="stat-value" id="stat-ai">—</div>
           <div class="stat-sub">powered by GPT</div>
@@ -777,7 +1081,7 @@ a{color:inherit;text-decoration:none;}
       </div>
       <div class="home-grid">
         <div class="home-card">
-          <div class="home-card-title">🚀 Quick Classify</div>
+          <div class="home-card-title"><i class="ui-icon" data-lucide="zap"></i>Quick Classify</div>
           <div class="quick-form">
             <input type="text" id="quick-query" class="quick-input" placeholder="Describe a product…" onkeydown="if(event.key==='Enter')quickSearch()">
             <button class="btn-accent" onclick="quickSearch()">Classify →</button>
@@ -785,7 +1089,7 @@ a{color:inherit;text-decoration:none;}
           <p style="font-size:0.75rem;color:var(--gray2);margin-top:0.6rem;">Uses AI-powered search. Click to see full results.</p>
         </div>
         <div class="home-card">
-          <div class="home-card-title">📦 Recent Products</div>
+          <div class="home-card-title"><i class="ui-icon" data-lucide="package"></i>Recent Products</div>
           <div id="home-recent-products">
             <div class="empty-state" style="padding:1rem 0;"><div class="ei">📭</div>No saved products yet</div>
           </div>
@@ -804,8 +1108,8 @@ a{color:inherit;text-decoration:none;}
         <div class="panel">
           <div class="panel-title">Search Mode</div>
           <div class="mode-tabs">
-            <button id="tab-ai" class="mode-tab active" onclick="setMode('ai')">🤖 AI Smart Search</button>
-            <button id="tab-kw" class="mode-tab" onclick="setMode('keyword')">🔑 Keyword / Code</button>
+            <button id="tab-ai" class="mode-tab active" onclick="setMode('ai')"><i class="ui-icon" data-lucide="sparkles"></i>AI Smart Search</button>
+            <button id="tab-kw" class="mode-tab" onclick="setMode('keyword')"><i class="ui-icon" data-lucide="key-round"></i>Keyword / Code</button>
           </div>
           <textarea id="search-query" class="search-textarea" rows="3"
             placeholder="Describe your product in plain English e.g. 'stainless steel cookware set'…"></textarea>
@@ -886,8 +1190,8 @@ a{color:inherit;text-decoration:none;}
       </div>
       <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow);">
         <div class="hist-tabs">
-          <button class="hist-tab active" id="htab-products" onclick="switchHistTab('products')">📦 Saved Products</button>
-          <button class="hist-tab" id="htab-searches" onclick="switchHistTab('searches')">🔍 Search History</button>
+          <button class="hist-tab active" id="htab-products" onclick="switchHistTab('products')"><i class="ui-icon" data-lucide="package"></i>Saved Products</button>
+          <button class="hist-tab" id="htab-searches" onclick="switchHistTab('searches')"><i class="ui-icon" data-lucide="search"></i>Search History</button>
         </div>
 
         <!-- Products panel -->
@@ -911,36 +1215,42 @@ a{color:inherit;text-decoration:none;}
     <section id="section-shipping" class="content-section">
       <div class="page-header">
         <div class="page-title">Shipping &amp; Route Optimizer</div>
-        <div class="page-sub">Compare US ports by demurrage, congestion, and fit — then estimate landed costs.</div>
+        <div class="page-sub">Compare US and global ports by demurrage, congestion, and fit — then estimate landed costs.</div>
+      </div>
+      <div class="ops-ribbon" id="shipping-ops-ribbon">
+        <div class="ops-card"><div class="ops-label">Network</div><div class="ops-value" id="ops-port-count">—</div><div class="ops-sub">ports across US and global gateways</div></div>
+        <div class="ops-card"><div class="ops-label">Best Congestion</div><div class="ops-value" id="ops-low-count">—</div><div class="ops-sub">low-congestion options in the current view</div></div>
+        <div class="ops-card"><div class="ops-label">Average Free-Time Risk</div><div class="ops-value" id="ops-demurrage">—</div><div class="ops-sub">modeled average demurrage exposure</div></div>
+        <div class="ops-card"><div class="ops-label">Route Lanes</div><div class="ops-value" id="ops-route-count">—</div><div class="ops-sub">primary lanes represented by the map</div></div>
       </div>
 
       <div class="ship-tabs">
-        <button class="ship-tab active" id="stab-overview" onclick="switchShipTab('overview')">🗺️ Port Overview</button>
-        <button class="ship-tab" id="stab-estimate" onclick="switchShipTab('estimate')">💰 Cost Estimator</button>
-        <button class="ship-tab" id="stab-recommend" onclick="switchShipTab('recommend')">🎯 Port Recommender</button>
+        <button class="ship-tab active" id="stab-overview" onclick="switchShipTab('overview')">Port Overview</button>
+        <button class="ship-tab" id="stab-estimate" onclick="switchShipTab('estimate')">Cost Estimator</button>
+        <button class="ship-tab" id="stab-recommend" onclick="switchShipTab('recommend')">Port Recommender</button>
       </div>
 
       <!-- Panel 1: Port Overview + Heatmap -->
       <div id="ship-overview" class="ship-panel active">
         <div class="us-map-wrap">
           <div class="us-map-header">
-            <div class="us-map-title">US Port Heatmap — Congestion &amp; Demurrage</div>
-            <div class="us-map-legend">
-              <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Low</span>
-              <span class="legend-item"><span class="legend-dot cong-dot-medium"></span>Medium</span>
-              <span class="legend-item"><span class="legend-dot cong-dot-high"></span>High</span>
+            <div class="us-map-title" id="port-map-title">US Port Heatmap - Congestion &amp; Demurrage</div>
+            <div class="port-map-actions">
+              <button class="port-map-toggle active" id="map-us" onclick="setPortMapMode('us')">US gateways</button>
+              <button class="port-map-toggle" id="map-global" onclick="setPortMapMode('global')">Global network</button>
+              <div class="us-map-legend">
+                <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Low</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-medium"></span>Medium</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-high"></span>High</span>
+                <span class="legend-item"><span class="legend-line"></span>Route</span>
+              </div>
             </div>
           </div>
           <div class="us-map-container" style="position:relative;">
-            <svg id="us-map-svg" viewBox="0 0 700 440" xmlns="http://www.w3.org/2000/svg">
-              <rect width="700" height="440" fill="#e8f4fd"/>
-              <!-- Simplified continental US outline -->
-              <path class="us-land" d="M45,55 L62,42 L110,28 L200,20 L350,16 L432,30 L500,40 L548,26 L576,54 L596,94 L616,142 L623,182 L602,200 L580,230 L564,260 L550,288 L540,308 L534,348 L530,408 L520,435 L506,440 L491,418 L494,395 L507,375 L434,368 L364,378 L312,378 L290,362 L278,336 L248,310 L212,272 L170,330 L132,360 L92,310 L58,280 L44,250 L38,196 L32,140 L30,90 L36,54 Z"/>
-              <g id="port-markers"></g>
-            </svg>
-            <div id="port-tooltip" class="port-tooltip"></div>
+            <div id="port-map"></div>
           </div>
-          <p class="us-map-hint">Hover a port marker for details. Circle size = annual volume. Color = congestion level.</p>
+          <p class="us-map-hint" id="port-map-hint">Hover a port marker for details. Circle size = annual volume. Color = congestion level.</p>
+          <div class="route-lane-panel" id="port-route-summary"></div>
         </div>
 
         <div class="port-grid" id="port-cards-grid">
@@ -959,7 +1269,11 @@ a{color:inherit;text-decoration:none;}
             </div>
             <div class="field-group">
               <label class="field-label">Destination Port <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
-              <input type="text" id="se-port" class="field-input" placeholder="e.g. Los Angeles, Best option">
+              <input type="text" id="se-port" class="field-input" placeholder="e.g. Los Angeles, Rotterdam, Best option">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Destination Country</label>
+              <input type="text" id="se-destination-country" class="field-input" value="United States" placeholder="e.g. United States, Germany, Brazil">
             </div>
             <div class="field-group">
               <label class="field-label">Product Description <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
@@ -998,6 +1312,10 @@ a{color:inherit;text-decoration:none;}
               <input type="text" id="pr-origin" class="field-input" placeholder="e.g. China, Vietnam, Germany">
             </div>
             <div class="field-group">
+              <label class="field-label">Destination Country</label>
+              <input type="text" id="pr-destination-country" class="field-input" value="United States" placeholder="e.g. United States, Netherlands, Singapore">
+            </div>
+            <div class="field-group">
               <label class="field-label">Product / HTS Code</label>
               <input type="text" id="pr-product" class="field-input" placeholder="e.g. auto parts, electronics, 8471.30">
             </div>
@@ -1017,6 +1335,97 @@ a{color:inherit;text-decoration:none;}
             <div id="recommend-results">
               <div class="empty-state"><div class="ei">🎯</div>Enter your shipment details to get AI-powered port recommendations.</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SHIPPING ROUTES ── -->
+    <section id="section-routes" class="content-section">
+      <div class="page-header">
+        <div class="page-title">Shipping Route Atlas</div>
+        <div class="page-sub">Review representative ocean lanes with water-safe waypoints, major chokepoints, and common gateway connections.</div>
+      </div>
+
+      <div class="route-kpi-grid">
+        <div class="route-kpi"><div class="route-kpi-label">Route Library</div><div class="route-kpi-value" id="route-kpi-count">—</div></div>
+        <div class="route-kpi"><div class="route-kpi-label">Chokepoints Covered</div><div class="route-kpi-value" id="route-kpi-chokepoints">—</div></div>
+        <div class="route-kpi"><div class="route-kpi-label">Gateway Ports</div><div class="route-kpi-value" id="route-kpi-ports">—</div></div>
+      </div>
+
+      <div class="route-water-note">
+        Routes are modeled as ocean corridors with explicit water waypoints. They are representative planning lanes, not vessel AIS tracks, and should be confirmed against carrier schedules before booking.
+      </div>
+
+      <div class="route-atlas-layout">
+        <div class="panel">
+          <div class="panel-title">Route Library</div>
+          <div class="route-filter-row">
+            <button class="route-filter active" id="rf-all" onclick="setRouteScope('all')">All</button>
+            <button class="route-filter" id="rf-transpacific" onclick="setRouteScope('transpacific')">Transpacific</button>
+            <button class="route-filter" id="rf-atlantic" onclick="setRouteScope('atlantic')">Atlantic</button>
+            <button class="route-filter" id="rf-canal" onclick="setRouteScope('canal')">Canal / Suez</button>
+            <button class="route-filter" id="rf-regional" onclick="setRouteScope('regional')">Regional</button>
+          </div>
+          <div class="route-list" id="route-list"></div>
+        </div>
+
+        <div class="us-map-wrap route-map-wrap">
+          <div class="us-map-header">
+            <div class="us-map-title" id="route-map-title">Global Water Route Network</div>
+            <div class="us-map-legend">
+              <span class="legend-item"><span class="legend-line"></span>Ocean corridor</span>
+              <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Origin</span>
+              <span class="legend-item"><span class="legend-dot cong-dot-high"></span>Gateway</span>
+            </div>
+          </div>
+          <div class="us-map-container"><div id="route-map"></div></div>
+          <p class="route-map-hint" id="route-map-hint">Select a route to focus the map and review its ocean waypoints.</p>
+          <div class="route-lane-panel" id="route-detail-summary"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TRADE HEATMAP ── -->
+    <section id="section-trade" class="content-section">
+      <div class="page-header">
+        <div class="page-title">Trade Heatmap</div>
+        <div class="page-sub">Model likely port concentration, origin lanes, and route popularity for a specific HTS code.</div>
+      </div>
+
+      <div class="heatmap-layout">
+        <div class="panel">
+          <div class="panel-title">HTS Route Intelligence</div>
+          <div class="field-group">
+            <label class="field-label">HTS Code</label>
+            <input type="text" id="hm-code" class="field-input" placeholder="e.g. 8471.30, 9503, 6204">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Destination Country</label>
+            <input type="text" id="hm-destination-country" class="field-input" value="United States" placeholder="e.g. United States, Germany, Brazil">
+          </div>
+          <button class="btn-search" id="btn-heatmap" onclick="doTradeHeatmap()">Generate Heatmap</button>
+          <div class="heat-method">This view is modeled from HTS chapter, product category, port specialization, routes, throughput, congestion, and demurrage. It is not live customs manifest volume.</div>
+        </div>
+
+        <div>
+          <div class="us-map-wrap">
+            <div class="us-map-header">
+              <div class="us-map-title" id="trade-map-title">Modeled Port Popularity</div>
+              <div class="us-map-legend">
+                <span class="legend-item"><span class="legend-dot cong-dot-low"></span>Lower</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-medium"></span>Medium</span>
+                <span class="legend-item"><span class="legend-dot cong-dot-high"></span>Higher</span>
+                <span class="legend-item"><span class="legend-line"></span>Lane</span>
+              </div>
+            </div>
+            <div class="us-map-container"><div id="trade-map"></div></div>
+            <p class="us-map-hint">Click a heat marker or ranked port row to open the port profile with HTS-specific context.</p>
+            <div class="route-lane-panel" id="trade-route-summary"></div>
+          </div>
+
+          <div id="heatmap-results">
+            <div class="empty-state"><div class="ei">🗺️</div>Enter an HTS code to model popular ports and routes.</div>
           </div>
         </div>
       </div>
@@ -1045,23 +1454,127 @@ a{color:inherit;text-decoration:none;}
               <div class="pstat-label">Searches</div>
             </div>
           </div>
+          <div class="profile-org-card">
+            <div class="profile-org-label">Workspace</div>
+            <div class="profile-org-value" id="profile-company">Company not set</div>
+            <div class="profile-org-sub"><span id="profile-role">Role not set</span> · <span id="profile-focus">General imports</span></div>
+            <div class="profile-org-sub">Default lane: <span id="profile-route">Not configured</span></div>
+          </div>
+          <div class="profile-progress">
+            <div class="profile-progress-top">
+              <span>Setup progress</span>
+              <span id="profile-progress-label">0%</span>
+            </div>
+            <div class="profile-progress-track"><div class="profile-progress-fill" id="profile-progress-fill" style="width:0%;"></div></div>
+          </div>
         </div>
         <!-- Right: settings -->
         <div class="settings-card">
           <div class="settings-section">
-            <div class="settings-title">Update Name</div>
-            <div class="form-group" style="margin-bottom:0.75rem;">
-              <label>Display Name</label>
-              <input type="text" id="prof-name" class="form-input" placeholder="Your name">
+            <div class="settings-title">Account Identity</div>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="prof-name" class="form-input" placeholder="Your name">
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="text" id="prof-email-readonly" class="form-input" value="—" readonly>
+              </div>
             </div>
-            <button class="btn-sm" onclick="updateName()">Save Name</button>
+            <div class="settings-actions">
+              <button class="btn-sm" onclick="updateName()">Save Name</button>
+              <span style="font-size:0.78rem;color:var(--gray);">Account created <strong id="info-since">—</strong></span>
+            </div>
             <div id="name-msg" style="display:none;"></div>
           </div>
           <div class="settings-section">
-            <div class="settings-title">Account Info</div>
-            <div style="font-size:0.85rem;color:var(--gray);line-height:1.8;">
-              <div>Email: <strong id="info-email">—</strong></div>
-              <div>Account created: <strong id="info-since">—</strong></div>
+            <div class="settings-title">Workspace Defaults</div>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Company / Organization</label>
+                <input type="text" id="prof-company" class="form-input" placeholder="e.g. Atlas Imports">
+              </div>
+              <div class="form-group">
+                <label>Your Role</label>
+                <input type="text" id="prof-role" class="form-input" placeholder="e.g. Compliance Analyst">
+              </div>
+              <div class="form-group">
+                <label>Default Origin</label>
+                <input type="text" id="prof-default-origin" class="form-input" placeholder="e.g. Vietnam">
+              </div>
+              <div class="form-group">
+                <label>Default Destination</label>
+                <input type="text" id="prof-default-destination" class="form-input" placeholder="e.g. United States">
+              </div>
+              <div class="form-group">
+                <label>Primary Import Focus</label>
+                <select id="prof-focus" class="form-input">
+                  <option>General imports</option>
+                  <option>Apparel and textiles</option>
+                  <option>Electronics and machinery</option>
+                  <option>Food and perishables</option>
+                  <option>Automotive and industrial</option>
+                  <option>Consumer packaged goods</option>
+                </select>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn-sm" onclick="saveProfileSettings()">Save Workspace</button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">Guided Setup</div>
+            <div class="profile-check-list">
+              <div class="profile-check">
+                <div class="profile-check-icon"><i data-lucide="search"></i></div>
+                <div>
+                  <div class="profile-check-title">Classify with context</div>
+                  <div class="profile-check-copy">Use AI search for product descriptions and keyword mode for exact code lookups.</div>
+                </div>
+              </div>
+              <div class="profile-check">
+                <div class="profile-check-icon"><i data-lucide="calculator"></i></div>
+                <div>
+                  <div class="profile-check-title">Estimate landed cost</div>
+                  <div class="profile-check-copy">Save a result, then calculate duty from value, freight, insurance, and quantity.</div>
+                </div>
+              </div>
+              <div class="profile-check">
+                <div class="profile-check-icon"><i data-lucide="ship"></i></div>
+                <div>
+                  <div class="profile-check-title">Compare ports</div>
+                  <div class="profile-check-copy">Review gateway fit, congestion, demurrage exposure, and port profiles.</div>
+                </div>
+              </div>
+              <div class="profile-check">
+                <div class="profile-check-icon"><i data-lucide="map"></i></div>
+                <div>
+                  <div class="profile-check-title">Validate lanes</div>
+                  <div class="profile-check-copy">Use Routes and Trade Heatmap to understand common corridors for a code.</div>
+                </div>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn-sm secondary" onclick="showOnboarding(0)">Restart Onboarding</button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">Notifications &amp; Assistance</div>
+            <label class="toggle-row">
+              <span class="toggle-copy"><strong>Weekly compliance digest</strong><span>Summarize saved products, searches, and route planning activity.</span></span>
+              <input type="checkbox" id="prof-email-digest">
+            </label>
+            <label class="toggle-row">
+              <span class="toggle-copy"><strong>AI recommendation prompts</strong><span>Show contextual prompts in search, calculator, shipping, and heatmap workflows.</span></span>
+              <input type="checkbox" id="prof-ai-assist">
+            </label>
+            <label class="toggle-row">
+              <span class="toggle-copy"><strong>Route review alerts</strong><span>Highlight chokepoint, congestion, and demurrage considerations in route planning.</span></span>
+              <input type="checkbox" id="prof-route-alerts">
+            </label>
+            <div class="settings-actions">
+              <button class="btn-sm" onclick="saveProfileSettings()">Save Preferences</button>
             </div>
           </div>
         </div>
@@ -1081,7 +1594,7 @@ a{color:inherit;text-decoration:none;}
         <div class="detail-hts-code" id="detail-hts-code">—</div>
         <div class="detail-hts-desc" id="detail-hts-desc">Loading…</div>
       </div>
-      <button class="detail-close" onclick="closeDetail()">✕</button>
+      <button class="detail-close" onclick="closeDetail()" aria-label="Close details"><i class="ui-icon" data-lucide="x"></i></button>
     </div>
     <div class="detail-rates" id="detail-rates"></div>
     <div class="detail-body" id="detail-body">
@@ -1090,6 +1603,21 @@ a{color:inherit;text-decoration:none;}
         <div>Analyzing code…</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PORT PROFILE DRAWER ═══════════════ -->
+<div id="port-detail-overlay" class="detail-overlay hidden" onclick="handlePortDetailBackdrop(event)">
+  <div class="detail-drawer">
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <div class="detail-hts-code" id="port-detail-code">—</div>
+        <div class="detail-hts-desc" id="port-detail-title">Port profile</div>
+      </div>
+      <button class="detail-close" onclick="closePortDetail()" aria-label="Close port profile"><i class="ui-icon" data-lucide="x"></i></button>
+    </div>
+    <div class="detail-rates" id="port-detail-rates"></div>
+    <div class="detail-body" id="port-detail-body"></div>
   </div>
 </div>
 
@@ -1113,11 +1641,41 @@ a{color:inherit;text-decoration:none;}
     </div>
     <div class="modal-footer">
       <button class="btn-outline" onclick="closeSaveModal()">Cancel</button>
-      <button class="btn-solid" onclick="confirmSave()">Save Product</button>
+      <button id="modal-save-btn" class="btn-solid" onclick="confirmSave()">Save Product</button>
     </div>
   </div>
 </div>
 
+<!-- ═══════════════ ONBOARDING ═══════════════════════ -->
+<div id="onboarding-modal" class="modal-overlay hidden" onclick="handleOnboardingBackdrop(event)">
+  <div class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <div class="onboarding-top">
+      <div>
+        <div class="onboarding-kicker">HTSYNC onboarding</div>
+        <div class="onboarding-title" id="onboarding-title">Trade compliance, decoded.</div>
+      </div>
+      <button class="detail-close onboarding-close" onclick="skipOnboarding()" aria-label="Close onboarding"><i class="ui-icon" data-lucide="x"></i></button>
+    </div>
+    <div class="onboarding-progress"><div id="onboarding-progress-bar"></div></div>
+    <div class="onboarding-body">
+      <div class="onboarding-icon" id="onboarding-icon"><i data-lucide="compass"></i></div>
+      <p id="onboarding-copy"></p>
+      <div id="onboarding-actions" class="onboarding-action-list"></div>
+    </div>
+    <div class="onboarding-footer">
+      <button class="btn-sm secondary" onclick="skipOnboarding()">Skip</button>
+      <div class="onboarding-nav-actions">
+        <button class="btn-sm secondary" id="onboarding-back" onclick="prevOnboarding()">Back</button>
+        <button class="btn-sm" id="onboarding-next" onclick="nextOnboarding()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
 // ════════════════════════════════════════════════════════
 //  STATE
@@ -1132,6 +1690,75 @@ let searchMode    = 'ai';
 let calcSelectedId = null;
 let allPorts      = [];
 let shippingLoaded = false;
+let lastPortRecommendations = [];
+let tradeLoaded = false;
+let lastHeatmapData = null;
+let routeMap = null;
+let routeLineLayer = null;
+let routePointLayer = null;
+let activeRouteScope = 'all';
+let activeRouteId = null;
+let pendingOnboarding = false;
+let onboardingIndex = 0;
+
+const PROFILE_DEFAULTS = {
+  company: '',
+  role: '',
+  origin: '',
+  destination: 'United States',
+  focus: 'General imports',
+  emailDigest: true,
+  aiAssist: true,
+  routeAlerts: false
+};
+
+const ONBOARDING_STEPS = [
+  {
+    title: 'Welcome to HTSYNC',
+    icon: 'compass',
+    copy: 'HTSYNC brings classification, duty estimation, port planning, and route intelligence into one compliance workspace.',
+    actions: [
+      'Start from Home for a quick view of recent activity and workflow steps.',
+      'Use the left navigation to move between classification, calculator, shipping, routes, and profile settings.'
+    ]
+  },
+  {
+    title: 'Classify products with Search',
+    icon: 'search',
+    copy: 'Search is where you identify likely HTS codes. Use AI mode for plain-English product descriptions, or keyword mode when you already know part of the code or description.',
+    actions: [
+      'Open a result card to review duty rates and classification context.',
+      'Save promising codes so they can flow into the calculator and history.'
+    ]
+  },
+  {
+    title: 'Turn saved codes into cost estimates',
+    icon: 'calculator',
+    copy: 'The Calculator uses your saved products to estimate duties from customs value, freight, insurance, and quantity inputs.',
+    actions: [
+      'Select a saved product before entering shipment value.',
+      'Use override rates only when the duty rate needs manual interpretation.'
+    ]
+  },
+  {
+    title: 'Compare ports and shipping routes',
+    icon: 'ship',
+    copy: 'Shipping recommends gateway ports based on origin, destination, product context, congestion, and demurrage risk. Routes shows representative water corridors and chokepoints.',
+    actions: [
+      'Click a port tile to open its detailed profile.',
+      'Use Route Atlas to confirm whether a lane follows a realistic ocean path.'
+    ]
+  },
+  {
+    title: 'Model demand with Trade Heatmap',
+    icon: 'map',
+    copy: 'Trade Heatmap estimates where products tied to an HTS code are likely to enter and which origin lanes are most relevant.',
+    actions: [
+      'Search by HTS chapter or full code to compare port concentration.',
+      'Use Profile to set workspace defaults and restart onboarding anytime.'
+    ]
+  }
+];
 
 // ════════════════════════════════════════════════════════
 //  ROUTING
@@ -1143,6 +1770,7 @@ function showView(name) {
     if (el) el.classList.toggle('hidden', v !== name);
   });
   document.querySelectorAll('.error-box').forEach(el => { el.classList.add('hidden'); el.textContent = ''; });
+  refreshIcons();
 }
 
 function showSection(name) {
@@ -1160,6 +1788,8 @@ function showSection(name) {
   if (name === 'calculator') { renderCalcProductList(); }
   if (name === 'profile')  { renderProfile(); }
   if (name === 'shipping') { loadShippingSection(); }
+  if (name === 'routes')   { loadRoutesSection(); }
+  if (name === 'trade')    { loadTradeSection(); }
 }
 
 // ════════════════════════════════════════════════════════
@@ -1181,6 +1811,101 @@ function showError(id, msg) {
   if (!el) return;
   el.textContent = msg;
   el.classList.remove('hidden');
+}
+
+function refreshIcons(root = document) {
+  if (window.lucide?.createIcons) {
+    window.lucide.createIcons({ attrs: { 'stroke-width': 2.1 } });
+  } else {
+    root.querySelectorAll('[data-lucide]').forEach(el => { el.textContent = ''; });
+  }
+}
+
+function showToast(message, type = 'info') {
+  const stack = document.getElementById('toast-stack');
+  if (!stack) return;
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  stack.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(8px)';
+    toast.style.transition = 'opacity 0.18s, transform 0.18s';
+    setTimeout(() => toast.remove(), 220);
+  }, 3200);
+}
+
+function scopedStorageKey(prefix) {
+  const id = currentUser?.id || currentUser?.email || 'guest';
+  return `${prefix}_${id}`;
+}
+
+function onboardingKey() {
+  return scopedStorageKey('htsync_onboarded');
+}
+
+function hasSeenOnboarding() {
+  try { return localStorage.getItem(onboardingKey()) === '1'; } catch { return false; }
+}
+
+function markOnboarded() {
+  try { localStorage.setItem(onboardingKey(), '1'); } catch {}
+}
+
+function showOnboarding(index = 0) {
+  const modal = document.getElementById('onboarding-modal');
+  if (!modal) return;
+  onboardingIndex = Math.max(0, Math.min(index, ONBOARDING_STEPS.length - 1));
+  renderOnboarding();
+  modal.classList.remove('hidden');
+}
+
+function closeOnboarding() {
+  document.getElementById('onboarding-modal')?.classList.add('hidden');
+}
+
+function skipOnboarding() {
+  markOnboarded();
+  closeOnboarding();
+}
+
+function nextOnboarding() {
+  if (onboardingIndex < ONBOARDING_STEPS.length - 1) {
+    onboardingIndex += 1;
+    renderOnboarding();
+    return;
+  }
+  markOnboarded();
+  closeOnboarding();
+  showToast('Onboarding completed.', 'success');
+}
+
+function prevOnboarding() {
+  if (onboardingIndex <= 0) return;
+  onboardingIndex -= 1;
+  renderOnboarding();
+}
+
+function handleOnboardingBackdrop(event) {
+  if (event.target?.id === 'onboarding-modal') skipOnboarding();
+}
+
+function renderOnboarding() {
+  const step = ONBOARDING_STEPS[onboardingIndex];
+  if (!step) return;
+  document.getElementById('onboarding-title').textContent = step.title;
+  document.getElementById('onboarding-copy').textContent = step.copy;
+  document.getElementById('onboarding-progress-bar').style.width = `${((onboardingIndex + 1) / ONBOARDING_STEPS.length) * 100}%`;
+  document.getElementById('onboarding-icon').innerHTML = `<i data-lucide="${step.icon}"></i>`;
+  document.getElementById('onboarding-actions').innerHTML = step.actions.map(action => `
+    <div class="onboarding-action"><i data-lucide="check-circle-2"></i><span>${esc(action)}</span></div>
+  `).join('');
+  const back = document.getElementById('onboarding-back');
+  const next = document.getElementById('onboarding-next');
+  back.disabled = onboardingIndex === 0;
+  next.textContent = onboardingIndex === ONBOARDING_STEPS.length - 1 ? 'Finish' : 'Next';
+  refreshIcons(document.getElementById('onboarding-modal'));
 }
 
 // ════════════════════════════════════════════════════════
@@ -1212,17 +1937,28 @@ async function doSignUp() {
   if (!name || !email || !password || !confirm) return showError('signup-error', 'Please fill in all fields.');
   if (password !== confirm) return showError('signup-error', 'Passwords do not match.');
   if (password.length < 6) return showError('signup-error', 'Password must be at least 6 characters.');
+  const btn = document.getElementById('su-submit');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating account…';
   try {
     const data = await api('POST', '/api/register', { name, email, password });
     currentUser = data.user;
+    pendingOnboarding = true;
     await enterApp();
-  } catch (e) { showError('signup-error', e.message); }
+  } catch (e) {
+    showError('signup-error', e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
 }
 
 async function doSignOut() {
-  await api('POST', '/api/logout');
+  try { await api('POST', '/api/logout'); } catch {}
   currentUser = null; savedProducts = []; searchHistory = []; calcProduct = null;
   allPorts = [];
+  shippingLoaded = false;
+  tradeLoaded = false;
+  lastPortRecommendations = [];
+  pendingOnboarding = false;
   showView('signin');
 }
 
@@ -1236,12 +1972,16 @@ async function enterApp() {
   document.getElementById('sidebar-avatar').textContent = initials;
   document.getElementById('sidebar-username').textContent = name;
   document.getElementById('sidebar-email').textContent = currentUser?.email || '';
-  document.getElementById('home-title').textContent = 'Welcome back, ' + name.split(' ')[0] + ' 👋';
+  document.getElementById('home-title').textContent = 'Welcome back, ' + (name.split(' ')[0] || 'there');
 
   showView('app');
   await loadProducts();
   await loadHomeStats();
   showSection('home');
+  if (pendingOnboarding && !hasSeenOnboarding()) {
+    pendingOnboarding = false;
+    setTimeout(() => showOnboarding(0), 350);
+  }
 }
 
 // ════════════════════════════════════════════════════════
@@ -1361,12 +2101,12 @@ async function doSearch() {
     let data;
     if (searchMode === 'ai') {
       data = await api('GET', '/api/ai-search?q=' + encodeURIComponent(q) + '&limit=10');
-      statusEl.innerHTML = `<span>🤖 AI match &nbsp;·&nbsp; ${data.count} results</span><span class="tag-pill tag-blue">GPT</span>`;
+      statusEl.innerHTML = `<span>AI match &nbsp;·&nbsp; ${data.count} results</span><span class="tag-pill tag-blue">GPT</span>`;
     } else {
       const isCode = /^[\d.]+$/.test(q);
       const url = isCode ? '/api/lookup/' + encodeURIComponent(q) : '/api/search?q=' + encodeURIComponent(q);
       data = await api('GET', url);
-      statusEl.innerHTML = `<span>🔑 Keyword match &nbsp;·&nbsp; ${data.count ?? data.results?.length ?? 0} results</span>`;
+      statusEl.innerHTML = `<span>Keyword match &nbsp;·&nbsp; ${data.count ?? data.results?.length ?? 0} results</span>`;
     }
 
     statusEl.style.display = 'flex';
@@ -1432,6 +2172,7 @@ function buildResultCard(r, i) {
       <button class="btn-save-r" data-idx="${i}">+ Save</button>
       <button class="btn-calc-r" data-idx="${i}">→ Calculator</button>
       <button class="btn-detail" onclick="viewDetails('${r.hts_code.replace(/'/g,'')}')">Details ↗</button>
+      <button class="btn-detail" onclick="openHeatmapForCode('${r.hts_code.replace(/'/g,'')}')">Heatmap</button>
     </div>
   </div>`;
 }
@@ -1509,13 +2250,16 @@ function renderProducts() {
       </div>
       <div class="si-actions">
         <button class="btn-detail" onclick="event.stopPropagation();viewDetails('${p.hts_code.replace(/'/g,'')}')">Details</button>
-        <button class="btn-del" onclick="event.stopPropagation();deleteProduct(${p.id})" title="Delete">✕</button>
+        <button class="btn-detail" onclick="event.stopPropagation();openHeatmapForCode('${p.hts_code.replace(/'/g,'')}')">Heatmap</button>
+        <button class="btn-del" onclick="event.stopPropagation();deleteProduct(${p.id})" title="Delete" aria-label="Delete product"><i class="ui-icon" data-lucide="trash-2"></i></button>
       </div>
     </div>`;
   }).join('');
+  refreshIcons(el);
 }
 
 async function deleteProduct(id) {
+  if (!confirm('Delete this saved product?')) return;
   try {
     await api('DELETE', '/api/products/' + id);
     savedProducts = savedProducts.filter(p => p.id !== id);
@@ -1524,7 +2268,10 @@ async function deleteProduct(id) {
     renderCalcProductList();
     renderHomeRecent();
     document.getElementById('stat-products').textContent = savedProducts.length;
-  } catch {}
+    showToast('Saved product deleted.', 'success');
+  } catch (e) {
+    showToast('Could not delete product: ' + e.message, 'error');
+  }
 }
 
 // ════════════════════════════════════════════════════════
@@ -1542,6 +2289,17 @@ function openSaveModal(data) {
   setTimeout(() => document.getElementById('modal-name').focus(), 50);
 }
 
+function openSaveModalFromCalc() {
+  if (!calcProduct) return;
+  openSaveModal({
+    hts_code: calcProduct.hts_code,
+    description: calcProduct.name || calcProduct.description || calcProduct.hts_code,
+    duty_rate: calcProduct.duty_rate || '',
+    special: calcProduct.special || '',
+    origin: calcProduct.origin || '',
+  });
+}
+
 function closeSaveModal() {
   document.getElementById('save-modal').classList.add('hidden');
   _pendingSave = null;
@@ -1557,6 +2315,8 @@ async function confirmSave() {
   const origin = document.getElementById('modal-origin').value.trim();
   if (!name) { document.getElementById('modal-name').focus(); return; }
   const { hts_code, description, duty_rate } = _pendingSave;
+  const btn = document.getElementById('modal-save-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…';
   try {
     await api('POST', '/api/products', { name, hts_code, description: description || '', duty_rate: duty_rate || '', origin });
     closeSaveModal();
@@ -1566,8 +2326,16 @@ async function confirmSave() {
     if (calcProduct?.unsaved && calcProduct?.hts_code === hts_code) {
       calcProduct.unsaved = false;
       calcProduct.name = name;
+      calcSelectedId = savedProducts.find(p => p.hts_code === hts_code && p.name === name)?.id || calcSelectedId;
+      renderCalcProductList();
+      renderCalcOutput();
     }
-  } catch (e) { alert('Could not save: ' + e.message); }
+    showToast('Product saved to your dashboard.', 'success');
+  } catch (e) {
+    showToast('Could not save product: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Product';
+  }
 }
 
 // ════════════════════════════════════════════════════════
@@ -1640,12 +2408,13 @@ function renderCalcOutput() {
     ${parsed.type === 'free' ? buildFreeNotice(p) : ''}
     ${parsed.type === 'unknown' && p.duty_rate ? `<div class="notice-warn"><strong>Complex rate:</strong> ${esc(p.duty_rate)} — enter an estimated percentage.</div>` : ''}
     <div id="calc-result-rows"></div>
-    ${p.unsaved ? `<button class="btn-save-calc" onclick="openSaveModal({hts_code:'${esc(p.hts_code)}',description:'${esc(p.name)}',duty_rate:'${esc(p.duty_rate||'')}',special:'${esc(p.special||'')}' })">+ Save to Dashboard</button>` : ''}`;
+    ${p.unsaved ? `<button class="btn-save-calc" onclick="openSaveModalFromCalc()">Save to Dashboard</button>` : ''}`;
+  refreshIcons(el);
 }
 
 function buildFreeNotice(p) {
   return `<div class="notice-free">
-    <span>✓</span>
+    <span><i class="ui-icon" data-lucide="badge-check"></i></span>
     <span>This product enters duty-free under the general rate. No import duty applies.
     ${p.special ? '<br><small>Special (FTA): ' + esc(p.special) + '</small>' : ''}</span>
   </div>`;
@@ -1753,6 +2522,81 @@ function rerunSearch(query, mode) {
 //  PROFILE
 // ════════════════════════════════════════════════════════
 
+function profileSettingsKey() {
+  return scopedStorageKey('htsync_profile');
+}
+
+function loadProfileSettings() {
+  try {
+    const raw = localStorage.getItem(profileSettingsKey());
+    return { ...PROFILE_DEFAULTS, ...(raw ? JSON.parse(raw) : {}) };
+  } catch {
+    return { ...PROFILE_DEFAULTS };
+  }
+}
+
+function readProfileSettingsForm() {
+  return {
+    company: document.getElementById('prof-company')?.value.trim() || '',
+    role: document.getElementById('prof-role')?.value.trim() || '',
+    origin: document.getElementById('prof-default-origin')?.value.trim() || '',
+    destination: document.getElementById('prof-default-destination')?.value.trim() || '',
+    focus: document.getElementById('prof-focus')?.value || PROFILE_DEFAULTS.focus,
+    emailDigest: !!document.getElementById('prof-email-digest')?.checked,
+    aiAssist: !!document.getElementById('prof-ai-assist')?.checked,
+    routeAlerts: !!document.getElementById('prof-route-alerts')?.checked
+  };
+}
+
+function renderProfileSettings() {
+  const settings = loadProfileSettings();
+  const setValue = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value ?? '';
+  };
+  const setChecked = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!value;
+  };
+
+  setValue('prof-company', settings.company);
+  setValue('prof-role', settings.role);
+  setValue('prof-default-origin', settings.origin);
+  setValue('prof-default-destination', settings.destination);
+  setValue('prof-focus', settings.focus);
+  setChecked('prof-email-digest', settings.emailDigest);
+  setChecked('prof-ai-assist', settings.aiAssist);
+  setChecked('prof-route-alerts', settings.routeAlerts);
+
+  document.getElementById('profile-company').textContent = settings.company || 'Company not set';
+  document.getElementById('profile-role').textContent = settings.role || 'Role not set';
+  document.getElementById('profile-focus').textContent = settings.focus || PROFILE_DEFAULTS.focus;
+  document.getElementById('profile-route').textContent =
+    settings.origin && settings.destination ? `${settings.origin} to ${settings.destination}` : 'Not configured';
+
+  const setupItems = [
+    !!(currentUser?.name),
+    !!settings.company,
+    !!settings.role,
+    !!settings.origin,
+    !!settings.destination,
+    savedProducts.length > 0,
+    (currentUser?.searches_count || searchHistory.length || 0) > 0
+  ];
+  const progress = Math.round((setupItems.filter(Boolean).length / setupItems.length) * 100);
+  document.getElementById('profile-progress-label').textContent = `${progress}%`;
+  document.getElementById('profile-progress-fill').style.width = `${progress}%`;
+}
+
+function saveProfileSettings() {
+  const settings = readProfileSettingsForm();
+  try {
+    localStorage.setItem(profileSettingsKey(), JSON.stringify(settings));
+  } catch {}
+  renderProfileSettings();
+  showToast('Workspace preferences saved.', 'success');
+}
+
 async function renderProfile() {
   try {
     const me = await api('GET', '/api/me');
@@ -1762,13 +2606,15 @@ async function renderProfile() {
     document.getElementById('profile-name').textContent = me.name || '—';
     document.getElementById('profile-email').textContent = me.email || '—';
     document.getElementById('prof-name').value = me.name || '';
-    document.getElementById('info-email').textContent = me.email || '—';
+    document.getElementById('prof-email-readonly').value = me.email || '—';
     const since = me.created_at ? new Date(me.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : '—';
     document.getElementById('profile-since').textContent = since;
     document.getElementById('info-since').textContent = since;
     document.getElementById('pstat-products').textContent = me.products_count ?? '—';
     document.getElementById('pstat-searches').textContent = me.searches_count ?? '—';
   } catch {}
+  renderProfileSettings();
+  refreshIcons(document.getElementById('section-profile'));
 }
 
 async function updateName() {
@@ -1781,7 +2627,9 @@ async function updateName() {
     const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
     document.getElementById('sidebar-username').textContent = name;
     document.getElementById('sidebar-avatar').textContent = initials;
+    document.getElementById('home-title').textContent = 'Welcome back, ' + (name.split(' ')[0] || 'there');
     msg.className = 'success-msg'; msg.textContent = 'Name updated successfully.'; msg.style.display = 'block';
+    showToast('Profile name updated.', 'success');
     await renderProfile();
     setTimeout(() => { msg.style.display = 'none'; }, 3000);
   } catch (e) { msg.className = 'error-msg'; msg.textContent = e.message; msg.style.display = 'block'; }
@@ -1889,34 +2737,34 @@ function renderDetailDrawer(data) {
   if (explanation) {
     if (explanation.summary) {
       html += `<div class="detail-section">
-        <div class="detail-section-title">🤖 AI Explanation</div>
+        <div class="detail-section-title">AI Explanation</div>
         <div class="detail-summary">${esc(explanation.summary)}</div>
       </div>`;
     }
     if (explanation.examples?.length) {
       html += `<div class="detail-section">
-        <div class="detail-section-title">✅ What this code covers</div>
+        <div class="detail-section-title">What This Code Covers</div>
         <ul class="detail-list">${explanation.examples.map(e =>
           `<li><div class="dl-dot dl-green"></div><span>${esc(e)}</span></li>`).join('')}</ul>
       </div>`;
     }
     if (explanation.exclusions?.length) {
       html += `<div class="detail-section">
-        <div class="detail-section-title">❌ What this code does NOT cover</div>
+        <div class="detail-section-title">What This Code Does Not Cover</div>
         <ul class="detail-list">${explanation.exclusions.map(e =>
           `<li><div class="dl-dot dl-red"></div><span>${esc(e)}</span></li>`).join('')}</ul>
       </div>`;
     }
     if (explanation.classification_tip) {
       html += `<div class="detail-section">
-        <div class="detail-section-title">💡 Classification Tip</div>
+        <div class="detail-section-title">Classification Tip</div>
         <div class="detail-tip">${esc(explanation.classification_tip)}</div>
       </div>`;
     }
     // AI-driven comparisons
     if (explanation.comparisons?.length) {
       html += `<div class="detail-section">
-        <div class="detail-section-title">🔄 How it compares to related codes</div>
+        <div class="detail-section-title">How It Compares To Related Codes</div>
         <table class="compare-table">
           <thead><tr><th>Code</th><th>Rate</th><th>Key Difference</th></tr></thead>
           <tbody>${explanation.comparisons.map(c => {
@@ -1933,7 +2781,7 @@ function renderDetailDrawer(data) {
   } else {
     // No API key — show basic info
     html += `<div class="detail-section">
-      <div class="detail-section-title">ℹ️ Code Information</div>
+      <div class="detail-section-title">Code Information</div>
       <div class="detail-summary">${esc(code.description)}</div>
       <p style="font-size:0.8rem;color:var(--gray2);margin-top:0.75rem;">
         Set <strong>OPENAI_API_KEY</strong> to enable AI-powered explanations, examples, and comparisons.
@@ -1941,10 +2789,16 @@ function renderDetailDrawer(data) {
     </div>`;
   }
 
+  html += `<div class="detail-section">
+    <div class="detail-section-title">Trade Route Heatmap</div>
+    <div class="detail-summary">Model likely entry ports, origin lanes, and route concentration for this code.</div>
+    <div class="port-profile-actions"><button class="port-action-btn" onclick="openHeatmapForCode('${esc(code.hts_code)}')">Open heatmap</button></div>
+  </div>`;
+
   // All sibling codes table (always shown)
   if (similar?.length) {
     html += `<div class="detail-section">
-      <div class="detail-section-title">📋 All codes in this heading</div>
+      <div class="detail-section-title">All Codes In This Heading</div>
       <table class="compare-table">
         <thead><tr><th>Code</th><th>General Rate</th><th>Description</th></tr></thead>
         <tbody>${similar.slice(0, 16).map(s => `<tr>
@@ -1971,17 +2825,288 @@ function handleDetailBackdrop(e) {
 //  SHIPPING
 // ════════════════════════════════════════════════════════
 
-// Port positions on the SVG map (viewBox 0 0 700 440)
-const PORT_COORDS = {
-  'USLAX': { x: 65, y: 270 },
-  'USSEA': { x: 46, y: 62 },
-  'USHOU': { x: 315, y: 368 },
-  'USMIA': { x: 508, y: 435 },
-  'USSAV': { x: 540, y: 300 },
-  'USCHS': { x: 548, y: 282 },
-  'USBAL': { x: 595, y: 194 },
-  'USNYC': { x: 614, y: 170 },
+let portMapMode = 'us';
+let portMap = null;
+let portRouteLayer = null;
+let portMarkerLayer = null;
+let portMarkersByCode = {};
+let tradeMap = null;
+let tradeRouteLayer = null;
+let tradeMarkerLayer = null;
+const US_PORT_BOUNDS = [[24.2, -125.2], [49.7, -66.5]];
+const ROUTE_ANCHORS = {
+  'China': [31.23, 121.50],
+  'Japan': [35.45, 139.64],
+  'South Korea': [35.10, 129.04],
+  'Taiwan': [22.61, 120.29],
+  'Vietnam': [10.78, 106.70],
+  'Southeast Asia': [1.26, 103.82],
+  'Asia': [1.26, 103.82],
+  'Europe': [51.95, 4.14],
+  'Northern Europe': [51.95, 4.14],
+  'Mediterranean': [39.45, -0.32],
+  'South America': [-23.96, -46.30],
+  'Central America': [9.00, -79.50],
+  'Caribbean': [18.45, -66.10],
+  'Mexico': [19.05, -104.32],
+  'Middle East': [25.01, 55.06],
+  'Africa': [-29.88, 31.05],
+  'West Africa': [6.45, 3.40],
+  'North Africa': [35.89, -5.50],
+  'North America': [40.67, -74.05],
+  'US West Coast': [33.74, -118.27],
+  'US East Coast': [40.67, -74.05],
+  'Oceania': [-33.97, 151.22],
+  'Australia': [-33.97, 151.22],
+  'New Zealand': [-36.84, 174.76],
+  'Puerto Rico': [18.45, -66.10],
+  'Alaska': [61.22, -149.90],
+  'South China': [22.54, 114.05],
+  'Baltic': [54.35, 18.65],
+  'Scandinavia': [57.70, 11.97],
 };
+const OCEAN_ROUTES = [
+  {
+    id: 'china-socal',
+    name: 'China / Pearl River Delta to Southern California',
+    scope: 'transpacific',
+    labels: ['China', 'South China', 'Asia', 'Southeast Asia', 'North America', 'US West Coast'],
+    origin: 'Shanghai / Shenzhen',
+    gateway: 'Los Angeles / Long Beach',
+    ports: ['USLAX', 'USLGB'],
+    sourcePorts: ['CNSHA', 'CNNGB', 'CNSZX', 'HKHKG'],
+    transit: '14-19 days',
+    distance: '5,900-6,400 nm',
+    chokepoints: ['North Pacific great-circle approach'],
+    notes: 'Primary consumer goods and electronics lane into Southern California.',
+    path: [[31.23,121.50],[27.5,126.0],[30.5,145.0],[36.5,165.0],[42.0,179.0],[42.5,-170.0],[39.5,-150.0],[35.0,-130.0],[33.74,-118.27]],
+  },
+  {
+    id: 'asia-pnw',
+    name: 'Northeast Asia to Pacific Northwest',
+    scope: 'transpacific',
+    labels: ['China', 'Japan', 'South Korea', 'Asia', 'North America', 'US West Coast'],
+    origin: 'Busan / Yokohama / Shanghai',
+    gateway: 'Seattle / Tacoma / Vancouver',
+    ports: ['USSEA', 'CAVAN'],
+    sourcePorts: ['KRPUS', 'JPYOK', 'CNSHA', 'CNNGB'],
+    transit: '12-17 days',
+    distance: '4,600-5,400 nm',
+    chokepoints: ['North Pacific approach', 'Strait of Juan de Fuca'],
+    notes: 'Common northern transpacific lane with strong rail connections inland.',
+    path: [[35.10,129.04],[38.5,145.0],[45.0,165.0],[48.5,179.0],[50.0,-170.0],[49.0,-150.0],[48.5,-128.0],[47.37,-122.40]],
+  },
+  {
+    id: 'asia-oakland',
+    name: 'East Asia to Northern California',
+    scope: 'transpacific',
+    labels: ['China', 'Japan', 'South Korea', 'Asia', 'Australia', 'North America'],
+    origin: 'Shanghai / Busan / Yokohama',
+    gateway: 'Oakland',
+    ports: ['USOAK'],
+    sourcePorts: ['CNSHA', 'KRPUS', 'JPYOK'],
+    transit: '13-18 days',
+    distance: '5,200-5,900 nm',
+    chokepoints: ['North Pacific approach', 'San Francisco Bay approach'],
+    notes: 'Northern California import lane with Bay Area distribution access.',
+    path: [[31.23,121.50],[30.0,140.0],[36.0,160.0],[42.0,179.0],[42.0,-170.0],[40.0,-150.0],[38.5,-130.0],[37.80,-122.32]],
+  },
+  {
+    id: 'asia-panama-ny',
+    name: 'Asia to New York / New Jersey via Panama',
+    scope: 'canal',
+    labels: ['China', 'Vietnam', 'Taiwan', 'Southeast Asia', 'Asia', 'North America', 'US East Coast'],
+    origin: 'South China / Southeast Asia',
+    gateway: 'New York / New Jersey',
+    ports: ['USNYC'],
+    sourcePorts: ['CNSZX', 'CNSHA', 'TWKHH', 'THLCH', 'SGSIN'],
+    transit: '27-34 days',
+    distance: '10,000-11,000 nm',
+    chokepoints: ['Panama Canal', 'Caribbean approach'],
+    notes: 'All-water Asia-to-East-Coast service used when avoiding West Coast rail handoffs.',
+    path: [[22.54,114.05],[18.0,124.0],[12.0,145.0],[4.0,170.0],[1.0,-170.0],[2.0,-140.0],[7.5,-104.0],[8.9,-79.8],[15.5,-76.0],[28.0,-72.5],[40.67,-74.05]],
+  },
+  {
+    id: 'asia-panama-savannah',
+    name: 'Asia to Savannah / Charleston via Panama',
+    scope: 'canal',
+    labels: ['China', 'Vietnam', 'Taiwan', 'Southeast Asia', 'Asia', 'North America', 'US East Coast'],
+    origin: 'South China / Southeast Asia',
+    gateway: 'US Southeast',
+    ports: ['USSAV', 'USCHS', 'USJAX'],
+    sourcePorts: ['CNSZX', 'CNSHA', 'TWKHH', 'THLCH', 'SGSIN'],
+    transit: '28-36 days',
+    distance: '10,200-11,300 nm',
+    chokepoints: ['Panama Canal', 'Caribbean Sea'],
+    notes: 'Major all-water lane into the fast-growing US Southeast gateway network.',
+    path: [[22.54,114.05],[14.0,124.0],[8.0,150.0],[1.0,175.0],[0.0,-165.0],[4.0,-132.0],[8.9,-79.8],[16.5,-76.0],[26.5,-75.5],[32.08,-81.09]],
+  },
+  {
+    id: 'europe-ny',
+    name: 'Northern Europe to New York / New Jersey',
+    scope: 'atlantic',
+    labels: ['Europe', 'Northern Europe', 'Mediterranean', 'North America', 'US East Coast'],
+    origin: 'Rotterdam / Antwerp / Hamburg',
+    gateway: 'New York / New Jersey',
+    ports: ['USNYC'],
+    sourcePorts: ['NLRTM', 'BEANR', 'DEHAM', 'GBFXT'],
+    transit: '8-12 days',
+    distance: '3,200-3,700 nm',
+    chokepoints: ['English Channel', 'North Atlantic'],
+    notes: 'Core transatlantic container lane into the largest US East Coast gateway.',
+    path: [[51.95,4.14],[50.6,0.4],[49.5,-7.0],[47.5,-25.0],[45.0,-45.0],[41.5,-62.0],[40.67,-74.05]],
+  },
+  {
+    id: 'europe-southeast',
+    name: 'Northern Europe to Savannah / Charleston',
+    scope: 'atlantic',
+    labels: ['Europe', 'Northern Europe', 'Mediterranean', 'North America', 'US East Coast'],
+    origin: 'Rotterdam / Antwerp / Hamburg',
+    gateway: 'US Southeast',
+    ports: ['USSAV', 'USCHS', 'USORF'],
+    sourcePorts: ['NLRTM', 'BEANR', 'DEHAM', 'GBFXT', 'ESVLC'],
+    transit: '10-15 days',
+    distance: '3,700-4,300 nm',
+    chokepoints: ['English Channel', 'North Atlantic'],
+    notes: 'Useful for European industrial goods and retail flows into the Southeast.',
+    path: [[51.95,4.14],[50.6,0.4],[48.0,-10.0],[43.0,-30.0],[36.0,-55.0],[31.5,-73.5],[32.08,-81.09]],
+  },
+  {
+    id: 'europe-gulf',
+    name: 'Northern Europe to US Gulf',
+    scope: 'atlantic',
+    labels: ['Europe', 'Northern Europe', 'Middle East', 'North America'],
+    origin: 'Rotterdam / Antwerp',
+    gateway: 'Houston / Gulf Coast',
+    ports: ['USHOU', 'USMSY', 'USMOB'],
+    sourcePorts: ['NLRTM', 'BEANR', 'DEHAM'],
+    transit: '15-21 days',
+    distance: '4,900-5,600 nm',
+    chokepoints: ['English Channel', 'Florida Straits', 'Gulf of Mexico'],
+    notes: 'Energy, chemicals, and industrial cargo lane into Gulf Coast gateways.',
+    path: [[51.95,4.14],[50.6,0.4],[44.0,-14.0],[34.0,-40.0],[25.0,-68.0],[24.5,-81.0],[26.0,-88.0],[29.73,-95.26]],
+  },
+  {
+    id: 'med-eastcoast',
+    name: 'Western Mediterranean to US East Coast',
+    scope: 'atlantic',
+    labels: ['Mediterranean', 'Europe', 'North Africa', 'North America'],
+    origin: 'Valencia / Algeciras',
+    gateway: 'US East Coast',
+    ports: ['USNYC', 'USSAV', 'USCHS', 'USPHL'],
+    sourcePorts: ['ESVLC', 'MAPTM'],
+    transit: '11-17 days',
+    distance: '4,000-4,900 nm',
+    chokepoints: ['Strait of Gibraltar', 'North Atlantic'],
+    notes: 'Mediterranean services for food, tile, automotive, and retail freight.',
+    path: [[39.45,-0.32],[36.0,-5.6],[33.5,-14.0],[30.0,-35.0],[29.0,-58.0],[31.0,-74.0],[32.08,-81.09]],
+  },
+  {
+    id: 'southamerica-eastcoast',
+    name: 'Brazil / South America to US East Coast',
+    scope: 'atlantic',
+    labels: ['South America', 'Brazil', 'North America', 'US East Coast'],
+    origin: 'Santos / South Atlantic',
+    gateway: 'US East Coast',
+    ports: ['USNYC', 'USPHL', 'USSAV', 'USCHS'],
+    sourcePorts: ['BRSSZ'],
+    transit: '14-22 days',
+    distance: '4,700-5,600 nm',
+    chokepoints: ['South Atlantic', 'Caribbean approach'],
+    notes: 'Food, meat, coffee, and industrial goods corridor from Atlantic South America.',
+    path: [[-23.96,-46.30],[-18.0,-40.0],[-5.0,-35.0],[8.0,-45.0],[18.0,-62.0],[28.5,-72.5],[40.67,-74.05]],
+  },
+  {
+    id: 'latin-florida',
+    name: 'Caribbean / Central America to Florida',
+    scope: 'regional',
+    labels: ['Caribbean', 'Central America', 'South America', 'North America'],
+    origin: 'Caribbean / Central America',
+    gateway: 'South Florida',
+    ports: ['USMIA', 'USPEF'],
+    sourcePorts: ['BRSSZ'],
+    transit: '3-8 days',
+    distance: '800-1,800 nm',
+    chokepoints: ['Windward Passage', 'Florida Straits'],
+    notes: 'Short-sea lane for perishables, apparel, and consumer goods into Florida.',
+    path: [[9.0,-79.5],[14.0,-78.0],[18.4,-74.0],[23.2,-79.0],[25.78,-80.16]],
+  },
+  {
+    id: 'mexico-westcoast',
+    name: 'Mexico Pacific to US West Coast',
+    scope: 'regional',
+    labels: ['Mexico', 'Central America', 'US West Coast', 'North America'],
+    origin: 'Manzanillo / Pacific Mexico',
+    gateway: 'US West Coast',
+    ports: ['USLAX', 'USLGB', 'USOAK'],
+    sourcePorts: ['MXZLO'],
+    transit: '4-8 days',
+    distance: '1,200-1,900 nm',
+    chokepoints: ['Pacific coastal corridor'],
+    notes: 'Regional Pacific lane linking Mexico manufacturing and US West Coast gateways.',
+    path: [[19.05,-104.32],[23.0,-110.0],[28.0,-117.0],[33.74,-118.27]],
+  },
+  {
+    id: 'middleeast-suez-eastcoast',
+    name: 'Middle East to US East Coast via Suez',
+    scope: 'canal',
+    labels: ['Middle East', 'Africa', 'Asia', 'North America', 'US East Coast'],
+    origin: 'Jebel Ali / Arabian Gulf',
+    gateway: 'US East Coast',
+    ports: ['USNYC', 'USORF', 'USSAV', 'USHOU'],
+    sourcePorts: ['AEJEA', 'ZADUR'],
+    transit: '28-40 days',
+    distance: '9,000-11,000 nm',
+    chokepoints: ['Strait of Hormuz', 'Bab el-Mandeb', 'Suez Canal', 'Gibraltar'],
+    notes: 'Suez-based lane for Middle East, India, and regional transshipment cargo.',
+    path: [[25.01,55.06],[24.0,58.0],[15.0,59.0],[12.5,45.0],[20.0,38.0],[30.0,32.5],[35.5,18.0],[36.0,-5.6],[31.0,-30.0],[28.0,-58.0],[32.0,-74.0],[40.67,-74.05]],
+  },
+  {
+    id: 'india-suez-eastcoast',
+    name: 'India to US East Coast via Suez',
+    scope: 'canal',
+    labels: ['India', 'South Asia', 'Middle East', 'North America', 'US East Coast'],
+    origin: 'Nhava Sheva / Mumbai',
+    gateway: 'US East Coast',
+    ports: ['USNYC', 'USORF', 'USSAV'],
+    sourcePorts: ['INNSA'],
+    transit: '25-36 days',
+    distance: '8,700-10,200 nm',
+    chokepoints: ['Arabian Sea', 'Bab el-Mandeb', 'Suez Canal', 'Gibraltar'],
+    notes: 'Textiles, pharma, machinery, and retail lane through Suez and the Atlantic.',
+    path: [[18.95,72.95],[14.0,64.0],[12.5,45.0],[20.0,38.0],[30.0,32.5],[35.5,18.0],[36.0,-5.6],[31.0,-30.0],[29.0,-58.0],[32.0,-74.0],[40.67,-74.05]],
+  },
+  {
+    id: 'asia-suez-europe',
+    name: 'Asia to Northern Europe via Suez',
+    scope: 'canal',
+    labels: ['Asia', 'China', 'Southeast Asia', 'Europe', 'Northern Europe'],
+    origin: 'Shanghai / Singapore',
+    gateway: 'Rotterdam / Antwerp / Hamburg',
+    ports: ['NLRTM', 'BEANR', 'DEHAM', 'GBFXT'],
+    sourcePorts: ['CNSHA', 'CNNGB', 'CNSZX', 'SGSIN', 'MYPKG', 'THLCH'],
+    transit: '28-38 days',
+    distance: '10,500-12,000 nm',
+    chokepoints: ['Singapore Strait', 'Indian Ocean', 'Suez Canal', 'English Channel'],
+    notes: 'Major Asia-Europe container corridor through Suez into North Sea hubs.',
+    path: [[31.23,121.50],[22.0,120.0],[1.26,103.82],[5.0,90.0],[8.0,72.0],[12.5,45.0],[30.0,32.5],[35.5,18.0],[36.0,-5.6],[49.5,-7.0],[51.95,4.14]],
+  },
+  {
+    id: 'southeastasia-oceania',
+    name: 'Southeast Asia to Australia',
+    scope: 'regional',
+    labels: ['Southeast Asia', 'Asia', 'Oceania', 'Australia'],
+    origin: 'Singapore / Port Klang',
+    gateway: 'Sydney / Oceania',
+    ports: ['AUSYD'],
+    sourcePorts: ['SGSIN', 'MYPKG', 'THLCH'],
+    transit: '10-16 days',
+    distance: '3,300-4,100 nm',
+    chokepoints: ['Singapore Strait', 'Java Sea', 'Coral Sea approach'],
+    notes: 'Regional Asia-Oceania corridor for retail, food, and pharmaceutical cargo.',
+    path: [[1.26,103.82],[-3.0,106.0],[-10.0,114.0],[-20.0,125.0],[-28.0,145.0],[-33.97,151.22]],
+  },
+];
 
 function congestionColor(level) {
   if (level === 'Low')    return '#22c55e';
@@ -1989,8 +3114,462 @@ function congestionColor(level) {
   return '#ef4444';
 }
 
+function visiblePorts() {
+  if (portMapMode === 'us') {
+    return allPorts.filter(p => p.country === 'United States');
+  }
+  return allPorts;
+}
+
+function portLatLng(port) {
+  const lat = Number(port.latitude);
+  const lng = Number(port.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return [lat, lng];
+}
+
+function portMarkerSize(port, maxVolume) {
+  const volume = Number(port.annual_teus_millions) || 0.5;
+  return Math.round(14 + Math.sqrt(volume / Math.max(maxVolume, 1)) * 20);
+}
+
+function routeColor(route = '') {
+  const r = String(route).toLowerCase();
+  if (r.includes('china') || r.includes('asia') || r.includes('japan') || r.includes('korea') || r.includes('vietnam')) return '#2563eb';
+  if (r.includes('europe') || r.includes('mediterranean') || r.includes('baltic') || r.includes('scandinavia')) return '#0f766e';
+  if (r.includes('south america') || r.includes('central') || r.includes('caribbean') || r.includes('mexico')) return '#d97706';
+  if (r.includes('middle east') || r.includes('africa')) return '#475569';
+  return '#1e6fd9';
+}
+
+function usApproachAnchor(port, route = '') {
+  const lat = Number(port.latitude) || 38;
+  const region = String(port.region || '').toLowerCase();
+  const routeName = String(route || '').toLowerCase();
+  if (region.includes('west')) return [Math.max(28, Math.min(49, lat)), -129.5];
+  if (region.includes('gulf')) return [25.2, -91.5];
+  if (region.includes('southeast')) return routeName.includes('caribbean') || routeName.includes('central')
+    ? [23.7, -78.0]
+    : [29.2, -72.0];
+  return [Math.max(28, Math.min(46, lat)), -66.5];
+}
+
+function routeAnchor(route, port, mapMode = 'global') {
+  if (mapMode === 'us' && port?.country === 'United States') {
+    return usApproachAnchor(port, route);
+  }
+  if (ROUTE_ANCHORS[route]) return ROUTE_ANCHORS[route];
+  const routeLower = String(route || '').toLowerCase();
+  const match = Object.keys(ROUTE_ANCHORS).find(key => routeLower.includes(key.toLowerCase()) || key.toLowerCase().includes(routeLower));
+  return match ? ROUTE_ANCHORS[match] : null;
+}
+
+function curvedRoutePoints(from, to, intensity = 0.08) {
+  const lat1 = from[0], lng1 = from[1], lat2 = to[0], lng2 = to[1];
+  const dx = lng2 - lng1;
+  const dy = lat2 - lat1;
+  const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+  const bend = Math.min(9, Math.max(1.2, distance * intensity));
+  const mid = [
+    (lat1 + lat2) / 2 - (dx / distance) * bend,
+    (lng1 + lng2) / 2 + (dy / distance) * bend,
+  ];
+  return [from, mid, to];
+}
+
+function routeLabelMatches(routeDef, routeName = '') {
+  const route = String(routeName || '').toLowerCase();
+  if (!route) return false;
+  return (routeDef.labels || []).some(label => {
+    const l = label.toLowerCase();
+    return route.includes(l) || l.includes(route);
+  }) || routeDef.name.toLowerCase().includes(route) || routeDef.origin.toLowerCase().includes(route);
+}
+
+function routeTouchesPort(routeDef, portCode) {
+  return (routeDef.ports || []).includes(portCode) || (routeDef.sourcePorts || []).includes(portCode);
+}
+
+function oceanRouteFor(routeName, port) {
+  if (!port) return null;
+  const portCode = port.code;
+  const exact = OCEAN_ROUTES.find(route =>
+    routeTouchesPort(route, portCode) && routeLabelMatches(route, routeName)
+  );
+  if (exact) return exact;
+
+  const routeLower = String(routeName || '').toLowerCase();
+  const regional = OCEAN_ROUTES.find(route =>
+    routeTouchesPort(route, portCode) &&
+    ((routeLower.includes('asia') && route.labels.some(label => label.toLowerCase().includes('asia'))) ||
+     (routeLower.includes('europe') && route.labels.some(label => label.toLowerCase().includes('europe'))) ||
+     (routeLower.includes('south america') && route.labels.some(label => label.toLowerCase().includes('south america'))) ||
+     (routeLower.includes('caribbean') && route.labels.some(label => label.toLowerCase().includes('caribbean'))) ||
+     (routeLower.includes('mexico') && route.labels.some(label => label.toLowerCase().includes('mexico'))))
+  );
+  if (regional) return regional;
+
+  return OCEAN_ROUTES.find(route => routeTouchesPort(route, portCode)) || null;
+}
+
+function waterRoutePoints(routeName, port, mapMode = 'global') {
+  const oceanRoute = oceanRouteFor(routeName, port);
+  if (oceanRoute?.path?.length) return oceanRoute.path;
+  const from = routeAnchor(routeName, port, mapMode);
+  const to = portLatLng(port);
+  if (!from || !to) return [];
+  return curvedRoutePoints(from, to);
+}
+
+function unwrapRouteLongitudes(points) {
+  if (!points?.length) return [];
+  const out = [[points[0][0], points[0][1]]];
+  for (let i = 1; i < points.length; i++) {
+    const prevLng = out[out.length - 1][1];
+    let lng = points[i][1];
+    while (lng - prevLng > 180) lng -= 360;
+    while (lng - prevLng < -180) lng += 360;
+    out.push([points[i][0], lng]);
+  }
+  return out;
+}
+
+function shiftRouteLongitudes(points, shift) {
+  return points.map(point => [point[0], point[1] + shift]);
+}
+
+function routeNeedsWorldCopies(points, unwrapped) {
+  if (!points?.length || !unwrapped?.length) return false;
+  const crossesEdge = points.some((point, i) => i > 0 && Math.abs(point[1] - points[i - 1][1]) > 180);
+  const outsideBaseWorld = unwrapped.some(point => point[1] < -180 || point[1] > 180);
+  return crossesEdge || outsideBaseWorld;
+}
+
+function drawRouteLine(layer, from, to, route, label, weight = 2.4, opacity = 0.38) {
+  const fromIsPath = Array.isArray(from?.[0]);
+  if (!layer || !from || (!fromIsPath && !to) || !window.L) return [];
+  const color = routeColor(route);
+  const rawPoints = fromIsPath ? from : curvedRoutePoints(from, to);
+  const points = unwrapRouteLongitudes(rawPoints);
+  const copies = routeNeedsWorldCopies(rawPoints, points)
+    ? [points, shiftRouteLongitudes(points, -360), shiftRouteLongitudes(points, 360)]
+    : [points];
+  copies.forEach(routeCopy => {
+    const line = L.polyline(routeCopy, {
+      color,
+      weight,
+      opacity,
+      dashArray: '7 9',
+      lineCap: 'round',
+      lineJoin: 'round',
+      interactive: true,
+    }).bindTooltip(label, { sticky: true, direction: 'top' });
+    line.addTo(layer);
+  });
+  return points;
+}
+
+function renderRouteSummary(id, rows) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const visible = (rows || []).slice(0, 4);
+  el.innerHTML = visible.map(row => `
+    <div class="route-lane-card">
+      <div class="route-lane-title">${esc(row.title)}</div>
+      <div class="route-lane-sub">${esc(row.sub)}</div>
+    </div>
+  `).join('');
+}
+
+function updateShippingOps(ports) {
+  const routeNames = new Set();
+  ports.forEach(port => (port.primary_routes || []).slice(0, 3).forEach(route => routeNames.add(route)));
+  const avgDem = ports.length
+    ? ports.reduce((sum, port) => sum + Number(port.avg_demurrage_days || 0), 0) / ports.length
+    : 0;
+  const lowCount = ports.filter(port => port.congestion_level === 'Low').length;
+  const setText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+  setText('ops-port-count', ports.length ? String(ports.length) : '—');
+  setText('ops-low-count', ports.length ? String(lowCount) : '—');
+  setText('ops-demurrage', ports.length ? `${avgDem.toFixed(1)} days` : '—');
+  setText('ops-route-count', ports.length ? String(routeNames.size) : '—');
+}
+
+function drawOverviewRoutes(ports) {
+  if (!portRouteLayer) return [];
+  const ranked = ports
+    .slice()
+    .sort((a, b) => Number(b.annual_teus_millions || 0) - Number(a.annual_teus_millions || 0))
+    .slice(0, portMapMode === 'us' ? 14 : 22);
+  const summary = [];
+  const bounds = [];
+  const originsShown = new Set();
+
+  ranked.forEach((port, index) => {
+    const route = (port.primary_routes || [])[0];
+    const pointsForRoute = waterRoutePoints(route, port, portMapMode);
+    const from = pointsForRoute[0];
+    if (!route || pointsForRoute.length < 2 || !from) return;
+    const opacity = Math.max(0.18, 0.42 - index * 0.008);
+    const points = drawRouteLine(portRouteLayer, pointsForRoute, null, route, `${route} to ${port.name}`, 2.1, opacity);
+    if (portMapMode === 'global') bounds.push(...points);
+    if (portMapMode === 'global' && !originsShown.has(route)) {
+      L.marker(from, {
+        title: route,
+        icon: L.divIcon({ className: '', html: '<span class="route-origin-dot"></span>', iconSize: [10, 10], iconAnchor: [5, 5] }),
+      }).bindTooltip(route, { direction: 'top' }).addTo(portRouteLayer);
+      originsShown.add(route);
+    }
+    if (summary.length < 4) {
+      summary.push({ title: `${route} → ${port.code}`, sub: `${port.name} · ${port.city}` });
+    }
+  });
+
+  renderRouteSummary('port-route-summary', summary);
+  return bounds;
+}
+
+function drawTradeRoutes(data, ports, maxShare) {
+  if (!tradeRouteLayer) return [];
+  tradeRouteLayer.clearLayers();
+  const bounds = [];
+  const originsShown = new Set();
+  const originFallback = (data.origin_mix || [])[0]?.origin;
+
+  ports.slice(0, 10).forEach(item => {
+    const port = item.port;
+    const route = item.preferred_route || originFallback || (port.primary_routes || [])[0];
+    let pointsForRoute = waterRoutePoints(route, port, 'global');
+    if (pointsForRoute.length < 2 && originFallback) pointsForRoute = waterRoutePoints(originFallback, port, 'global');
+    const from = pointsForRoute[0];
+    if (!from || pointsForRoute.length < 2) return;
+    const share = Number(item.estimated_share_pct) || 0;
+    const weight = 1.7 + Math.sqrt(share / Math.max(maxShare, 1)) * 3.5;
+    const opacity = Math.min(0.62, 0.22 + share / Math.max(maxShare, 1) * 0.36);
+    const points = drawRouteLine(tradeRouteLayer, pointsForRoute, null, route, `${route} lane · ${port.name} · ${share}%`, weight, opacity);
+    bounds.push(...points);
+    if (!originsShown.has(route)) {
+      L.marker(from, {
+        title: route,
+        icon: L.divIcon({ className: '', html: '<span class="route-origin-dot"></span>', iconSize: [10, 10], iconAnchor: [5, 5] }),
+      }).bindTooltip(route, { direction: 'top' }).addTo(tradeRouteLayer);
+      originsShown.add(route);
+    }
+  });
+
+  const routeRows = (data.routes || []).slice(0, 4).map(route => ({
+    title: route.route,
+    sub: `${route.estimated_share_pct}% modeled lane share`,
+  }));
+  renderRouteSummary('trade-route-summary', routeRows);
+  return bounds;
+}
+
+function routeScopeLabel(scope) {
+  return {
+    transpacific: 'Transpacific',
+    atlantic: 'Atlantic',
+    canal: 'Canal / Suez',
+    regional: 'Regional',
+  }[scope] || 'Global';
+}
+
+function filteredOceanRoutes() {
+  if (activeRouteScope === 'all') return OCEAN_ROUTES;
+  return OCEAN_ROUTES.filter(route => route.scope === activeRouteScope);
+}
+
+function ensureRouteMap() {
+  const mapEl = document.getElementById('route-map');
+  if (!mapEl) return false;
+  if (!window.L) {
+    mapEl.innerHTML = '<div class="port-map-fallback">The interactive map library could not load. Check your internet connection and refresh to see the route atlas.</div>';
+    return false;
+  }
+  if (routeMap) return true;
+
+  routeMap = L.map(mapEl, {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    worldCopyJump: true,
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(routeMap);
+  routeLineLayer = L.layerGroup().addTo(routeMap);
+  routePointLayer = L.layerGroup().addTo(routeMap);
+  routeMap.setView([20, 0], 2);
+  return true;
+}
+
+function updateRouteKpis(routes) {
+  const ports = new Set();
+  const chokepoints = new Set();
+  routes.forEach(route => {
+    (route.ports || []).forEach(port => ports.add(port));
+    (route.chokepoints || []).forEach(point => chokepoints.add(point));
+  });
+  const setText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+  setText('route-kpi-count', String(routes.length));
+  setText('route-kpi-chokepoints', String(chokepoints.size));
+  setText('route-kpi-ports', String(ports.size));
+}
+
+function routeSummaryRows(route) {
+  if (!route) return [];
+  return [
+    { title: route.transit, sub: 'typical ocean transit range' },
+    { title: route.distance, sub: 'approximate nautical distance' },
+    { title: route.chokepoints.join(' · '), sub: 'major water chokepoints' },
+    { title: route.ports.join(' · '), sub: 'gateway port codes connected by this lane' },
+  ];
+}
+
+function drawRouteAtlas(routes, selectedRoute) {
+  if (!routeLineLayer || !routePointLayer) return;
+  routeLineLayer.clearLayers();
+  routePointLayer.clearLayers();
+
+  const bounds = [];
+  routes.forEach(route => {
+    const active = selectedRoute?.id === route.id;
+    const points = drawRouteLine(
+      routeLineLayer,
+      route.path,
+      null,
+      route.name,
+      `${route.name} · ${route.transit}`,
+      active ? 4.4 : 2.2,
+      active ? 0.82 : 0.24
+    );
+    bounds.push(...points);
+    const start = points[0];
+    const end = points[points.length - 1];
+    L.circleMarker(start, {
+      radius: active ? 6 : 4,
+      color: '#0f766e',
+      weight: 2,
+      fillColor: '#0f766e',
+      fillOpacity: active ? 0.95 : 0.55,
+    }).bindTooltip(route.origin, { direction: 'top' }).addTo(routePointLayer);
+    L.circleMarker(end, {
+      radius: active ? 6 : 4,
+      color: '#dc2626',
+      weight: 2,
+      fillColor: '#dc2626',
+      fillOpacity: active ? 0.95 : 0.55,
+    }).bindTooltip(route.gateway, { direction: 'top' }).addTo(routePointLayer);
+  });
+
+  if (selectedRoute) {
+    routeMap.fitBounds(unwrapRouteLongitudes(selectedRoute.path), { padding: [34, 34], maxZoom: 4 });
+  } else if (bounds.length) {
+    routeMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 3 });
+  }
+  setTimeout(() => routeMap.invalidateSize(), 0);
+}
+
+function renderRouteList(routes, selectedRoute) {
+  const list = document.getElementById('route-list');
+  if (!list) return;
+  list.innerHTML = routes.map(route => `
+    <div class="route-card ${selectedRoute?.id === route.id ? 'active' : ''}" onclick="focusRoute('${esc(route.id)}')">
+      <div class="route-card-top">
+        <div class="route-name">${esc(route.name)}</div>
+        <div class="route-scope">${esc(routeScopeLabel(route.scope))}</div>
+      </div>
+      <div class="route-meta">
+        <span class="route-chip">${esc(route.origin)}</span>
+        <span class="route-chip">${esc(route.gateway)}</span>
+        <span class="route-chip">${esc(route.transit)}</span>
+      </div>
+      <div class="route-note">${esc(route.notes)}</div>
+    </div>
+  `).join('');
+}
+
+function renderRoutesSection() {
+  const routes = filteredOceanRoutes();
+  const selectedRoute = routes.find(route => route.id === activeRouteId) || routes[0] || null;
+  activeRouteId = selectedRoute?.id || null;
+  updateRouteKpis(routes);
+  renderRouteList(routes, selectedRoute);
+  renderRouteSummary('route-detail-summary', routeSummaryRows(selectedRoute));
+  const title = document.getElementById('route-map-title');
+  const hint = document.getElementById('route-map-hint');
+  if (title) title.textContent = selectedRoute ? selectedRoute.name : 'Global Water Route Network';
+  if (hint) hint.textContent = selectedRoute
+    ? `${selectedRoute.origin} to ${selectedRoute.gateway}. Waypoints intentionally stay over water and through named chokepoints where relevant.`
+    : 'Select a route to focus the map and review its ocean waypoints.';
+  drawRouteAtlas(routes, selectedRoute);
+}
+
+function loadRoutesSection() {
+  if (!ensureRouteMap()) return;
+  document.querySelectorAll('.route-filter').forEach(btn => btn.classList.toggle('active', btn.id === `rf-${activeRouteScope}`));
+  renderRoutesSection();
+}
+
+function setRouteScope(scope) {
+  activeRouteScope = scope;
+  activeRouteId = null;
+  document.querySelectorAll('.route-filter').forEach(btn => btn.classList.toggle('active', btn.id === `rf-${scope}`));
+  loadRoutesSection();
+}
+
+function focusRoute(routeId) {
+  activeRouteId = routeId;
+  renderRoutesSection();
+}
+
+function portPopup(port) {
+  return `<strong>${esc(port.name)}</strong><br>
+    ${esc(port.city)}, ${esc(port.country || '')}<br>
+    Congestion: ${esc(port.congestion_level)}<br>
+    Avg demurrage: ${esc(String(port.avg_demurrage_days))} days ($${esc(String(port.demurrage_rate_usd_per_day))}/day)<br>
+    Avg processing: ${esc(String(port.avg_processing_days))} days<br>
+    Volume: ${esc(String(port.annual_teus_millions))}M TEU/yr<br>
+    Routes: ${esc((port.primary_routes || []).slice(0, 3).join(' · '))}<br>
+    <button class="port-action-btn" style="margin-top:0.45rem;" onclick="openPortDetail('${esc(port.code)}')">View profile</button>`;
+}
+
+function ensurePortMap() {
+  const mapEl = document.getElementById('port-map');
+  if (!mapEl) return false;
+  if (!window.L) {
+    mapEl.innerHTML = '<div class="port-map-fallback">The interactive map library could not load. Check your internet connection and refresh to see live OpenStreetMap geography.</div>';
+    return false;
+  }
+  if (portMap) return true;
+
+  portMap = L.map(mapEl, {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    worldCopyJump: true,
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(portMap);
+  portRouteLayer = L.layerGroup().addTo(portMap);
+  portMarkerLayer = L.layerGroup().addTo(portMap);
+  portMap.fitBounds(US_PORT_BOUNDS, { padding: [18, 18] });
+  return true;
+}
+
 async function loadShippingSection() {
-  if (shippingLoaded && allPorts.length) return;
+  if (shippingLoaded && allPorts.length) {
+    renderPortMap();
+    renderPortCards();
+    return;
+  }
   try {
     const data = await api('GET', '/api/ports');
     allPorts = data.ports || [];
@@ -2004,63 +3583,76 @@ async function loadShippingSection() {
 }
 
 function renderPortMap() {
-  const g = document.getElementById('port-markers');
-  if (!g) return;
-  const tooltip = document.getElementById('port-tooltip');
-  const svgEl   = document.getElementById('us-map-svg');
+  const ports = visiblePorts();
+  const mapReady = ensurePortMap();
+  const maxVolume = Math.max(...ports.map(p => Number(p.annual_teus_millions) || 0), 1);
 
-  g.innerHTML = allPorts.map(port => {
-    const pos = PORT_COORDS[port.code];
-    if (!pos) return '';
+  const title = document.getElementById('port-map-title');
+  const hint = document.getElementById('port-map-hint');
+  if (title) title.textContent = portMapMode === 'us'
+    ? `US Port Heatmap - ${ports.length} Gateways`
+    : `Global Port Network - ${ports.length} Gateways`;
+  if (hint) hint.textContent = portMapMode === 'us'
+    ? 'Curved lanes show common ocean approaches into each gateway; markers show volume and congestion.'
+    : 'Curved lanes show representative origin-to-port corridors across the global network.';
+
+  if (!mapReady) return;
+  portRouteLayer.clearLayers();
+  portMarkerLayer.clearLayers();
+  portMarkersByCode = {};
+  const routeBounds = drawOverviewRoutes(ports);
+
+  const markerLatLngs = [];
+  ports.forEach(port => {
+    const latLng = portLatLng(port);
+    if (!latLng) return;
+    markerLatLngs.push(latLng);
     const color = congestionColor(port.congestion_level);
-    // Scale circle radius by volume (1.1–17.5 M TEU) → radius 7–22
-    const r = Math.round(7 + ((port.annual_teus_millions - 1) / 17) * 15);
-    return `<circle class="port-dot" cx="${pos.x}" cy="${pos.y}" r="${r}"
-      fill="${color}" fill-opacity="0.75" stroke="#fff" stroke-width="1.5"
-      data-code="${port.code}"/>
-      <text class="port-label" x="${pos.x}" y="${pos.y - r - 3}" text-anchor="middle">${port.code.replace('US','')}</text>`;
-  }).join('');
-
-  // Tooltip on hover
-  g.querySelectorAll('.port-dot').forEach(dot => {
-    dot.addEventListener('mouseenter', e => {
-      const port = allPorts.find(p => p.code === dot.dataset.code);
-      if (!port) return;
-      tooltip.innerHTML = `<strong>${port.name}</strong><br>
-        Congestion: ${port.congestion_level}<br>
-        Avg demurrage: ${port.avg_demurrage_days} days ($${port.demurrage_rate_usd_per_day}/day)<br>
-        Avg processing: ${port.avg_processing_days} days<br>
-        Volume: ${port.annual_teus_millions}M TEU/yr`;
-      tooltip.style.display = 'block';
+    const size = portMarkerSize(port, maxVolume);
+    const marker = L.marker(latLng, {
+      title: port.name,
+      icon: L.divIcon({
+        className: '',
+        html: `<span class="port-map-marker" style="--marker-size:${size}px;--marker-color:${color};"></span>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+        popupAnchor: [0, -size / 2],
+      }),
     });
-    dot.addEventListener('mousemove', e => {
-      const rect = svgEl.parentElement.getBoundingClientRect();
-      tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
-      tooltip.style.top  = (e.clientY - rect.top  - 10) + 'px';
-    });
-    dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    marker.bindPopup(portPopup(port));
+    marker.addTo(portMarkerLayer);
+    portMarkersByCode[port.code] = marker;
   });
+
+  if (portMapMode === 'us') {
+    portMap.fitBounds(US_PORT_BOUNDS, { padding: [18, 18] });
+  } else if (markerLatLngs.length) {
+    portMap.fitBounds([...markerLatLngs, ...routeBounds], { padding: [30, 30], maxZoom: 3 });
+  }
+  updateShippingOps(ports);
+  setTimeout(() => portMap.invalidateSize(), 0);
 }
 
 function renderPortCards() {
   const el = document.getElementById('port-cards-grid');
-  if (!allPorts.length) {
+  const ports = visiblePorts();
+  if (!ports.length) {
     el.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="ei">⚓</div>No port data.</div>';
     return;
   }
   // Max demurrage for bar scaling
-  const maxDem = Math.max(...allPorts.map(p => p.avg_demurrage_days));
-  el.innerHTML = allPorts.map(port => {
+  const maxDem = Math.max(...ports.map(p => p.avg_demurrage_days));
+  el.innerHTML = ports.map(port => {
     const color = congestionColor(port.congestion_level);
     const congClass = port.congestion_level === 'Low' ? 'cong-low' : port.congestion_level === 'Medium' ? 'cong-medium' : 'cong-high';
     const demPct = (port.avg_demurrage_days / maxDem * 100).toFixed(0);
-    return `<div class="port-card">
+    return `<div class="port-card" onclick="openPortDetail('${esc(port.code)}')">
       <div class="port-card-header">
         <span class="port-code">${esc(port.code)}</span>
         <span class="port-congestion ${congClass}">${esc(port.congestion_level)}</span>
       </div>
       <div class="port-name">${esc(port.name)}</div>
-      <div class="port-region">${esc(port.region)} · ${esc(port.city)}</div>
+      <div class="port-region">${esc(port.region)} · ${esc(port.city)} · ${esc(port.country || '')}</div>
       <div class="port-stats">
         <div class="pstat-item">
           <div class="pstat-item-label">Avg Demurrage</div>
@@ -2084,8 +3676,308 @@ function renderPortCards() {
         <div class="demurrage-bar-bg"><div class="demurrage-bar-fill" style="width:${demPct}%"></div></div>
       </div>
       <div class="port-routes" style="margin-top:0.5rem;">Routes: ${esc(port.primary_routes.slice(0,3).join(' · '))}</div>
+      ${port.best_for?.length ? `<div class="port-routes" style="margin-top:0.25rem;">Best for: ${esc(port.best_for.slice(0,3).join(' · '))}</div>` : ''}
+      <div class="port-routes" style="margin-top:0.45rem;color:var(--blue-mid);font-weight:700;">Click for profile and route fit</div>
     </div>`;
   }).join('');
+}
+
+function getCurrentRouteContext() {
+  return {
+    origin: document.getElementById('pr-origin')?.value.trim() || document.getElementById('se-origin')?.value.trim() || '',
+    destination: document.getElementById('pr-destination-country')?.value.trim() || document.getElementById('se-destination-country')?.value.trim() || 'United States',
+    product: document.getElementById('pr-product')?.value.trim() || document.getElementById('se-product')?.value.trim() || '',
+    priority: document.getElementById('pr-priority')?.value || 'balanced',
+  };
+}
+
+function routeFitForPort(port, context = {}) {
+  const origin = (context.origin || '').toLowerCase();
+  const product = (context.product || '').toLowerCase();
+  const priority = context.priority || 'balanced';
+  const routes = (port.primary_routes || []).map(r => r.toLowerCase());
+  const bestFor = (port.best_for || []).map(r => r.toLowerCase());
+  let score = 50;
+  const notes = [];
+
+  if (origin && routes.some(r => origin.includes(r) || r.includes(origin))) {
+    score += 18;
+    notes.push('Direct route alignment with the selected origin.');
+  }
+  if (origin && routes.some(r => origin.includes('china') && r.includes('china') || origin.includes('vietnam') && r.includes('asia') || origin.includes('germany') && r.includes('europe'))) {
+    score += 10;
+    notes.push('Regional lane alignment based on the origin country.');
+  }
+  if (product && bestFor.some(term => product.includes(term) || term.includes(product))) {
+    score += 15;
+    notes.push('The port has a cargo specialization that matches the product.');
+  }
+  if (priority === 'low_demurrage' && port.congestion_level === 'Low') {
+    score += 12;
+    notes.push('Low congestion supports the demurrage priority.');
+  }
+  if (priority === 'speed' && Number(port.avg_processing_days) <= 2) {
+    score += 10;
+    notes.push('Short processing time supports the speed priority.');
+  }
+  if (priority === 'cost' && Number(port.demurrage_rate_usd_per_day) <= 150) {
+    score += 8;
+    notes.push('Lower daily demurrage rate supports the cost priority.');
+  }
+  if (port.congestion_level === 'High') {
+    score -= 10;
+    notes.push('High congestion may increase dwell time and storage risk.');
+  }
+  if (!notes.length) {
+    notes.push('Good general gateway fit; confirm carrier service and final inland destination.');
+  }
+  return { score: Math.max(1, Math.min(99, Math.round(score))), notes };
+}
+
+function portListHtml(title, items) {
+  if (!items?.length) return '';
+  return `<div class="detail-section">
+    <div class="detail-section-title">${esc(title)}</div>
+    <ul class="detail-list">${items.map(item => `<li><span>•</span><span>${esc(item)}</span></li>`).join('')}</ul>
+  </div>`;
+}
+
+function openPortDetail(code, context = {}) {
+  const port = allPorts.find(p => p.code === code) || lastHeatmapData?.ports?.map(p => p.port).find(p => p.code === code);
+  if (!port) return;
+
+  const routeContext = { ...getCurrentRouteContext(), ...(context.routeContext || {}) };
+  const pick = context.pick || lastPortRecommendations.find(p => p.code === code);
+  const heatItem = context.heatItem || lastHeatmapData?.ports?.find(item => item.port?.code === code);
+  const fit = routeFitForPort(port, routeContext);
+  const fitScore = pick?.score || heatItem?.score || fit.score;
+  document.getElementById('port-detail-code').textContent = port.code;
+  document.getElementById('port-detail-title').textContent = `${port.name} · ${port.city}, ${port.country || ''}`;
+  document.getElementById('port-detail-rates').innerHTML = [
+    `<div class="detail-rate">Congestion: <strong>${esc(port.congestion_level)}</strong></div>`,
+    `<div class="detail-rate">Processing: <strong>${esc(String(port.avg_processing_days))} days</strong></div>`,
+    `<div class="detail-rate">Volume: <strong>${esc(String(port.annual_teus_millions))}M TEU/yr</strong></div>`,
+    `<div class="detail-rate">Demurrage: <strong>${esc(String(port.avg_demurrage_days))} days / $${esc(String(port.demurrage_rate_usd_per_day))}</strong></div>`,
+  ].join('');
+
+  let html = `<div class="fit-callout">
+    <strong>Route fit score: ${fitScore}/100</strong><br>
+    ${pick?.reason ? esc(pick.reason) : esc(fit.notes[0])}
+    ${heatItem ? `<br>Modeled share for ${esc(lastHeatmapData?.hts_code || 'this HTS code')}: <strong>${esc(String(heatItem.estimated_share_pct))}%</strong> via ${esc(heatItem.preferred_route)}` : ''}
+  </div>
+  <div class="port-profile-grid">
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Region</div><div class="port-profile-stat-val">${esc(port.region)}</div></div>
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Country</div><div class="port-profile-stat-val">${esc(port.country || '')}</div></div>
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Best Route</div><div class="port-profile-stat-val">${esc((port.primary_routes || [])[0] || 'General')}</div></div>
+    <div class="port-profile-stat"><div class="port-profile-stat-label">Risk</div><div class="port-profile-stat-val">${esc(port.congestion_level)} congestion</div></div>
+  </div>`;
+
+  html += portListHtml('Strengths', port.strengths || []);
+  html += portListHtml('Considerations', port.considerations || []);
+  html += portListHtml('Best Cargo Fit', port.best_for || []);
+  html += portListHtml('Primary Routes', port.primary_routes || []);
+  html += portListHtml('Fit Notes', fit.notes || []);
+
+  if (pick) {
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Recommendation Context</div>
+      <div class="detail-summary">Priority: ${esc(routeContext.priority || 'balanced')} · Origin: ${esc(routeContext.origin || 'Any')} · Destination: ${esc(routeContext.destination || 'United States')}</div>
+      ${pick.demurrage_advantage ? `<div class="detail-tip">${esc(pick.demurrage_advantage)}</div>` : ''}
+      ${pick.route_fit ? `<div class="detail-tip">${esc(pick.route_fit)}</div>` : ''}
+      ${pick.inland_fit ? `<div class="detail-tip">${esc(pick.inland_fit)}</div>` : ''}
+      ${pick.risk_note ? `<div class="detail-tip">${esc(pick.risk_note)}</div>` : ''}
+    </div>`;
+  }
+
+  html += `<div class="port-profile-actions">
+    <button class="port-action-btn" onclick="focusPortOnOverview('${esc(port.code)}')">Show on port map</button>
+    <button class="port-action-btn" onclick="usePortInEstimator('${esc(port.name)}')">Use in estimator</button>
+    <button class="port-action-btn" onclick="closePortDetail(); showSection('trade'); document.getElementById('hm-code').focus();">Analyze HTS heatmap</button>
+  </div>`;
+
+  document.getElementById('port-detail-body').innerHTML = html;
+  document.getElementById('port-detail-overlay').classList.remove('hidden');
+}
+
+function closePortDetail() {
+  document.getElementById('port-detail-overlay').classList.add('hidden');
+}
+
+function handlePortDetailBackdrop(e) {
+  if (e.target === document.getElementById('port-detail-overlay')) closePortDetail();
+}
+
+function usePortInEstimator(portName) {
+  closePortDetail();
+  showSection('shipping');
+  switchShipTab('estimate');
+  document.getElementById('se-port').value = portName;
+}
+
+function focusPortOnOverview(code) {
+  closePortDetail();
+  showSection('shipping');
+  setPortMapMode(allPorts.find(p => p.code === code)?.country === 'United States' ? 'us' : 'global');
+  switchShipTab('overview');
+  const port = allPorts.find(p => p.code === code);
+  const marker = portMarkersByCode[code];
+  if (portMap && port && marker) {
+    portMap.setView(portLatLng(port), port.country === 'United States' ? 7 : 5);
+    marker.openPopup();
+  }
+}
+
+async function loadTradeSection() {
+  if (!shippingLoaded || !allPorts.length) {
+    await loadShippingSection();
+  }
+  ensureTradeMap();
+  if (tradeMap) setTimeout(() => tradeMap.invalidateSize(), 0);
+  tradeLoaded = true;
+}
+
+function openHeatmapForCode(code) {
+  closeDetail();
+  showSection('trade');
+  document.getElementById('hm-code').value = code;
+  doTradeHeatmap();
+}
+
+function ensureTradeMap() {
+  const mapEl = document.getElementById('trade-map');
+  if (!mapEl) return false;
+  if (!window.L) {
+    mapEl.innerHTML = '<div class="port-map-fallback">The interactive map library could not load. Check your internet connection and refresh to see the heatmap.</div>';
+    return false;
+  }
+  if (tradeMap) return true;
+
+  tradeMap = L.map(mapEl, {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    worldCopyJump: true,
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(tradeMap);
+  tradeRouteLayer = L.layerGroup().addTo(tradeMap);
+  tradeMarkerLayer = L.layerGroup().addTo(tradeMap);
+  tradeMap.fitBounds(US_PORT_BOUNDS, { padding: [18, 18] });
+  return true;
+}
+
+async function doTradeHeatmap() {
+  const code = document.getElementById('hm-code').value.trim();
+  const destination = document.getElementById('hm-destination-country').value.trim() || 'United States';
+  const out = document.getElementById('heatmap-results');
+  const btn = document.getElementById('btn-heatmap');
+  if (!code) { document.getElementById('hm-code').focus(); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Modeling…';
+  out.innerHTML = '<div class="empty-state"><div class="detail-spinner"></div><div>Building route heatmap…</div></div>';
+  try {
+    await loadTradeSection();
+    const data = await api('GET', `/api/trade/heatmap?hts_code=${encodeURIComponent(code)}&destination_country=${encodeURIComponent(destination)}`);
+    renderTradeHeatmap(data);
+  } catch (e) {
+    out.innerHTML = `<div class="empty-state"><div class="ei">⚠️</div>${esc(e.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Heatmap';
+  }
+}
+
+function renderTradeHeatmap(data) {
+  lastHeatmapData = data;
+  const ports = data.ports || [];
+  const out = document.getElementById('heatmap-results');
+  const title = document.getElementById('trade-map-title');
+  if (title) title.textContent = `${data.hts_code} · ${data.category}`;
+
+  if (tradeMarkerLayer) {
+    tradeMarkerLayer.clearLayers();
+    const latLngs = [];
+    const maxShare = Math.max(...ports.map(item => Number(item.estimated_share_pct) || 0), 1);
+    const routeBounds = drawTradeRoutes(data, ports, maxShare);
+    ports.forEach(item => {
+      const port = item.port;
+      const latLng = portLatLng(port);
+      if (!latLng) return;
+      latLngs.push(latLng);
+      const share = Number(item.estimated_share_pct) || 0;
+      const size = Math.round(22 + Math.sqrt(share / maxShare) * 28);
+      const alpha = Math.min(0.92, 0.35 + share / maxShare * 0.55).toFixed(2);
+      const marker = L.marker(latLng, {
+        title: port.name,
+        icon: L.divIcon({
+          className: '',
+          html: `<span class="heat-marker" style="--heat-size:${size}px;--heat-alpha:${alpha};">${Math.round(share)}</span>`,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
+          popupAnchor: [0, -size / 2],
+        }),
+      });
+      marker.bindPopup(`<strong>${esc(port.name)}</strong><br>
+        ${esc(port.city)}, ${esc(port.country || '')}<br>
+        Modeled share: ${esc(String(item.estimated_share_pct))}%<br>
+        Route: ${esc(item.preferred_route)}<br>
+        <button class="port-action-btn" style="margin-top:0.45rem;" onclick="openPortDetail('${esc(port.code)}', { heatItem: lastHeatmapData.ports.find(item => item.port.code === '${esc(port.code)}') })">View profile</button>`);
+      marker.addTo(tradeMarkerLayer);
+    });
+    if (latLngs.length) {
+      tradeMap.fitBounds([...latLngs, ...routeBounds], { padding: [30, 30], maxZoom: data.destination_country === 'United States' ? 4 : 3 });
+    }
+    setTimeout(() => tradeMap.invalidateSize(), 0);
+  }
+
+  const topPort = ports[0];
+  const topRoute = (data.routes || [])[0];
+  const topOrigin = (data.origin_mix || [])[0];
+  out.innerHTML = `
+    <div class="heat-summary-grid">
+      <div class="heat-summary-card"><div class="heat-summary-label">Category</div><div class="heat-summary-value">${esc(data.category)}</div></div>
+      <div class="heat-summary-card"><div class="heat-summary-label">Top Port</div><div class="heat-summary-value">${esc(topPort?.port?.name || '—')}</div></div>
+      <div class="heat-summary-card"><div class="heat-summary-label">Top Route</div><div class="heat-summary-value">${esc(topRoute?.route || topOrigin?.origin || '—')}</div></div>
+    </div>
+
+    <div class="heat-section-title">Most Likely Entry Ports</div>
+    ${ports.map(item => `
+      <div class="heat-port-row" onclick="openPortDetail('${esc(item.port.code)}', { heatItem: lastHeatmapData.ports.find(row => row.port.code === '${esc(item.port.code)}') })">
+        <div class="heat-row-top"><span>#${item.rank} ${esc(item.port.name)}</span><span>${esc(String(item.estimated_share_pct))}%</span></div>
+        <div class="heat-row-sub">${esc(item.port.city)}, ${esc(item.port.country || '')} · ${esc(item.preferred_route)} · ${(item.reason_tags || []).map(esc).join(' · ')}</div>
+        <div class="heat-bar-bg"><div class="heat-bar-fill" style="width:${Math.min(100, item.estimated_share_pct * 4)}%"></div></div>
+      </div>
+    `).join('')}
+
+    <div class="heat-section-title">Popular Route Lanes</div>
+    ${(data.routes || []).map(route => `
+      <div class="heat-route-row">
+        <div class="heat-row-top"><span>${esc(route.route)}</span><span>${esc(String(route.estimated_share_pct))}%</span></div>
+        <div class="heat-bar-bg"><div class="heat-bar-fill" style="width:${Math.min(100, route.estimated_share_pct * 3)}%"></div></div>
+      </div>
+    `).join('')}
+
+    <div class="heat-section-title">Likely Origin Mix</div>
+    ${(data.origin_mix || []).map(origin => `
+      <div class="heat-route-row">
+        <div class="heat-row-top"><span>${esc(origin.origin)}</span><span>${esc(String(origin.estimated_share_pct))}%</span></div>
+        <div class="heat-bar-bg"><div class="heat-bar-fill" style="width:${Math.min(100, origin.estimated_share_pct * 2)}%"></div></div>
+      </div>
+    `).join('')}
+
+    <div class="heat-method">${esc(data.methodology || '')}</div>
+  `;
+}
+
+function setPortMapMode(mode) {
+  portMapMode = mode === 'global' ? 'global' : 'us';
+  document.querySelectorAll('.port-map-toggle').forEach(btn => btn.classList.remove('active'));
+  const active = document.getElementById(portMapMode === 'us' ? 'map-us' : 'map-global');
+  if (active) active.classList.add('active');
+  renderPortMap();
+  renderPortCards();
 }
 
 function switchShipTab(tab) {
@@ -2093,11 +3985,15 @@ function switchShipTab(tab) {
   document.querySelectorAll('.ship-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('stab-' + tab).classList.add('active');
   document.getElementById('ship-' + tab).classList.add('active');
+  if (tab === 'overview' && portMap) {
+    setTimeout(() => portMap.invalidateSize(), 0);
+  }
 }
 
 async function doShippingEstimate() {
   const origin  = document.getElementById('se-origin').value.trim();
   const port    = document.getElementById('se-port').value.trim();
+  const destinationCountry = document.getElementById('se-destination-country').value.trim() || 'United States';
   const product = document.getElementById('se-product').value.trim();
   const weight  = parseFloat(document.getElementById('se-weight').value) || 0;
   const volume  = parseFloat(document.getElementById('se-volume').value) || 0;
@@ -2116,6 +4012,7 @@ async function doShippingEstimate() {
     const data = await api('POST', '/api/shipping/estimate', {
       origin_country: origin,
       destination_port: port || 'Best option',
+      destination_country: destinationCountry,
       weight_kg: weight,
       volume_cbm: volume,
       product_description: product,
@@ -2125,7 +4022,7 @@ async function doShippingEstimate() {
       <div class="rate-option-card ${opt.recommended ? 'recommended' : ''}">
         <div class="rate-option-header">
           <span class="rate-mode">${esc(opt.mode)}</span>
-          ${opt.recommended ? '<span class="rate-recommended-badge">★ Recommended</span>' : ''}
+          ${opt.recommended ? '<span class="rate-recommended-badge">Recommended</span>' : ''}
         </div>
         <div class="rate-cost">$${(opt.estimated_cost_usd || 0).toLocaleString()}</div>
         <div class="rate-range">Range: $${esc(opt.cost_range || '—')}</div>
@@ -2145,6 +4042,7 @@ async function doShippingEstimate() {
 
 async function doPortRecommend() {
   const origin   = document.getElementById('pr-origin').value.trim();
+  const destinationCountry = document.getElementById('pr-destination-country').value.trim() || 'United States';
   const product  = document.getElementById('pr-product').value.trim();
   const priority = document.getElementById('pr-priority').value;
 
@@ -2159,6 +4057,7 @@ async function doPortRecommend() {
   try {
     const data = await api('POST', '/api/ports/recommend', {
       origin_country: origin,
+      destination_country: destinationCountry,
       product_description: product,
       priority,
     });
@@ -2167,17 +4066,25 @@ async function doPortRecommend() {
     if (data.summary) {
       html += `<div class="port-rec-summary">${esc(data.summary)}</div>`;
     }
-    (data.top_picks || []).forEach(pick => {
+    lastPortRecommendations = data.top_picks || [];
+    lastPortRecommendations.forEach(pick => {
       const port = allPorts.find(p => p.code === pick.code);
       const score = pick.score || 0;
       const scoreClass = score >= 80 ? 'score-a' : score >= 60 ? 'score-b' : 'score-c';
-      html += `<div class="port-rec-card" style="display:flex;gap:0.85rem;align-items:flex-start;">
+      const chips = port ? [
+        port.congestion_level + ' congestion',
+        port.avg_demurrage_days + ' day demurrage',
+        (port.primary_routes || []).slice(0, 2).join(' / '),
+      ] : [];
+      html += `<div class="port-rec-card" onclick="openPortDetail('${esc(pick.code)}', { pick: lastPortRecommendations.find(p => p.code === '${esc(pick.code)}') })" style="display:flex;gap:0.85rem;align-items:flex-start;">
         <div class="ship-score-badge ${scoreClass}">${score}</div>
         <div style="flex:1;min-width:0;">
           <div class="port-rec-rank">#${pick.rank} pick</div>
           <div class="port-rec-name">${esc(port?.name || pick.code)}</div>
           <div class="port-rec-reason">${esc(pick.reason || '')}</div>
-          ${pick.demurrage_advantage ? `<div class="port-rec-advantage">⬇ ${esc(pick.demurrage_advantage)}</div>` : ''}
+          ${pick.demurrage_advantage ? `<div class="port-rec-advantage">Lower risk: ${esc(pick.demurrage_advantage)}</div>` : ''}
+          ${chips.length ? `<div class="port-rec-meta">${chips.map(chip => `<span class="port-rec-chip">${esc(chip)}</span>`).join('')}</div>` : ''}
+          <div class="port-routes" style="margin-top:0.45rem;color:var(--blue-mid);font-weight:700;">Click for detailed fit profile</div>
         </div>
       </div>`;
     });
@@ -2200,7 +4107,7 @@ document.addEventListener('keydown', e => {
     else if (!document.getElementById('view-signup').classList.contains('hidden')) doSignUp();
     else if (!document.getElementById('save-modal').classList.contains('hidden')) confirmSave();
   }
-  if (e.key === 'Escape') { closeSaveModal(); closeDetail(); }
+  if (e.key === 'Escape') { closeSaveModal(); closeDetail(); closePortDetail(); }
 });
 
 // ════════════════════════════════════════════════════════
