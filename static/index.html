@@ -2444,14 +2444,16 @@ function selectCalcProduct(id) {
       parsed.unit ? `Quantity / Weight (${parsed.unit})` : 'Quantity / Weight';
   }
   document.getElementById('cv-ovr-group').style.display = parsed.type === 'unknown' ? 'block' : 'none';
-  // Hide output until user enters values
+  // Show product header + empty result container so updateCalc() can write into it
   document.getElementById('calc-output').innerHTML = `
     <div class="calc-product-info">
       <div class="cpi-code">${esc(p.hts_code)}</div>
       <div class="cpi-name">${esc(p.name)}</div>
       <div class="cpi-rate">General duty: ${esc(p.duty_rate || 'N/A')}${p.origin ? ' · Origin: ' + esc(p.origin) : ''}</div>
     </div>
-    <div class="empty-state" style="padding:1.5rem 0;"><div class="ei">💡</div>Enter shipment values on the left.</div>`;
+    <div id="calc-result-rows">
+      <div class="empty-state" style="padding:1.5rem 0;"><div class="ei">💡</div>Enter shipment values on the left.</div>
+    </div>`;
 }
 
 function renderCalcOutput() {
@@ -2498,7 +2500,8 @@ function updateCalc() {
   const customs = val + ship + ins;
 
   const parsed = parseDutyRate(calcProduct.duty_rate);
-  if (customs === 0 && qty === 0) { rows.innerHTML = ''; return; }
+  const emptyHint = '<div class="empty-state" style="padding:1.5rem 0;"><div class="ei">💡</div>Enter shipment values on the left.</div>';
+  if (customs === 0 && qty === 0) { rows.innerHTML = emptyHint; return; }
 
   let duty = 0, dutyRows = [];
 
