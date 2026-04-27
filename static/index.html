@@ -536,6 +536,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .btn-sm:disabled{opacity:0.5;cursor:not-allowed;}
 .btn-sm.secondary{background:#fff;color:var(--gray);border:1px solid var(--border);}
 .btn-sm.secondary:hover{background:var(--off);color:var(--navy);}
+.btn-danger{
+  padding:0.5rem 1.1rem;font-family:inherit;font-size:0.85rem;font-weight:700;
+  background:var(--red);color:#fff;border:none;border-radius:var(--radius);
+  cursor:pointer;transition:background 0.15s;
+}
+.btn-danger:hover{background:#b91c1c;}
+.btn-danger:disabled{opacity:0.5;cursor:not-allowed;}
+.danger-zone{border:1px solid #fecaca;background:var(--red-bg);border-radius:var(--radius);padding:1rem;margin-top:0.25rem;}
+.danger-zone-text{font-size:0.82rem;color:#7f1d1d;margin-bottom:0.75rem;line-height:1.5;}
 .success-msg{font-size:0.82rem;color:var(--green);margin-top:0.4rem;font-weight:500;}
 .error-msg{font-size:0.82rem;color:var(--red);margin-top:0.4rem;font-weight:500;}
 
@@ -1276,6 +1285,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
               <input type="text" id="se-destination-country" class="field-input" value="United States" placeholder="e.g. United States, Germany, Brazil">
             </div>
             <div class="field-group">
+              <label class="field-label">Destination ZIP <span style="font-weight:400;color:var(--gray2)">(optional, US only)</span></label>
+              <input type="text" id="se-destination-zip" class="field-input" maxlength="10" placeholder="e.g. 90015">
+            </div>
+            <div class="field-group">
               <label class="field-label">Product Description <span style="font-weight:400;color:var(--gray2)">(optional)</span></label>
               <input type="text" id="se-product" class="field-input" placeholder="e.g. stainless steel cookware">
             </div>
@@ -1577,6 +1590,36 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
               <button class="btn-sm" onclick="saveProfileSettings()">Save Preferences</button>
             </div>
           </div>
+          <div class="settings-section">
+            <div class="settings-title">Change Password</div>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Current password</label>
+                <input type="password" id="pw-current" class="form-input" placeholder="••••••••" autocomplete="current-password">
+              </div>
+              <div class="form-group">
+                <label>New password <span style="font-weight:400;color:var(--gray2)">(min 6 characters)</span></label>
+                <input type="password" id="pw-new" class="form-input" placeholder="••••••••" autocomplete="new-password">
+              </div>
+              <div class="form-group">
+                <label>Confirm new password</label>
+                <input type="password" id="pw-confirm" class="form-input" placeholder="••••••••" autocomplete="new-password">
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn-sm" onclick="changePassword()">Update Password</button>
+            </div>
+            <div id="pw-msg" style="display:none;"></div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title" style="color:var(--red);">Danger Zone</div>
+            <div class="danger-zone">
+              <div class="danger-zone-text">
+                Deleting your account is permanent. All saved products and search history will be removed and cannot be recovered.
+              </div>
+              <button class="btn-danger" onclick="openDeleteAccountModal()">Delete My Account</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1643,6 +1686,27 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <button class="btn-outline" onclick="closeSaveModal()">Cancel</button>
       <button id="modal-save-btn" class="btn-solid" onclick="confirmSave()">Save Product</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: DELETE ACCOUNT ═════════════ -->
+<div id="delete-account-modal" class="modal-overlay hidden" onclick="handleDeleteAccountBackdrop(event)">
+  <div class="modal-card">
+    <div class="modal-title" style="color:var(--red);">Delete Account</div>
+    <div style="font-size:0.85rem;color:var(--gray);line-height:1.6;margin-bottom:1rem;">
+      This action is permanent. Your saved products and search history will be deleted. Enter your current password to confirm.
+    </div>
+    <div class="modal-fields">
+      <div class="modal-field">
+        <label>Current password</label>
+        <input type="password" id="del-password" class="form-input" placeholder="••••••••" autocomplete="current-password">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeDeleteAccountModal()">Cancel</button>
+      <button class="btn-danger" onclick="confirmDeleteAccount()">Delete Account</button>
+    </div>
+    <div id="del-modal-msg" style="display:none;margin-top:0.6rem;"></div>
   </div>
 </div>
 
@@ -2633,6 +2697,55 @@ async function updateName() {
     await renderProfile();
     setTimeout(() => { msg.style.display = 'none'; }, 3000);
   } catch (e) { msg.className = 'error-msg'; msg.textContent = e.message; msg.style.display = 'block'; }
+}
+
+async function changePassword() {
+  const current = document.getElementById('pw-current').value;
+  const next    = document.getElementById('pw-new').value;
+  const confirm = document.getElementById('pw-confirm').value;
+  const msg     = document.getElementById('pw-msg');
+  const fail = (text) => { msg.className = 'error-msg'; msg.textContent = text; msg.style.display = 'block'; };
+  if (!current || !next || !confirm) return fail('Please fill in all password fields.');
+  if (next.length < 6) return fail('New password must be at least 6 characters.');
+  if (next !== confirm) return fail('New passwords do not match.');
+  if (current === next) return fail('New password must be different from current password.');
+  try {
+    await api('POST', '/api/me/password', { current_password: current, new_password: next });
+    document.getElementById('pw-current').value = '';
+    document.getElementById('pw-new').value = '';
+    document.getElementById('pw-confirm').value = '';
+    msg.className = 'success-msg'; msg.textContent = 'Password updated successfully.'; msg.style.display = 'block';
+    if (typeof showToast === 'function') showToast('Password updated.', 'success');
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+  } catch (e) { fail(e.message); }
+}
+
+function openDeleteAccountModal() {
+  document.getElementById('del-password').value = '';
+  document.getElementById('del-modal-msg').style.display = 'none';
+  document.getElementById('delete-account-modal').classList.remove('hidden');
+}
+
+function closeDeleteAccountModal() {
+  document.getElementById('delete-account-modal').classList.add('hidden');
+}
+
+function handleDeleteAccountBackdrop(event) {
+  if (event.target.id === 'delete-account-modal') closeDeleteAccountModal();
+}
+
+async function confirmDeleteAccount() {
+  const password = document.getElementById('del-password').value;
+  const msg = document.getElementById('del-modal-msg');
+  const fail = (text) => { msg.className = 'error-msg'; msg.textContent = text; msg.style.display = 'block'; };
+  if (!password) return fail('Please enter your current password to confirm.');
+  try {
+    await api('DELETE', '/api/me', { current_password: password });
+    closeDeleteAccountModal();
+    currentUser = null;
+    if (typeof showToast === 'function') showToast('Account deleted.', 'success');
+    showView('signin');
+  } catch (e) { fail(e.message); }
 }
 
 // ════════════════════════════════════════════════════════
@@ -3994,6 +4107,7 @@ async function doShippingEstimate() {
   const origin  = document.getElementById('se-origin').value.trim();
   const port    = document.getElementById('se-port').value.trim();
   const destinationCountry = document.getElementById('se-destination-country').value.trim() || 'United States';
+  const destinationZip = document.getElementById('se-destination-zip').value.trim();
   const product = document.getElementById('se-product').value.trim();
   const weight  = parseFloat(document.getElementById('se-weight').value) || 0;
   const volume  = parseFloat(document.getElementById('se-volume').value) || 0;
@@ -4013,6 +4127,7 @@ async function doShippingEstimate() {
       origin_country: origin,
       destination_port: port || 'Best option',
       destination_country: destinationCountry,
+      destination_zip: destinationZip,
       weight_kg: weight,
       volume_cbm: volume,
       product_description: product,

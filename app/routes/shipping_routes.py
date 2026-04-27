@@ -487,6 +487,7 @@ class ShippingEstimateRequest(BaseModel):
     origin_country: str
     destination_port: str = "Best option"
     destination_country: str = "United States"
+    destination_zip: str = ""
     weight_kg: float
     volume_cbm: float = 0.0
     product_description: str = ""
@@ -878,8 +879,10 @@ async def shipping_estimate(body: ShippingEstimateRequest):
         raise HTTPException(503, "Shipping estimates require OPENAI_API_KEY")
 
     # Check cache first
+    destination_zip = (body.destination_zip or "").strip()
     ck = cache.cache_key("ship", body.origin_country, body.destination_country or "",
                          body.destination_port or "",
+                         destination_zip,
                          body.weight_kg, body.volume_cbm, body.product_description or "",
                          body.cargo_value_usd or 0)
     cached = cache.get("shipping_estimate", ck, ttl=1800)
@@ -890,12 +893,21 @@ async def shipping_estimate(body: ShippingEstimateRequest):
     client = OpenAI(api_key=OPENAI_API_KEY)
 
     destination_country = body.destination_country or "United States"
+    zip_suffix = f" (ZIP {destination_zip})" if destination_zip else ""
     dest_note = (
-        f"to {body.destination_port}, {destination_country}"
-        if body.destination_port else f"to {destination_country}"
+        f"to {body.destination_port}, {destination_country}{zip_suffix}"
+        if body.destination_port else f"to {destination_country}{zip_suffix}"
     )
     product_note = body.product_description or (f"HTS {body.hts_code}" if body.hts_code else "general cargo")
     value_note = f"${body.cargo_value_usd:,.0f}" if body.cargo_value_usd else "undeclared"
+
+    inland_instruction = ""
+    if destination_zip and destination_country.lower() == "united states":
+        inland_instruction = (
+            f"\nThe cargo must be delivered to US ZIP code {destination_zip}. "
+            f"Include realistic US domestic inland transport (port-to-door) in each option's "
+            f"estimated_cost_usd, and note the inland-leg cost and likely mode (LTL, FTL, parcel, drayage + rail) in 'notes'."
+        )
 
     prompt = (
         f"You are a freight shipping expert with current market knowledge (2025).\n\n"
@@ -904,7 +916,8 @@ async def shipping_estimate(body: ShippingEstimateRequest):
         f"- Weight: {body.weight_kg} kg\n"
         f"- Volume: {body.volume_cbm} CBM\n"
         f"- Product: {product_note}\n"
-        f"- Cargo value: {value_note}\n\n"
+        f"- Cargo value: {value_note}"
+        f"{inland_instruction}\n\n"
         f"Return ONLY a JSON array of shipping options (no other text):\n"
         f'[{{\n'
         f'  "mode": "Ocean LCL",\n'
@@ -934,6 +947,7 @@ async def shipping_estimate(body: ShippingEstimateRequest):
             "origin": body.origin_country,
             "destination": body.destination_port,
             "destination_country": destination_country,
+            "destination_zip": destination_zip,
             "weight_kg": body.weight_kg,
             "volume_cbm": body.volume_cbm,
         }}
